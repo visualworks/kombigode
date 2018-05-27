@@ -2,12 +2,17 @@
 /**
  * Output Updates pane in Jupiter > Control Panel
  *
- * @copyright   Artbees LTD (c)
- * @package     artbees
+ * @since     6.0.3 Remove update page URL in button.
+ * @copyright Artbees LTD (c)
+ * @package   artbees
  */
+
+// @codingStandardsIgnoreStart
 ini_set( 'display_errors', 1 );
 ini_set( 'display_startup_errors', 1 );
 error_reporting( E_ALL );
+// @codingStandardsIgnoreEnd
+
 wp_update_themes();
 $api_key = get_option( 'artbees_api_key' );
 $is_registered = ! empty( $api_key ) ? '' : 'mka-call-to-register-product';
@@ -48,11 +53,11 @@ $get_release_download_link_nonce = wp_create_nonce( 'mk-ajax-get-theme-release-p
 		</div>
 		<div class="mka-cp-new-version-content dynamic-height-wrap dynamic-max-height" data-maxheight="140" data-button-more="Show More" data-button-less="Show Less">
 			<div class="dynamic-wrap">
-			<?php echo $release->post_content; ?>
+			<?php echo wp_kses_post( $release->post_content ); ?>
 			</div>
 		</div>
 		<?php if ( $button_text && $button_color ) { ?>
-			<a class="mka-button mka-button--<?php echo esc_attr( $button_color ); ?> mka-button--small js__cp_change_theme_version" href="<?php echo esc_url( $updates->get_theme_update_url() ); ?>"  data-release-version="<?php echo esc_attr( $release_version ); ?>" data-nonce="<?php echo esc_attr( $get_release_download_link_nonce ); ?>" data-release-id="<?php echo esc_attr( $release->ID ); ?>" id="js__update-theme-btn">
+			<a class="mka-button mka-button--<?php echo esc_attr( $button_color ); ?> mka-button--small js__cp_change_theme_version" href="#" data-release-version="<?php echo esc_attr( $release_version ); ?>" data-nonce="<?php echo esc_attr( $get_release_download_link_nonce ); ?>" data-release-id="<?php echo esc_attr( $release->ID ); ?>" id="js__update-theme-btn">
 				<?php esc_html_e( $button_text, 'mk_framework' ); ?>
 			</a>
 		<?php } ?>
@@ -62,3 +67,4 @@ $get_release_download_link_nonce = wp_create_nonce( 'mk-ajax-get-theme-release-p
 	</div>
 	<?php } ?>
 </div>
+

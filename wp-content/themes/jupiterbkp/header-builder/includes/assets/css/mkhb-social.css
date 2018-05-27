@@ -1,0 +1,35 @@
+/* ============================================================================
+   ICON - GENERAL
+   Version: 6.0.0
+   ========================================================================= */
+
+.mkhb-icon-el {
+	height: auto;
+	line-height: 0;
+	text-align: left;
+	display: block;
+}
+
+.mkhb-icon-el__link {
+	position: relative;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	line-height: 0;
+	transition: all .15s ease-in-out;
+	width: 16px;
+	height: 16px;
+	background-color: rgba(238, 238, 238, 1);
+	color: rgba(153, 153, 153, 1);
+	border-color: rgba(255, 255, 255, 1);
+	padding: 5px 5px 5px 5px;
+	margin: 0;
+	border-radius: 2px;
+	margin-right: 10px;
+}
+
+.mkhb-icon-el__link:hover {
+	background-color: rgba(153, 153, 153, 1);
+	color: rgba(238, 238, 238, 1);
+	border-color: rgba(255, 255, 255, 0);
+}

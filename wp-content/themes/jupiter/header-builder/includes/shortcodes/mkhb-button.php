@@ -10,6 +10,8 @@
  * HB Button element shortcode.
  *
  * @since 6.0.0
+ * @since 6.0.3 Print button style only if it's needed. Separate markup logic as
+ *              new function mkhb_button_markup().
  *
  * @param  array  $atts All parameter will be used in the shortcode.
  * @param  string $content The enclosed content.
@@ -49,23 +51,55 @@ function mkhb_button_shortcode( $atts, $content ) {
 		return '';
 	}
 
-	// Set Button inline style.
+	// Set Button internal style.
 	$style = mkhb_button_style( $options );
 
+	// Set Button markup.
+	$markup = mkhb_button_markup( $options, $content );
+
+	// MKHB Hooks as temporary storage.
+	$hooks = mkhb_hooks();
+
+	// Enqueue internal style.
+	$hooks::concat_hook( 'styles', $style );
+
+	// Enqueue current font.
+	$data = array(
+		'font-family' => $options['font-family'],
+		'font-type' => $options['font-type'],
+		'font-weight' => $options['font-weight'],
+	);
+	$hooks::set_hook( 'fonts', $data );
+
+	return $markup;
+}
+add_shortcode( 'mkhb_button', 'mkhb_button_shortcode' );
+
+/**
+ * Generate markup for HB Button.
+ *
+ * @since 6.0.3
+ *
+ * @param  array $options All options will be used in the shortcode.
+ * @param  array $content Button content/text.
+ * @return string         Button markup.
+ */
+function mkhb_button_markup( $options, $content ) {
 	// Button ID.
 	$button_id = $options['id'];
+
+	// Button additional class.
+	$button_class = mkhb_shortcode_display_class( $options );
+
+	// Button attributes.
+	// @todo Temporary Solution - Data Attribute for inline container.
+	$data_attr = mkhb_shortcode_display_attr( $options );
 
 	// Button URL.
 	$link = '';
 	if ( ! empty( $options['url'] ) ) {
 		$link = 'href="' . esc_url( $options['url'] ) . '"';
 	}
-
-	// Button additional class.
-	$button_class = mkhb_shortcode_display_class( $options );
-
-	// @todo Temporary Solution - Data Attribute for inline container.
-	$data_attr = mkhb_shortcode_display_attr( $options );
 
 	$markup = sprintf( '
 		<div id="%s" class="mkhb-button-el %s" %s>
@@ -79,80 +113,69 @@ function mkhb_button_shortcode( $atts, $content ) {
 		esc_html( $content )
 	);
 
-	// @todo: wp_add_inline_style can't be used for shortcode. Temporary fix.
-	wp_register_style( 'mkhb', false, array( 'mkhb-grid' ) );
-	wp_enqueue_style( 'mkhb' );
-	wp_add_inline_style( 'mkhb', $style );
-
-	// Enqueue current font.
-	$data = array(
-		'font-family' => $options['font-family'],
-		'font-type' => $options['font-type'],
-		'font-weight' => $options['font-weight'],
-	);
-
-	$hooks = mkhb_hooks();
-	$hooks::set_hook( 'fonts', $data );
-
 	return $markup;
 }
-add_shortcode( 'mkhb_button', 'mkhb_button_shortcode' );
 
 /**
- * Generate inline style for HB Button.
+ * Generate internal style for HB Button.
  *
  * @since 6.0.0
+ * @since 6.0.3 Print button style only if it's needed.
  *
- * @param  array $options  All options will be used in the shortcode.
- * @return string          Button inline CSS.
+ * @param  array $options All options will be used in the shortcode.
+ * @return string         Button internal CSS.
  */
 function mkhb_button_style( $options ) {
+	$link_style = '';
+	$style = '';
+
 	// Button ID.
 	$button_id = $options['id'];
 
-	$style = "#$button_id {";
-
-	// Button Alignment.
-	if ( ! empty( $options['alignment'] ) ) {
-		$style .= "text-align: {$options['alignment']};";
-	}
-
-	$style .= '}';
-
-	$style .= "#$button_id .mkhb-button-el__link {";
-
 	// Button Width.
 	if ( ! empty( $options['width'] ) ) {
-		$style .= "width: {$options['width']};";
+		$link_style .= "width: {$options['width']};";
 	}
 
 	// Button Color.
 	if ( ! empty( $options['color'] ) ) {
-		$style .= "color: {$options['color']};";
+		$link_style .= "color: {$options['color']};";
 	}
 
 	// Button Background Color.
 	if ( ! empty( $options['background-color'] ) ) {
-		$style .= "background-color: {$options['background-color']};";
+		$link_style .= "background-color: {$options['background-color']};";
 	}
 
 	// Button Border Radius.
 	if ( ! empty( $options['border-radius'] ) ) {
-		$style .= "border-radius: {$options['border-radius']};";
+		$link_style .= "border-radius: {$options['border-radius']};";
 	}
 
 	// Button Margin and Padding Style.
-	$style .= mkhb_button_layout( $options );
+	$link_style .= mkhb_button_layout( $options );
 
 	// Button Link Style.
-	$style .= mkhb_button_font_style( $options );
+	$link_style .= mkhb_button_font_style( $options );
 
 	// Button Border Style.
-	$style .= mkhb_button_border( $options );
+	$link_style .= mkhb_button_border( $options );
 
-	$style .= '}';
+	// If link style not empty.
+	if ( ! empty( $link_style ) ) {
+		$style .= "#$button_id .mkhb-button-el__link { $link_style }";
+	}
 
-	$style .= mkhb_button_hover( $options );
+	// Button Hover Style.
+	$link_hover_style = mkhb_button_hover( $options );
+	if ( ! empty( $link_hover_style ) ) {
+		$style .= "#$button_id .mkhb-button-el__link:hover { $link_hover_style }";
+	}
+
+	// Button Alignment.
+	if ( ! empty( $options['alignment'] ) ) {
+		$style .= "#$button_id { text-align: {$options['alignment']}; }";
+	}
 
 	return $style;
 }
@@ -185,6 +208,7 @@ function mkhb_button_layout( $options ) {
  * Generate internal style for HB Button Border.
  *
  * @since 6.0.0
+ * @since 6.0.3 Update border CSS property.
  *
  * @param  array $options  All options will be used in the shortcode.
  * @return string          Button internal CSS border.
@@ -192,17 +216,14 @@ function mkhb_button_layout( $options ) {
 function mkhb_button_border( $options ) {
 	$style = '';
 
-	// Border Width, Style, and Color.
-	if ( ! empty( $options['border-width'] ) && ! empty( $options['border-color'] ) ) {
-		$border_widths = explode( ' ', $options['border-width'] );
-		$border_colors = explode( ' ', $options['border-color'] );
+	// Border Width.
+	if ( ! empty( $options['border-width'] ) ) {
+		$style .= "border-width: {$options['border-width']};";
+	}
 
-		$style .= "
-			border-top: {$border_widths[0]} solid {$border_colors[0]};
-			border-right: {$border_widths[1]} solid {$border_colors[1]};
-			border-bottom: {$border_widths[2]} solid {$border_colors[2]};
-			border-left: {$border_widths[3]} solid {$border_colors[3]};
-		";
+	// Border Color.
+	if ( ! empty( $options['border-color'] ) ) {
+		$style .= "border-color: {$options['border-color']};";
 	}
 
 	return $style;
@@ -212,6 +233,8 @@ function mkhb_button_border( $options ) {
  * Generate internal style for HB Button Link.
  *
  * @since 6.0.0
+ * @since 6.0.3 Print font-family Button attribute only if font-family is not empty and
+ *              it is not Roboto.
  *
  * @param  array $options All options will be used in the shortcode.
  * @return string         Button Link internal CSS.
@@ -235,7 +258,7 @@ function mkhb_button_font_style( $options ) {
 	}
 
 	// Button Font Family.
-	if ( ! empty( $options['font-family'] ) ) {
+	if ( ! empty( $options['font-family'] ) && 'Roboto' !== $options['font-family'] ) {
 		$style .= "font-family: {$options['font-family']};";
 	}
 
@@ -245,28 +268,40 @@ function mkhb_button_font_style( $options ) {
 /**
  * Generate internal style for HB Button Link Hover.
  *
+ * There are 2 cases here:
+ * 1. If button link hover styles are overriden, return the overriden hover style.
+ * 2. If button link styles are overriden, return the default hover style. It's
+ *    used to fix hover issue on the link.
+ *
  * @since 6.0.0
+ * @since 6.0.3 Fix hover issue if button color and bg color are updated.
  *
  * @param  array $options All options will be used in the shortcode.
  * @return string         Button Link Hover internal CSS.
  */
 function mkhb_button_hover( $options ) {
-	// Button ID.
-	$button_id = $options['id'];
+	$style = '';
 
-	$style = "#$button_id .mkhb-button-el__link:hover {";
-
-	// Hover Button Color.
+	// 1.a Hover Button Color.
+	// 2.a If button color is overriden, set default color for hover state.
 	if ( ! empty( $options['hover-color'] ) ) {
 		$style .= "color: {$options['hover-color']};";
+	} elseif ( ! empty( $options['color'] ) ) {
+		$style .= 'color: rgba(77,208,225,1);';
 	}
 
-	// Hover Button Background Color.
+	// 1.b Hover Button Background Color.
+	// 2.b If button bg color is overriden, set default bg color for hover state.
 	if ( ! empty( $options['hover-background-color'] ) ) {
 		$style .= "background-color: {$options['hover-background-color']};";
+	} elseif ( ! empty( $options['color'] ) ) {
+		$style .= 'background-color: rgba(216,241,244,1);';
 	}
 
-	$style .= '}';
+	// 1.c If hover color or bg color is overriden, return the hover style.
+	if ( ! empty( $style ) ) {
+		return $style;
+	}
 
 	return $style;
 }

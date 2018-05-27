@@ -7,6 +7,15 @@
 	height: 100%;
 }
 
+/* Fix padding issue on full-content-width layout */
+.mk-full-content-true .vc_col-lg-12,
+.mk-full-content-true .vc_col-md-12,
+.mk-full-content-true .vc_col-sm-12,
+.mk-full-content-true .vc_col-xs-12 {
+	padding-left: 0;
+	padding-right: 0;
+}
+
 /* VC FEE - Option is disabled, video container will be hidden */
 .compose-mode .vc_row:not( .vc_video-bg-container ) .vc_video-bg {
 	display: none;

@@ -332,7 +332,7 @@ class Mk_Fs {
 	 * @param  (boolean) $overwrite
 	 * @return boolean
 	 */
-	private function zip_custom( $files = [], $destination = '', $overwrite = false ) {
+	public function zip_custom( $files = [], $destination = '', $overwrite = false ) {
 		// If the zip file already exists and overwrite is false, return false
 		if ( $this->exists( $destination ) && ! $overwrite ) {
 			return false;
@@ -398,15 +398,14 @@ class Mk_Fs {
 		return $this->exists( $destination );
 	}
 
-
 	/**
-	 * Extract zip file
+	 * Extract zip file.
 	 *
-	 * @param  (string) $source
-	 * @param  (string) $destination
-	 * @return boolean
+	 * @param  [type] $source The source zip file.
+	 * @param  [type] $destination The destination path.
+	 * @return [type]              [description]
 	 */
-	private function unzip_custom( $source, $destination ) {
+	public function unzip_custom( $source, $destination ) {
 		if ( ! $this->exists( $source ) ) {
 			$this->add_error( 'zip_source_file_not_exists', sprintf( __( 'Zip source file not exists: %s', 'mk_framework' ), $source ) );
 			return false;

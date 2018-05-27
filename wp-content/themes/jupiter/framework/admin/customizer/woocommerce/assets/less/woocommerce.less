@@ -8,7 +8,9 @@
 	 */
 	a.button,
 	button.button,
+	button.button.disabled,
 	input.button,
+	button.button,
 	#respond input#submit {
 		border-radius: 0;
 		border-style: solid;
@@ -16,7 +18,7 @@
 		color: #fff;
 		font-size: 12px;
 		padding: 13px 30px;
-		
+
 		&:hover {
 			background-color: lighten(#454ea2, 10%);
 			color: #fff;
@@ -39,8 +41,8 @@
 
 @import '_single-product';
 @import '_single-product-2';
-@import '_single-product-4';
-@import '_single-product-7';
+@import '_single-product-3-4-7-8';
+@import '_single-product-9-10';
 
 @import '_checkout-cart.less';
 @import 'checkout-cart/_steps';
@@ -76,4 +78,8 @@
 			}
 		}
 	}
+}
+
+.woocommerce-mini-cart__empty-message {
+    margin: 20px 10px;
 }

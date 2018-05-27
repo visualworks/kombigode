@@ -37,12 +37,17 @@ function mkhb_shopping_icon_shortcode( $atts ) {
 		return '';
 	}
 
-	$markup = mkhb_shopping_icon_get_markup( $options );
-	$style = mkhb_shopping_icon_get_style( $options );
+	// Set Shopping Icon internal style.
+	$style = mkhb_shopping_icon_style( $options );
 
-	wp_register_style( 'mkhb', false, array() );
-	wp_enqueue_style( 'mkhb' );
-	wp_add_inline_style( 'mkhb', $style );
+	// Set Shopping Icon markup.
+	$markup = mkhb_shopping_icon_markup( $options );
+
+	// MKHB Hooks as temporary storage.
+	$hooks = mkhb_hooks();
+
+	// Enqueue internal style.
+	$hooks::concat_hook( 'styles', $style );
 
 	// Collect Shopping Cart Hooks.
 	$data = array(
@@ -51,88 +56,11 @@ function mkhb_shopping_icon_shortcode( $atts ) {
 		'icon' => $options['icon'],
 	);
 
-	$hooks = mkhb_hooks();
 	$hooks::set_hook( 'shopping-icon', $data );
 
 	return $markup;
 }
 add_shortcode( 'mkhb_shopping_icon', 'mkhb_shopping_icon_shortcode' );
-
-/**
- * Generate the element's style for use on the front-end.
- *
- * @since 6.0.0
- *
- * @param  array $options All options will be used in the shortcode.
- * @return array {
- *      HTML and CSS for the element, based on all its given properties and settings.
- *
- *      @type string $style Element CSS code.
- * }
- */
-function mkhb_shopping_icon_get_style( $options ) {
-	$style = '';
-	$shopping_icon_id = $options['id'];
-
-	// Shopping Icon inline block and text-align.
-	$style .= "#{$shopping_icon_id}.mkhb-shop-cart-el-container {";
-	$display = '';
-	$text_align = '';
-	if ( ! empty( $options['display'] ) ) {
-		if ( 'inline' === $options['display'] ) {
-			$display .= 'display: inline-block; vertical-align: top;';
-		}
-	}
-	if ( ! empty( $options['alignment'] ) ) {
-		$text_align .= "text-align: {$options['alignment']};";
-	}
-	$style .= $display;
-	$style .= $text_align;
-	$style .= '}';
-
-	// Shopping Icon margin and padding.
-	$style .= "#{$shopping_icon_id} .mkhb-shop-cart-el {";
-
-	// Shopping Icon Margin and Padding Style.
-	$style .= mkhb_shopping_icon_layout( $options );
-
-	$style .= '}';
-
-	// Shopping Icon icon color.
-	if ( ! empty( $options['color'] ) ) {
-		$style .= "#{$shopping_icon_id} .mkhb-shop-cart-el__link {color: {$options['color']};}";
-	}
-	if ( ! empty( $options['hover-color'] ) ) {
-		$style .= "#{$shopping_icon_id} .mkhb-shop-cart-el:hover .mkhb-shop-cart-el__link {color: {$options['hover-color']};}";
-		$style .= "#{$shopping_icon_id} .mkhb-shop-cart-el:hover .mkhb-shop-cart-el__link svg path {fill: {$options['hover-color']};}";
-	}
-
-	return $style;
-}
-
-/**
- * Generate internal style for HB Shopping Icon Layout.
- *
- * @since 6.0.0
- *
- * @param  array $options  All options will be used in the shortcode.
- * @return string          Shopping Icon internal CSS margin and padding.
- */
-function mkhb_shopping_icon_layout( $options ) {
-	$style = '';
-
-	// Shopping Icon Padding.
-	if ( ! empty( $options['padding'] ) ) {
-		$style .= "padding: {$options['padding']};";
-	}
-
-	// Shopping Icon Margin.
-	if ( ! empty( $options['margin'] ) ) {
-		$style .= "margin: {$options['margin']};";
-	}
-
-	return $style;
-}
 
 /**
  * Generate the element's markup for use on the front-end.
@@ -146,7 +74,7 @@ function mkhb_shopping_icon_layout( $options ) {
  *      @type string $markup Element HTML code.
  * }
  */
-function mkhb_shopping_icon_get_markup( $options ) {
+function mkhb_shopping_icon_markup( $options ) {
 	$markup  = '';
 
 	// Render this cart only when WooCommerce is activated.
@@ -165,6 +93,7 @@ function mkhb_shopping_icon_get_markup( $options ) {
 		// Shopping Icon additional class.
 		$shopping_icon_class = mkhb_shortcode_display_class( $options );
 
+		// Shopping Icon attributes.
 		// @todo Temporary Solution - Data Attribute for inline container.
 		$data_attr = mkhb_shortcode_display_attr( $options );
 
@@ -192,6 +121,96 @@ function mkhb_shopping_icon_get_markup( $options ) {
 	} // End if().
 
 	return $markup;
+}
+
+/**
+ * Generate the element's style for use on the front-end.
+ *
+ * There are 2 cases here:
+ * 1. If shop icon link hover styles are overriden, return the overriden hover style.
+ * 2. If shop icon link styles are overriden, return the default hover style. It's
+ *    used to fix hover issue on the link.
+ *
+ * @since 6.0.0
+ * @since 6.0.3 Print social style only if it's needed.
+ *
+ * @param  array $options All options will be used in the shortcode.
+ * @return array {
+ *      HTML and CSS for the element, based on all its given properties and settings.
+ *
+ *      @type string $style Element CSS code.
+ * }
+ */
+function mkhb_shopping_icon_style( $options ) {
+	$shopping_icon_style = '';
+	$style = '';
+
+	// Shopping Icon ID.
+	$shopping_icon_id = $options['id'];
+
+	// Shopping Icon Display.
+	if ( ! empty( $options['display'] ) ) {
+		if ( 'inline' === $options['display'] ) {
+			$shopping_icon_style .= 'display: inline-block; vertical-align: top;';
+		}
+	}
+
+	// Shopping Icon Alignment.
+	if ( ! empty( $options['alignment'] ) ) {
+		$shopping_icon_style .= "text-align: {$options['alignment']};";
+	}
+
+	// If Shopping Icon container style not empty, render.
+	if ( ! empty( $shopping_icon_style ) ) {
+		$style .= "#{$shopping_icon_id}.mkhb-shop-cart-el-container { $shopping_icon_style }";
+	}
+
+	// Shopping Icon margin and padding.
+	$shopping_icon_layout = mkhb_shopping_icon_layout( $options );
+	if ( ! empty( $shopping_icon_layout ) ) {
+		$style .= "#{$shopping_icon_id} .mkhb-shop-cart-el { $shopping_icon_layout }";
+	}
+
+	// Shopping Icon Link color.
+	if ( ! empty( $options['color'] ) ) {
+		$style .= "#{$shopping_icon_id} .mkhb-shop-cart-el__link {color: {$options['color']};}";
+	}
+
+	// 1.a Shopping Icon Link color.
+	// 2.a If icon link color is overriden, set default color for hover state.
+	if ( ! empty( $options['hover-color'] ) ) {
+		$style .= "#{$shopping_icon_id} .mkhb-shop-cart-el:hover .mkhb-shop-cart-el__link {color: {$options['hover-color']};}";
+		$style .= "#{$shopping_icon_id} .mkhb-shop-cart-el:hover .mkhb-shop-cart-el__link svg path {fill: {$options['hover-color']};}";
+	} elseif ( ! empty( $options['color'] ) ) {
+		$style .= "#{$shopping_icon_id} .mkhb-shop-cart-el:hover .mkhb-shop-cart-el__link {color: #444444;}";
+		$style .= "#{$shopping_icon_id} .mkhb-shop-cart-el:hover .mkhb-shop-cart-el__link svg path {fill: #444444;}";
+	}
+
+	return $style;
+}
+
+/**
+ * Generate internal style for HB Shopping Icon Layout.
+ *
+ * @since 6.0.0
+ *
+ * @param  array $options  All options will be used in the shortcode.
+ * @return string          Shopping Icon internal CSS margin and padding.
+ */
+function mkhb_shopping_icon_layout( $options ) {
+	$style = '';
+
+	// Shopping Icon Padding.
+	if ( ! empty( $options['padding'] ) ) {
+		$style .= "padding: {$options['padding']};";
+	}
+
+	// Shopping Icon Margin.
+	if ( ! empty( $options['margin'] ) ) {
+		$style .= "margin: {$options['margin']};";
+	}
+
+	return $style;
 }
 
 /**

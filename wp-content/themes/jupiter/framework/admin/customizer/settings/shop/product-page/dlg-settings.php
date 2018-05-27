@@ -6,6 +6,9 @@
  * @package WordPress
  * @subpackage Jupiter
  * @since 5.9.4
+ * @since 6.0.3
+ *        Add new product layouts.
+ *        Add sticky product info toggle option.
  */
 
 // Settings tab.
@@ -46,7 +49,15 @@ $wp_customize->add_control(
 			'input_type'  => 'image',
 			'choices' => array(
 				1 => THEME_CUSTOMIZER_URI . '/assets/icons/mk-layout-1.svg',
+				// 2 => THEME_CUSTOMIZER_URI . '/assets/icons/mk-layout-2.svg',
+				3 => THEME_CUSTOMIZER_URI . '/assets/icons/mk-layout-3.svg',
+				4 => THEME_CUSTOMIZER_URI . '/assets/icons/mk-layout-4.svg',
+				5 => THEME_CUSTOMIZER_URI . '/assets/icons/mk-layout-5.svg',
+				// 6 => THEME_CUSTOMIZER_URI . '/assets/icons/mk-layout-5.svg',
 				7 => THEME_CUSTOMIZER_URI . '/assets/icons/mk-layout-7.svg',
+				8 => THEME_CUSTOMIZER_URI . '/assets/icons/mk-layout-8.svg',
+				9 => THEME_CUSTOMIZER_URI . '/assets/icons/mk-layout-9.svg',
+				10 => THEME_CUSTOMIZER_URI . '/assets/icons/mk-layout-10.svg',
 			),
 		)
 	)
@@ -124,6 +135,27 @@ $wp_customize->add_control(
 				'.woocommerce-tabs #tab-title-additional_information|.woocommerce-tabs #tab-additional_information' => __( 'Additional Info', 'mk_framework' ),
 			),
 			'column'  => 'mk-col-12',
+		)
+	)
+);
+
+// Sticky Product Info.
+$wp_customize->add_setting(
+	'mk_cz[sh_pp_set_sticky_info_enabled]', array(
+		'type' => 'option',
+		'default' => 'true',
+		'transport' => 'postMessage',
+	)
+);
+
+$wp_customize->add_control(
+	new MK_Toggle_Control(
+		$wp_customize,
+		'mk_cz[sh_pp_set_sticky_info_enabled]',
+		array(
+			'section' => 'mk_s_pp_settings',
+			'column'  => 'mk-col-6',
+			'label' => __( 'Sticky Product Info (layout 9/10)', 'mk_framework' ),
 		)
 	)
 );

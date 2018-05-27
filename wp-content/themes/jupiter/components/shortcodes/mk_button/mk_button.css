@@ -389,7 +389,12 @@ input[type="text"].mk-button::-moz-focus-inner {
 
 }
 
-.mk-button.skin-dark .mk-svg-icon, 
+.mk-button.skin-dark .mk-svg-icon,
 .mk-button.skin-light:hover .mk-svg-icon { fill: #252525; }
-.mk-button.skin-light .mk-svg-icon, 
+.mk-button.skin-light .mk-svg-icon,
 .mk-button.skin-dark:hover .mk-svg-icon { fill: #ffffff; }
+
+/* Hide cart link */
+.mk-button-container .added_to_cart {
+	display: none;
+}

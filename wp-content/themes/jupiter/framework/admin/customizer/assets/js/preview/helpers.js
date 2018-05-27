@@ -122,7 +122,7 @@ function mkPreviewInternalStyle(styles, el) {
 function mkPreviewSaveReload() {
 
 	wp.customize.preview.trigger( 'loading-initiated' );
-	
+
 	jQuery( '#save', window.parent.document.body ).trigger( 'click' );
 
 	// Refresh the preview after settings are saved.
@@ -135,14 +135,21 @@ function mkPreviewSaveReload() {
 /**
  * Get container width based on product layout.
  *
+ * @todo Improve logic to get width automatically not hard coded value per layout.
  * @since 5.9.4
+ * @since 6.0.3 Improve logic to handle layout 9/10.
  */
 function mk_get_image_gallery_width( setting ) {
 	var productLayout = wp.customize( setting )();
-	// Images container width for default layout is 48.
-	var containerWidth = 48;
+	var containerWidth = 48; // Default value.
+
 	if ( productLayout == 3 ) {
 		containerWidth = 100;
 	}
+
+	if ( 9 == productLayout || 10 == productLayout ) {
+		containerWidth = 61;
+	}
+
 	return containerWidth;
 }

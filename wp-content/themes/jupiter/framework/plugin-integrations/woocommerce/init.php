@@ -1,18 +1,17 @@
 <?php
-if ( ! defined( 'THEME_FRAMEWORK' ) ) {
-	exit( 'No direct script access allowed' );
-}
-
 /**
  * Add support to WooCommerce plugin. overrides some of its core functionality
  *
  * @author      Bob Ulusoy
  * @copyright   Artbees LTD (c)
  * @link        http://artbees.net
- * @since       5.1.0
  * @since       5.9.4
  * @package     artbees
  */
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
 
 // Do not proceed if WooCommerce plugin is not active.
 if ( ! class_exists( 'woocommerce' ) ) {
@@ -53,6 +52,7 @@ add_action( 'woocommerce_after_shop_loop', 'woocommerce_result_count', 20 );
 * Overrides to theme containers for wrapper starting part.
 *
 * @since 5.1.0
+* @since 6.0.1 Add filter for theme_page_wrapper.
 */
 if ( ! function_exists( 'mk_woocommerce_output_content_wrapper_start' ) ) {
 
@@ -83,20 +83,34 @@ if ( ! function_exists( 'mk_woocommerce_output_content_wrapper_start' ) ) {
 
 		Mk_Static_Files::addAssets( 'mk_message_box' );
 		Mk_Static_Files::addAssets( 'mk_swipe_slideshow' );
+
+		/**
+		 * Filter theme-page-wrapper classes.
+		 *
+		 * @var array
+		 */
+		$theme_page_wrapper = apply_filters(
+			'mk_woo_theme_page_wrapper_class', array(
+				'theme-page-wrapper',
+				$page_layout . '-layout',
+				$padding,
+				'mk-grid',
+			)
+		);
 	?>
-	<div id="theme-page" class="master-holder clearfix" <?php echo get_schema_markup( 'main' ); ?>>
+	<div id="theme-page" class="master-holder clearfix" <?php echo esc_attr( get_schema_markup( 'main' ) ); ?>>
 		<div class="master-holder-bg-holder">
-			<div id="theme-page-bg" class="master-holder-bg js-el"></div> 
+			<div id="theme-page-bg" class="master-holder-bg js-el"></div>
 		</div>
 		<div class="mk-main-wrapper-holder">
-			<div class="theme-page-wrapper <?php echo $page_layout; ?>-layout <?php echo $padding; ?>  mk-grid">
-				<div class="theme-content <?php echo $padding; ?>">
+			<div class="<?php echo esc_attr( join( ' ', $theme_page_wrapper ) ); ?>">
+				<div class="theme-content <?php echo esc_attr( $padding ); ?>">
 	<?php
 	}
 
 	add_action( 'woocommerce_before_main_content', 'mk_woocommerce_output_content_wrapper_start', 10 );
 
-}// End if().
+}
 
 /**
 * Overrides to theme containers for wrapper ending part.
@@ -148,12 +162,15 @@ if ( ! function_exists( 'mk_woocommerce_before_shop_loop' ) ) {
 
 	function mk_woocommerce_before_shop_loop() {
 		global $mk_options;
+		$title = '';
 		if ( 'true' === $mk_options['woocommerce_use_category_filter_title'] && ! is_shop() ) {
-			$title = single_cat_title( '', false );
-		} else {
-			$title = __( 'ALL PRODUCTS', 'mk_framework' );
+			$title .= single_cat_title( '', false );
+		} else if ( is_shop() ) {
+			$title .= __( 'ALL PRODUCTS', 'mk_framework' );
 		}
-		echo "<h4 class=\"mk-woocommerce-shop-loop__title\">{$title}</h4>";
+		if ( ! empty( $title ) ) {
+			echo '<h4 class="mk-woocommerce-shop-loop__title">' . esc_html( $title ) . '</h4>';
+		}
 	}
 
 	add_action( 'woocommerce_before_shop_loop', 'mk_woocommerce_before_shop_loop', 10 );
@@ -173,7 +190,7 @@ if ( ! function_exists( 'mk_woocommerce_header_add_to_cart_fragment' ) ) {
 		ob_start();
 		?>
 		<a class="mk-shoping-cart-link" href="<?php echo esc_url( wc_get_cart_url() ); ?>">
-			<?php Mk_SVG_Icons::get_svg_icon_by_class_name( true, 'mk-moon-cart-2', 16 ); ?>
+			<?php esc_html( Mk_SVG_Icons::get_svg_icon_by_class_name( true, 'mk-moon-cart-2', 16 ) ); ?>
 			<span class="mk-header-cart-count"><?php echo esc_html( WC()->cart->cart_contents_count ); ?></span>
 		</a>
 		<?php
@@ -216,7 +233,7 @@ if ( ! function_exists( 'mk_add_to_cart_responsive' ) ) {
 		?>
 		<div class="add-cart-responsive-state">
 			<a class="mk-shoping-cart-link" href="<?php echo esc_url( wc_get_cart_url() ); ?>">
-				<?php Mk_SVG_Icons::get_svg_icon_by_class_name( true, 'mk-moon-cart-2', 16 ); ?>
+				<?php esc_html( Mk_SVG_Icons::get_svg_icon_by_class_name( true, 'mk-moon-cart-2', 16 ) ); ?>
 				<span class="mk-header-cart-count"><?php echo esc_html( WC()->cart->cart_contents_count ); ?></span>
 			</a>
 		</div>

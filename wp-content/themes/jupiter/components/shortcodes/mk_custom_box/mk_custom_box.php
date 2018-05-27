@@ -16,7 +16,7 @@ $custom_box->addClass($el_class);
 
 $custom_box_container = $custom_box->find('.box-holder');
 
-$custom_box->attr( 'id', 'box-'.$id ); 
+$custom_box->attr( 'id', 'box-'.$id );
 if ( !empty( $bg_image ) ) {
 	$custom_box->addClass('hover-effect-image');
 }else {
@@ -75,7 +75,7 @@ if ( !empty( $bg_image ) ) {
 if( !empty($overlay_color) ){
 	Mk_Static_Files::addCSS('
 		#box-'.$id.' .box-holder .mk-custom-box--overlay {
-			background-color: '.$overlay_color.'; 
+			background-color: '.$overlay_color.';
 		}
 	', $id);
 }
@@ -111,7 +111,7 @@ if($background_style == 'gradient_color') {
 
 	if($bg_stretch == 'true') {
 		Mk_Static_Files::addCSS('
-			#box-'.$id.' .box-holder::after, 
+			#box-'.$id.' .box-holder::after,
 			#box-'.$id.'.hover-effect-image.image-effect-blur .box-holder::before{
 				background-size: cover;
 				-webkit-background-size: cover;
@@ -125,7 +125,7 @@ if($background_style == 'gradient_color') {
 
 if( $corner_radius > 0 ) {
 	Mk_Static_Files::addCSS('
-		#box-'.$id.', 
+		#box-'.$id.',
 		#box-'.$id.' .box-holder,
 		#box-'.$id.' .mk-custom-box--overlay{
 			border-radius: '.$corner_radius.'px;
@@ -169,7 +169,7 @@ Mk_Static_Files::addCSS('
 	}
 ', $id);
 
-if ($background_hov_color_style == 'image') {
+if ( 'image' === $background_hov_color_style && ! empty( $bg_hov_color ) ) {
 	Mk_Static_Files::addCSS('
 		#box-'.$id.' .box-holder:hover{
 			background-color: '.$bg_hov_color.';

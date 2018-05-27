@@ -316,14 +316,7 @@ function mkhb_is_post_header_active( $header_id ) {
  * @return integer Active header ID.
  */
 function mkhb_get_active_header_id() {
-	$header_id = null;
-
-	// A.1. For preview header.
-	$hb_get = get_query_var( 'header-builder', 'nothing' );
-	$hb_id_get = get_query_var( 'header-builder-id', 0 );
-	if ( 'preview' === $hb_get ) {
-		$header_id = $hb_id_get;
-	}
+	$header_id = (int) get_query_var( 'header-builder-preview-id', 0 );
 
 	// A.2. User current override header ID from current post.
 	if ( empty( $header_id ) && mkhb_is_override_by_styling() ) {
@@ -355,5 +348,12 @@ function mkhb_get_active_header_id() {
 		}
 	}
 
-	return $header_id;
+	/**
+	 * Filter the active header ID.
+	 *
+	 * This filter is used internaly to generate the header previews.
+	 *
+	 * @since 6.0.3
+	 */
+	return apply_filters( '_mkhb_active_header_id', $header_id, get_current_user_id() );
 }

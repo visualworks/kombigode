@@ -3,7 +3,6 @@
  * And also some lines are removed because the functionallities are not needed yet.
  *
  * Source: components/layout/header/menu-sidebar.js
- * Version: 6.0.0
  */
 (function($) {
     'use strict';
@@ -24,7 +23,9 @@
     var $window = $(window);
     var $body = $('body');
     var $resMenuWrap = $('.mkhb-navigation-resp__wrap');
-    var $resMenuLink = $('.mkhb-navigation-resp');
+    var $resMenuLink = $('.mkhb-navigation-resp__container');
+    var $resSubMenuLink = $('.mkhb-navigation-resp__arrow');
+    var $bottomCorner = $( '.bottom-corner-btns.js-bottom-corner-btns' );
 
     // Flags.
     var hasResMenu = ($resMenuWrap.length > 0);
@@ -38,22 +39,77 @@
 
     function toggleResMenu(e) {
         e.preventDefault();
-        var $this = $(this);
+        var container = $(this);
+        var $this = container.parent();
+        var device = $this.data( 'device' );
+        // This function only for tablet or mobile.
+        if ( device === 'desktop' ) {
+            return;
+        }
         var $parentID = $this.parent().attr('id');
         var $headerInner = $this.parents('header');
         var $resMenu = $headerInner.find('#' + $parentID + '-wrap.mkhb-navigation-resp__wrap');
         var searchBox = $('.mkhb-navigation-resp__searchform .text-input');
         var adminBarHeight = $('#wpadminbar').height(); /* Fix AM-1918 */
+        var fixedStickyActive = false;
+
+        // Get current scroll position. Used to fix missing header issue after
+        // opening burger menu. Only in Sticky with disabled overlapping setting.
+        var $stickyHeader = $this.parents('.mkhb-sticky');
+        var currentScroll = 0;
+        if ( $stickyHeader.length > 0 ) {
+            var currentScroll = $window.scrollTop();
+            fixedStickyActive = true;
+        }
+
+        var $fixedHeader = $this.parents('.mkhb-fixed');
+        if ( $fixedHeader.length > 0 ) {
+            fixedStickyActive = true;
+        }
+
+        // Close other burger navigations when current burger menu is active.
+        var checkContainer = $( '.mkhb-' + device );
+        var checkRespMenu = checkContainer.find( '.mkhb-navigation-resp' );
+        if ( checkRespMenu.length > 0 ) {
+            // Close only other opened burger navigations one by one.
+            checkRespMenu.each(function(){
+                var $menu = $(this);
+                var $parentMenu = $menu.parent().attr('id');
+                if ( $parentID == $parentMenu ) {
+                    return;
+                }
+                var $menuWrap = $headerInner.find( '#' + $parentMenu + '-wrap.mkhb-navigation-resp__wrap' );
+                if ( $body.hasClass( 'mkhb-navigation-resp--opened-' + $parentMenu ) ) {
+                    $menu.removeClass('is-active').find('.mkhb-navigation-resp__container').removeClass('fullscreen-active');
+                    $body.removeClass('mkhb-navigation-resp--opened-' + $parentMenu).addClass('mkhb-navigation-resp--closed-' + $parentMenu).trigger('mkhb-navigation-resp--closed-' + $parentMenu);
+                    $menuWrap.hide();
+                }
+            });
+
+            // Scroll to previous position after closing the nav.
+            if ( currentScroll > 0 ) {
+                window.scrollTo(0, currentScroll);
+            }
+        }
 
         if ($body.hasClass('mkhb-navigation-resp--opened-' + $parentID)) {
             $this.removeClass('is-active').find('.mkhb-navigation-resp__container').removeClass('fullscreen-active');
             $body.removeClass('mkhb-navigation-resp--opened-' + $parentID).addClass('mkhb-navigation-resp--closed-' + $parentID).trigger('mkhb-navigation-resp--closed-' + $parentID);
             $resMenu.hide();
+            if ( fixedStickyActive ) {
+                $bottomCorner.show();
+            }
         } else {
             $this.addClass('is-active').find('.mkhb-navigation-resp__container').addClass('fullscreen-active');
             $body.removeClass('mkhb-navigation-resp--closed-' + $parentID).addClass('mkhb-navigation-resp--opened-' + $parentID).trigger('mkhb-navigation-resp--opened-' + $parentID);
             $resMenu.show();
+            if ( fixedStickyActive ) {
+                $bottomCorner.hide();
+            }
         }
+
+        // Handle scroll issue if burger menu is higher dan viewport.
+        stickyFixedScrollable( $this, $resMenu );
 
         // For iPhone 5 focus bug , remove search box focused class.
         if(searchBox.hasClass('input-focused')){
@@ -66,6 +122,78 @@
         $(this).on('click', toggleResMenu);
     });
 
+    // Handle responsive submenu click action.
+    function toggleResSubMenu(e) {
+        var $this = $(this);
+
+        // Responsive menu container.
+        var respMenu = $this.parents( '.mkhb-navigation-resp__wrap' );
+        var respIDRaw = respMenu.attr( 'id' );
+        var respID = respIDRaw.replace( '-wrap', '' );
+
+        // Responsive menu button.
+        var respButton = $( '#' + respID );
+
+        // Handle scroll issue if burger menu is higher dan viewport.
+        // Use setTimeout to wait the resp menu height being updated.
+        setTimeout( function() {
+            stickyFixedScrollable( respButton, respMenu );
+        }, 300);
+    }
+
+    // Submenu actions handler.
+    $resSubMenuLink.each(function() {
+        $(this).on('click', toggleResSubMenu);
+    });
+
+    /**
+     * Set resp menu scroll if burger menu is higher dan viewport.
+     *
+     * @since 6.0.3
+     *
+     * @param  {object} respButton Responsive button selector object.
+     * @param  {object} respMenu   Responsive container selector object.
+     */
+    function stickyFixedScrollable( respButton, respMenu ) {
+        // Find the sticky and fixed header.
+        var stickyHeader = respButton.parents('.mkhb-sticky');
+        var fixedHeader = respButton.parents('.mkhb-fixed');
+
+        // Get header container height.
+        var headerContHeight = 0;
+        if ( stickyHeader.length > 0 ) {
+            headerContHeight = stickyHeader.height();
+        } else if ( fixedHeader.length > 0 ) {
+            headerContHeight = fixedHeader.height();
+        }
+
+        // Run only if Sticky or Fixed header height is more than 0.
+        if ( headerContHeight < 1 ) {
+            return;
+        }
+
+        // Reset resp menu height.
+        respMenu.css({ 'height': 'auto' });
+
+        // Set all needed height.
+        var adminBarHeight = $('#wpadminbar').height();
+        var respMenuHeight = respMenu.height();
+        var headerHeight = adminBarHeight + headerContHeight + respMenuHeight;
+        var winHeight = window.innerHeight ? window.innerHeight : windowHeight;
+        if ( headerHeight > winHeight ) {
+            var newRespHeight = winHeight - adminBarHeight - headerContHeight;
+            respMenu.css({
+                'height': newRespHeight + 'px',
+            }).children().css({
+                'height': '100%',
+                'overflow': 'scroll',
+            });
+        } else {
+            respMenu.css({
+                'height': 'auto',
+            }).children().removeAttr('style');
+        }
+    }
 
     var setResMenuHeight = function() {
         var height = $window.height() - MK.HB.val.offsetHeaderHeight(0);
@@ -191,18 +319,16 @@
             var headerContainer = '';
 
             if ( hasOverlap ) {
-                headerContainer = $( '.mkhb-overlap' );
+                $( '.mkhb-overlap' ).each( repositionRespNav );
             }
 
             if ( hasFixed ) {
-                headerContainer = $( '.mkhb-fixed' );
+                $( '.mkhb-fixed' ).each( repositionRespNav );
             }
 
             if ( hasSticky ) {
-                headerContainer = $( '.mkhb-sticky' );
+                $( '.mkhb-sticky' ).each( repositionRespNav );
             }
-
-            headerContainer.each( repositionRespNav );
         }
     }
 

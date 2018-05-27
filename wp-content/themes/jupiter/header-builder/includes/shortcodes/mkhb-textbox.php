@@ -45,12 +45,17 @@ function mkhb_textbox_shortcode( $atts, $content = null ) {
 		return '';
 	}
 
-	$markup = mkhb_textbox_get_markup( $options, $content );
-	$style = mkhb_textbox_get_style( $options );
+	// Set Social inline style.
+	$style = mkhb_textbox_style( $options );
 
-	wp_register_style( 'mkhb', false, array( 'mkhb-grid' ) );
-	wp_enqueue_style( 'mkhb' );
-	wp_add_inline_style( 'mkhb', $style );
+	// Set Social markup.
+	$markup = mkhb_textbox_markup( $options, $content );
+
+	// MKHB Hooks as temporary storage.
+	$hooks = mkhb_hooks();
+
+	// Enqueue inline style.
+	$hooks::concat_hook( 'styles', $style );
 
 	// Enqueue current font.
 	$data = array(
@@ -58,8 +63,6 @@ function mkhb_textbox_shortcode( $atts, $content = null ) {
 		'font-type' => $options['font-type'],
 		'font-weight' => $options['font-weight'],
 	);
-
-	$hooks = mkhb_hooks();
 	$hooks::set_hook( 'fonts', $data );
 
 	return $markup;
@@ -70,12 +73,13 @@ add_shortcode( 'mkhb_textbox', 'mkhb_textbox_shortcode' );
  * Generate the element's markup for use on the front-end.
  *
  * @since 6.0.0
+ * @since 6.0.3 Rename function name.
  *
  * @param  array  $options All options will be used in the shortcode.
  * @param  string $content The enclosed content.
  * @return string $markup Element HTML code.
  */
-function mkhb_textbox_get_markup( $options, $content ) {
+function mkhb_textbox_markup( $options, $content ) {
 	$markup  = '';
 
 	// Textbox input_text.
@@ -115,6 +119,7 @@ function mkhb_textbox_get_markup( $options, $content ) {
 	// Textbox additional class.
 	$textbox_class = mkhb_shortcode_display_class( $options );
 
+	// Textbox attributes.
 	// @todo Temporary Solution - Data Attribute for inline container.
 	$data_attr = mkhb_shortcode_display_attr( $options );
 
@@ -142,7 +147,7 @@ function mkhb_textbox_get_markup( $options, $content ) {
 		// to any "class" attribute. This means both CSS included in
 		// Jupiter, any any custom CSS you may have in Theme Options. A of
 		// this writing that is out of scope.
-		preg_replace( '/&lt;br\W*?\&gt;/i', '<br>', esc_html( $text ) )
+		nl2br( preg_replace( '/&lt;br\W*?\&gt;/i', '<br>', esc_html( $text ) ) )
 	);
 
 	return $markup;
@@ -152,41 +157,46 @@ function mkhb_textbox_get_markup( $options, $content ) {
  * Generate the element's style for use on the front-end.
  *
  * @since 6.0.0
+ * @since 6.0.3 Print social style only if it's needed. Rename function name.
  *
  * @param  array $options All options will be used in the shortcode.
  * @return string $style Element CSS code.
  */
-function mkhb_textbox_get_style( $options ) {
+function mkhb_textbox_style( $options ) {
+	$textbox_style = '';
 	$style = '';
+
+	// Textbox ID.
 	$textbox_id = $options['id'];
 
-	// Textbox inline, align, margin and padding.
-	$style .= "#{$textbox_id} {";
-	$display = '';
-	$text_align = '';
+	// Textbox Display.
 	if ( ! empty( $options['display'] ) ) {
 		if ( 'inline' === $options['display'] ) {
-			$display .= 'display: inline-block; vertical-align: top;';
+			$textbox_style .= 'display: inline-block; vertical-align: top;';
 		}
 	}
+	// Textbox Alignment.
 	if ( ! empty( $options['alignment'] ) ) {
-		$text_align .= "text-align: {$options['alignment']};";
+		$textbox_style .= "text-align: {$options['alignment']};";
 	}
 
-	// Text Padding.
+	// Textbox Padding.
 	if ( ! empty( $options['padding'] ) ) {
-		$style .= "padding: {$options['padding']};";
+		$textbox_style .= "padding: {$options['padding']};";
 	}
 
-	// Text Margin.
+	// Textbox Margin.
 	if ( ! empty( $options['margin'] ) ) {
-		$style .= "margin: {$options['margin']};";
+		$textbox_style .= "margin: {$options['margin']};";
 	}
 
-	$style .= $display;
-	$style .= $text_align;
-	$style .= '}';
-	$style .= mkhb_textbox_get_link_style( $options );
+	// If textbox style not empty.
+	if ( ! empty( $textbox_style ) ) {
+		$style .= "#{$textbox_id} { $textbox_style }";
+	}
+
+	// Textbox Link style.
+	$style .= mkhb_textbox_link_style( $options );
 
 	return $style;
 }
@@ -195,55 +205,85 @@ function mkhb_textbox_get_style( $options ) {
  * Generate the element's style for textbox link on the front-end.
  *
  * @since 6.0.0
+ * @since 6.0.3 Print social style only if it's needed. Rename function name.
  *
  * @param  array $options All options will be used in the shortcode.
  * @return string $style Element CSS code.
  */
-function mkhb_textbox_get_link_style( $options ) {
+function mkhb_textbox_link_style( $options ) {
+	$link_style = '';
 	$style = '';
+
+	// Textbox ID.
 	$textbox_id = $options['id'];
 
-	// Textbox font size, font weight, font style, font family
-	// color and line height.
-	$style .= "#{$textbox_id} .mkhb-textbox-el__link {";
-	$font_color = '';
-	$font_family = '';
-	$font_size = '';
-	$font_style = '';
-	$font_weight = '';
-	$line_height = '';
+	// Textbox Color.
 	if ( ! empty( $options['color'] ) ) {
-		$font_color .= "color: {$options['color']};";
+		$link_style .= "color: {$options['color']};";
 	}
-	if ( ! empty( $options['font-family'] ) ) {
-		$font_family .= "font-family: {$options['font-family']};";
-	}
-	if ( ! empty( $options['font-size'] ) ) {
-		$font_size .= "font-size: {$options['font-size']};";
-	}
-	if ( ! empty( $options['font-style'] ) ) {
-		$font_style .= "font-style: {$options['font-style']};";
-	}
-	if ( ! empty( $options['font_weight'] ) ) {
-		$font_weight .= "font-weight: {$options['font-weight']};";
-	}
-	if ( ! empty( $options['line-height'] ) ) {
-		$line_height .= "line-height: {$options['line-height']};";
-	}
-	$style .= $font_color;
-	$style .= $font_family;
-	$style .= $font_size;
-	$style .= $font_style;
-	$style .= $font_weight;
-	$style .= $line_height;
-	$style .= '}';
 
-	// Textbox color hover.
-	$style .= "#{$textbox_id} .mkhb-textbox-el__link[href]:hover {";
-	if ( ! empty( $options['hover-color'] ) ) {
-		$style .= "color: {$options['hover-color']};";
+	// Textbox Font Family.
+	if ( ! empty( $options['font-family'] ) && 'Open Sans' !== $options['font-family'] ) {
+		$link_style .= "font-family: {$options['font-family']};";
 	}
-	$style .= '}';
+
+	// Textbox Font Size.
+	if ( ! empty( $options['font-size'] ) ) {
+		$link_style .= "font-size: {$options['font-size']};";
+	}
+
+	// Textbox Font Style.
+	if ( ! empty( $options['font-style'] ) ) {
+		$link_style .= "font-style: {$options['font-style']};";
+	}
+
+	// Textbox Font Weight.
+	if ( ! empty( $options['font_weight'] ) ) {
+		$link_style .= "font-weight: {$options['font-weight']};";
+	}
+
+	// Textbox Line Height.
+	if ( ! empty( $options['line-height'] ) ) {
+		$link_style .= "line-height: {$options['line-height']};";
+	}
+
+	// If textbox style not empty.
+	if ( ! empty( $link_style ) ) {
+		$style .= "#{$textbox_id} .mkhb-textbox-el__link { $link_style }";
+	}
+
+	// Textbox Hover Link.
+	$style .= mkhb_textbox_hover_link_style( $options );
+
+	return $style;
+}
+
+/**
+ * Generate the textbox link hover state.
+ *
+ * There are 2 cases here:
+ * 1. If textbox link hover styles are overriden, return the overriden hover style.
+ * 2. If textbox link styles are overriden, return the default hover style. It's
+ *    used to fix hover issue on the link.
+ *
+ * @since 6.0.3
+ *
+ * @param  array $options All options will be used in the shortcode.
+ * @return string $style Element CSS code.
+ */
+function mkhb_textbox_hover_link_style( $options ) {
+	$style = '';
+
+	// Textbox ID.
+	$textbox_id = $options['id'];
+
+	// 1.a Textbox color hover.
+	// 2.a If textbox color is overriden, set default color for hover state.
+	if ( ! empty( $options['hover-color'] ) ) {
+		$style .= "#{$textbox_id} .mkhb-textbox-el__link[href]:hover { color: {$options['hover-color']}; }";
+	} elseif ( ! empty( $options['color'] ) ) {
+		$style .= "#{$textbox_id} .mkhb-textbox-el__link[href]:hover { color: #444444; }";
+	}
 
 	return $style;
 }

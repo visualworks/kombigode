@@ -1,7 +1,8 @@
-<?php 
+<?php
 extract( shortcode_atts( array(
-	'title' => __( "Section", "mk_framework" ),
-	'icon' 	=> '',
+	'title' => __( 'Section', 'mk_framework' ),
+	'icon' => '',
+	'id' => '',
 ), $atts ) );
 
 if(!empty( $icon )) {

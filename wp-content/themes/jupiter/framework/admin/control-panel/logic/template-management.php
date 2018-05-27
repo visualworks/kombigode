@@ -10,8 +10,15 @@
  *
  * @link         http://artbees.net
  * @since        5.4
+ * @since        6.0.3 Replace importThemeContent with new SSE process. Suppress warning.
  *
  * @version      1.0
+ *
+ * @SuppressWarnings(PHPMD)
+ * @SuppressWarnings(PHPMD.StaticAccess)
+ * @SuppressWarnings(PHPMD.BooleanArgumentFlag)
+ * @SuppressWarnings(PHPMD.ExitExpression)
+ * - We need exit warning to cut SSE process, if not it will continue the process.
  */
 
 class mk_template_managememnt {
@@ -108,6 +115,62 @@ class mk_template_managememnt {
 		return $this->options_file_name;
 	}
 
+	/**
+	 * Customizer filename.
+	 *
+	 * @since 6.0.3
+	 * @var string
+	 */
+	private $customizer_file_name;
+
+	/**
+	 * Set Customizer filename.
+	 *
+	 * @since 6.0.3
+	 * @param string $customizer_file_name Customizer filename.
+	 */
+	public function set_customizer_file_name( $customizer_file_name ) {
+		$this->customizer_file_name = $customizer_file_name;
+	}
+
+	/**
+	 * Get Customizer filename.
+	 *
+	 * @since 6.0.3
+	 * @return string Customizer filename.
+	 */
+	public function get_customizer_file_name() {
+		return $this->customizer_file_name;
+	}
+
+	/**
+	 * Header Builder filename.
+	 *
+	 * @since 6.0.3
+	 * @var string
+	 */
+	private $header_builder_file_name;
+
+	/**
+	 * Set Header Builder filename.
+	 *
+	 * @since 6.0.3
+	 * @param string $header_builder_file_name Header Builder filename.
+	 */
+	public function set_header_builder_file_name( $header_builder_file_name ) {
+		$this->header_builder_file_name = $header_builder_file_name;
+	}
+
+	/**
+	 * Get Header Builder filename.
+	 *
+	 * @since 6.0.3
+	 * @return string Header Builder filename.
+	 */
+	public function get_header_builder_file_name() {
+		return $this->header_builder_file_name;
+	}
+
 	private $json_file_name;
 
 	public function setJsonFileName( $json_file_name ) {
@@ -196,13 +259,13 @@ class mk_template_managememnt {
 		$this->setSystemTestEnv( $system_test_env );
 		$this->setAjaxMode( $ajax_mode );
 
-		// Init logger to system
+		// Init logger to system.
 		$this->logger = new Devbees\BeesLog\logger();
 
-		// Set API Server URL
+		// Set API Server URL.
 		$this->setApiURL( V2ARTBEESAPI );
 
-		// Set API Calls template
+		// Set API Calls template.
 		$template = \Httpful\Request::init()
 		->method( \Httpful\Http::GET )
 		->withoutStrictSsl()
@@ -215,15 +278,17 @@ class mk_template_managememnt {
 		);
 		\Httpful\Request::ini( $template );
 
-		// Set Addresses
+		// Set Addresses.
 		$this->setUploadDir( wp_upload_dir() );
 		$this->setBasePath( $this->getUploadDir()['basedir'] . '/mk_templates/' );
 		$this->setBaseUrl( $this->getUploadDir()['baseurl'] . '/mk_templates/' );
 
-		// Set File Names
+		// Set File Names.
 		$this->setTemplateContentFileName( 'theme_content.xml' );
 		$this->setWidgetFileName( 'widget_data.wie' );
 		$this->setOptionsFileName( 'options.txt' );
+		$this->set_customizer_file_name( 'customizer.json' );
+		$this->set_header_builder_file_name( 'header-builder.json' );
 		$this->setJsonFileName( 'package.json' );
 
 		// Include WP_Importer.
@@ -237,6 +302,10 @@ class mk_template_managememnt {
 		if ( $this->getAjaxMode() == true ) {
 			add_action( 'wp_ajax_abb_template_lazy_load', array( &$this, 'loadTemplatesFromApi' ) );
 			add_action( 'wp_ajax_abb_install_template_procedure', array( &$this, 'installTemplateProcedure' ) );
+
+			// Action only for importing theme content with Server-Sent Event.
+			add_action( 'wp_ajax_abb_install_template_sse', array( &$this, 'import_theme_content_sse' ) );
+
 			add_action( 'wp_ajax_abb_get_templates_categories', array( &$this, 'getTemplateCategoryListFromApi' ) );
 			add_action( 'wp_ajax_abb_restore_latest_db', array( &$this, 'restoreLatestDB' ) );
 			add_action( 'wp_ajax_abb_is_restore_db', array( &$this, 'isRestoreDB' ) );
@@ -248,7 +317,7 @@ class mk_template_managememnt {
 			add_action( 'wp_ajax_abb_get_template_psd_link', array( &$this, 'get_template_psd_link' ) );
 		}
 	}
-	// Begin Install Template Procedure
+	// Begin Install Template Procedure.
 	public function installTemplateProcedure() {
 		$template_id = (isset( $_POST['template_id'] ) ? intval( $_POST['template_id'] ) : 0);
 		$this->setTemplateID( $template_id );
@@ -300,6 +369,12 @@ class mk_template_managememnt {
 			case 'theme_options':
 				$this->importThemeOptions( $template_name );
 				break;
+			case 'customizer':
+				$this->import_customizer( $template_name );
+				break;
+			case 'header_builder':
+				$this->import_header_builder( $template_name );
+				break;
 			case 'theme_widget':
 				$this->importThemeWidgets( $template_name );
 				break;
@@ -329,6 +404,42 @@ class mk_template_managememnt {
 			return false;
 		}
 	}
+
+	/**
+	 * Reinitilize Template file is exist or not for SEE request.
+	 *
+	 * @since 6.0.3
+	 *
+	 * @throws Exception If template name empty.
+	 * @throws Exception If template file is not exist.
+	 *
+	 * @param  string $template_name The template name will be imported.
+	 * @param  string $template_id   The template ID will be imported.
+	 * @return boolean               File status.
+	 */
+	public function reinitialize_data_sse( $template_name, $template_id ) {
+		try {
+
+			// Check template name and ID.
+			if ( empty( $template_name ) || empty( $template_id ) ) {
+				throw new Exception( 'Choose template first!' );
+			}
+
+			$this->setTemplateName( $template_name );
+			$this->setTemplateID( $template_id );
+
+			// Check template file exist or not.
+			if ( false === file_exists( $this->getAssetsAddress( 'template_content_path', $this->getTemplateName() ) ) ) {
+				throw new Exception( 'Template content is not exist - p1, Contact support.' );
+			}
+
+			return true;
+		} catch ( Exception $e ) {
+			$this->message_sse( $e->getMessage(), true );
+			exit;
+		}
+	}
+
 	/**
 	 * method that is resposible to pass plugin list to UI base on lazy load condition.
 	 *
@@ -553,7 +664,7 @@ class mk_template_managememnt {
 
 			@$mkfs->delete( $this->getBasePath() . $this->getTemplateFileName() );
 
-			$this->message( 'Compeleted', true );
+			$this->message( 'Completed', true );
 
 			return true;
 		} catch ( Exception $e ) {
@@ -588,7 +699,7 @@ class mk_template_managememnt {
 			) {
 				throw new Exception( 'Template assets are not completely exist - p2, Contact support.' );
 			} else {
-				$this->message( 'Compeleted', true );
+				$this->message( 'Completed', true );
 				return true;
 			}
 		} catch ( Exception $e ) {
@@ -623,18 +734,168 @@ class mk_template_managememnt {
 			return false;
 		}
 	}
+
+	/**
+	 * Import theme content via Server-Sent Events request.
+	 *
+	 * @since 6.0.3
+	 *
+	 * @throws Exception If template data is empty.
+	 * @throws Exception If preliminary data is empty.
+	 */
+	public function import_theme_content_sse() {
+		try {
+			/*
+			 * Filter data input from GET method. Eventsource doesn't allow us to use
+			 * POST method.
+			 */
+			$template_name = '';
+			if ( ! empty( $_GET['template_name'] ) ) { // WPCS: XSS ok, CSRF ok.
+				$template_name = sanitize_text_field( $_GET['template_name'] );
+			}
+
+			$template_id = '';
+			if ( ! empty( $_GET['template_id'] ) ) { // WPCS: XSS ok, CSRF ok.
+				$template_id = sanitize_text_field( $_GET['template_id'] );
+			}
+
+			$fetch_attachments = 'false';
+			if ( ! empty( $_GET['fetch_attachments'] ) ) { // WPCS: XSS ok, CSRF ok.
+				$fetch_attachments = sanitize_text_field( $_GET['fetch_attachments'] );
+			}
+
+			// Include wordpress-importer class.
+			Abb_Logic_Helpers::include_wordpress_importer();
+			$this->reinitialize_data_sse( $template_name, $template_id );
+
+			// Set importer options as an array.
+			$options = array(
+				'fetch_attachments' => filter_var( $fetch_attachments, FILTER_VALIDATE_BOOLEAN ),
+				'default_author'    => get_current_user_id(),
+			);
+
+			// Create new instance for Importer.
+			$importer = new WXR_Importer( $options );
+			$logger   = new WP_Importer_Logger_ServerSentEvents();
+			$importer->set_logger( $logger );
+
+			// Get preliminary information.
+			$file     = $this->getAssetsAddress( 'template_content_path', $this->getTemplateName() );
+			$pre_data = $importer->get_preliminary_information( $file );
+			if ( is_wp_error( $pre_data ) ) {
+				throw new Exception( $pre_data->get_error_message() );
+			}
+
+			// @codingStandardsIgnoreStart
+			// Turn off PHP output compression, allow us to print the log.
+			$previous = error_reporting( error_reporting() ^ E_WARNING );
+			ini_set( 'output_buffering', 'off' );
+			ini_set( 'zlib.output_compression', false );
+			error_reporting( $previous );
+			// @codingStandardsIgnoreEnd
+
+			if ( $GLOBALS['is_nginx'] ) {
+				// Setting this header instructs Nginx to disable fastcgi_buffering
+				// and disable gzip for this request.
+				header( 'X-Accel-Buffering: no' );
+				header( 'Content-Encoding: none' );
+			}
+
+			// Start the event stream here to record all the logs.
+			header( 'Content-Type: text/event-stream' );
+			header( 'Cache-Control: no-cache' );
+
+			// Time to run the import!
+			set_time_limit( 0 );
+
+			// Ensure we're not buffered.
+			wp_ob_end_flush_all();
+			flush();
+
+			// Run import process.
+			$process = $importer->import( $file );
+
+			// Setup complete response.
+			$complete = array(
+				'status'  => true,  // The process is complete no matter success or not.
+				'error'   => false, // Message error if any.
+				'data'    => null,  // Compatibility with current Ajax.
+				'message' => 'Template contents were imported.',
+			);
+
+			// Check if the request is error, then set the message.
+			if ( is_wp_error( $process ) ) {
+				$complete['error'] = $process->get_error_message();
+			}
+
+			$this->message_sse( $complete );
+			exit;
+
+		} catch ( Exception $e ) {
+			$this->message_sse( $e->getMessage(), true );
+			exit;
+		}
+	}
+
+	/**
+	 * Send a Server-Sent Events message.
+	 *
+	 * @since 6.0.3
+	 *
+	 * @param mixed   $message     Data to be JSON-encoded and sent in the message.
+	 * @param boolean $need_header Send response along with the header.
+	 */
+	public function message_sse( $message, $need_header = false ) {
+		// Add header to start event stream only if needed.
+		if ( $need_header ) {
+			// Start the event stream.
+			header( 'Content-Type: text/event-stream' );
+			header( 'Cache-Control: no-cache' );
+		}
+
+		// Convert any message data as an array.
+		if ( ! is_array( $message ) ) {
+			$message = array(
+				'message' => $message,
+			);
+		}
+
+		// Set message event and pass the data.
+		echo "event: message\n";
+		echo 'data: ' . wp_json_encode( $message ) . "\n\n";
+
+		flush();
+	}
+
 	public function importThemeContent( $template_name, $fetch_attachments = false ) {
 		try {
 
-			// Include wordpress-importer class
+			// Include wordpress-importer class.
 			Abb_Logic_Helpers::include_wordpress_importer();
 			$this->reinitializeData( $template_name );
 
-			$importer = new WP_Import();
-			$importer->fetch_attachments = filter_var( $fetch_attachments, FILTER_VALIDATE_BOOLEAN );
+			// Set importer options as an array.
+			$options = array(
+				'fetch_attachments' => filter_var( $fetch_attachments, FILTER_VALIDATE_BOOLEAN ),
+				'default_author'    => get_current_user_id(),
+			);
 
+			// Create new instance for Importer.
+			$importer = new WXR_Importer( $options );
+			$logger   = new WP_Importer_Logger_ServerSentEvents();
+			$importer->set_logger( $logger );
+
+			// Get preliminary information.
+			$file = $this->getAssetsAddress( 'template_content_path', $this->getTemplateName() );
+			$data = $importer->get_preliminary_information( $file );
+			if ( is_wp_error( $data ) ) {
+				$this->message( 'Error in parsing theme_content.xml!', false );
+				return false;
+			}
+
+			// Run import process.
 			ob_start();
-			$importer->import( $this->getAssetsAddress( 'template_content_path', $this->getTemplateName() ) );
+			$importer->import( $file );
 			ob_end_clean();
 
 			$this->message( 'Template contents were imported.', true );
@@ -702,12 +963,9 @@ class mk_template_managememnt {
 
 	public function setUpPages( $template_name ) {
 		try {
-			$homepage = get_page_by_title( 'Homepage 1' );
+			$homepage = get_page_by_title( 'Homepage' );
 			if ( empty( $homepage->ID ) ) {
-				$homepage = get_page_by_title( 'Homepage' );
-				if ( empty( $homepage->ID ) ) {
-					$homepage = get_page_by_title( 'Home' );
-				}
+				$homepage = get_page_by_title( 'home' );
 			}
 
 			if ( ! empty( $homepage->ID ) ) {
@@ -764,6 +1022,72 @@ class mk_template_managememnt {
 			return false;
 		}
 	}
+	/**
+	 * Import Customizer options.
+	 *
+	 * @since  6.0.3
+	 * @param  string $template_name Name of template.
+	 * @return mixed
+	 * @throws Exception When Customizer file is empty.
+	 */
+	public function import_customizer( $template_name ) {
+		try {
+			$this->reinitializeData( $template_name );
+			if ( ! file_exists( $this->getAssetsAddress( 'customizer_path', $this->getTemplateName() ) ) ) {
+				$this->message( 'Customizer file is not found.', true );
+				return true;
+			}
+			$import_data = Abb_Logic_Helpers::getFileBody(
+				$this->getAssetsAddress( 'customizer_url', $this->getTemplateName() ),
+				$this->getAssetsAddress( 'customizer_path', $this->getTemplateName() )
+			);
+			$data = json_decode( $import_data, true );
+			if ( false === empty( $data ) ) {
+				update_option( 'mk_cz', $data );
+
+				$this->message( 'Customizer is imported.', true );
+				return true;
+			}
+			throw new Exception( 'Customizer is empty.' );
+		} catch ( Exception $e ) {
+			$this->message( $e->getMessage(), false );
+
+			return false;
+		}
+	}
+	/**
+	 * Import Header Builder option.
+	 *
+	 * @since  6.0.3
+	 * @param  [type] $template_name Name of template.
+	 * @return mixed
+	 * @throws Exception When Header Builder file is empty.
+	 */
+	public function import_header_builder( $template_name ) {
+		try {
+			$this->reinitializeData( $template_name );
+			if ( ! file_exists( $this->getAssetsAddress( 'header_builder_path', $this->getTemplateName() ) ) ) {
+				$this->message( 'Header builder file is not found.', true );
+				return true;
+			}
+			$import_data = Abb_Logic_Helpers::getFileBody(
+				$this->getAssetsAddress( 'header_builder_url', $this->getTemplateName() ),
+				$this->getAssetsAddress( 'header_builder_path', $this->getTemplateName() )
+			);
+			$data = json_decode( $import_data, true );
+			if ( false === empty( $data ) ) {
+				update_option( 'mkhb_global_header', $data );
+
+				$this->message( 'Header Builder is imported.', true );
+				return true;
+			}
+			throw new Exception( 'Header Builder is empty' );
+		} catch ( Exception $e ) {
+			$this->message( $e->getMessage(), false );
+
+			return false;
+		}
+	}
 	public function importThemeWidgets( $template_name ) {
 		$this->reinitializeData( $template_name );
 		try {
@@ -772,7 +1096,7 @@ class mk_template_managememnt {
 				$this->getAssetsAddress( 'widget_path', $this->getTemplateName() )
 			);
 			$data = json_decode( $data );
-			$this->importWidgetData( $data );
+			$this->import_widget_data( $data );
 
 			$this->message( 'Widgets are imported.', true );
 
@@ -785,6 +1109,7 @@ class mk_template_managememnt {
 	}
 	public function finalizeImporting( $template_name ) {
 		$this->reinitializeData( $template_name );
+		$template_name = sanitize_title( $template_name );
 		// Check if it had something to import
 		try {
 			$json_url = $this->getAssetsAddress( 'json_url', $this->getTemplateName() );
@@ -798,7 +1123,7 @@ class mk_template_managememnt {
 				foreach ( $plugins['importing_data'] as $key => $value ) {
 					switch ( $value['name'] ) {
 						case 'layer-slider':
-							$ls_content_path = $this->getBasePath() . strtolower( $template_name ) . '/' . $value['content_path'];
+							$ls_content_path = $this->getBasePath() . $template_name . '/' . $value['content_path'];
 							if ( file_exists( $ls_content_path ) ) {
 								$this->importLayerSliderContent( $ls_content_path );
 							}
@@ -897,7 +1222,18 @@ class mk_template_managememnt {
 
 		return apply_filters( 'available_widgets', $available_widgets );
 	}
-	private function importWidgetData( $data ) {
+
+	/**
+	 * Import widgets' data.
+	 *
+	 * @throws Exception If can not read widget data.
+	 *
+	 * @since 5.7.0
+	 *        6.0.4 Make it public.
+	 * @param  array $data Widgets' data.
+	 * @return boolean
+	 */
+	public function import_widget_data( $data ) {
 		global $wp_registered_sidebars;
 
 		$available_widgets = $this->availableWidgets();
@@ -1227,7 +1563,14 @@ class mk_template_managememnt {
 		if ( isset( $response->body->bool ) == false || $response->body->bool == false ) {
 			throw new Exception( $response->body->message );
 		}
-		return $response->body->data;
+
+		/**
+		 * Filters the template download url.
+		 *
+		 * @since 6.0.3
+		 * @param string $response->body->data Download url.
+		 */
+		return apply_filters( 'mk_template_download_url', $response->body->data );
 	}
 
 	/**
@@ -1314,6 +1657,18 @@ class mk_template_managememnt {
 			break;
 			case 'options_path':
 				return $this->getBasePath() . $template_name . '/' . $this->getOptionsFileName();
+			break;
+			case 'customizer_url':
+				return $this->getBaseUrl() . $template_name . '/' . $this->get_customizer_file_name();
+			break;
+			case 'customizer_path':
+				return $this->getBasePath() . $template_name . '/' . $this->get_customizer_file_name();
+			break;
+			case 'header_builder_url':
+				return $this->getBaseUrl() . $template_name . '/' . $this->get_header_builder_file_name();
+			break;
+			case 'header_builder_path':
+				return $this->getBasePath() . $template_name . '/' . $this->get_header_builder_file_name();
 			break;
 			case 'json_url':
 				return $this->getBaseUrl() . $template_name . '/' . $this->getJsonFileName();

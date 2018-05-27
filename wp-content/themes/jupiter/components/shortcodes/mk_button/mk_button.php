@@ -1,28 +1,35 @@
 <?php
 global $mk_options;
 
-$path = pathinfo(__FILE__) ['dirname'];
+$path = pathinfo( __FILE__ ) ['dirname'];
 
-include ($path . '/config.php');
+include( $path . '/config.php' );
 
-$style_id = uniqid();
+$style_id = Mk_Static_Files::shortcode_id();
 
+$id = ! empty( $id ) ? ( 'id="' . $id . '"' ) : '';
+$url = ! empty( $url ) ? $url : '#';
+$product_id = ! empty( $product_id ) ? $product_id : false;
 
-
-$id = !empty($id) ? ('id="' . $id . '"') : '';
-$url = !empty($url) ? 'href="' . $url . '"' : 'href="#"';
-$target = !empty($target) ? (' target="' . $target . '"') : '';
-if (!empty($icon)) {
-	if ((strpos($icon, 'mk-') === FALSE)) {
-		$icon = 'mk-'.$icon;
+if ( ! empty( $icon ) ) {
+	if ( ( strpos( $icon, 'mk-' ) === false ) ) {
+		$icon = 'mk-' . $icon;
 	}
 
-	$icon = Mk_SVG_Icons::get_svg_icon_by_class_name(false, $icon, 16);
+	$icon = Mk_SVG_Icons::get_svg_icon_by_class_name( false, $icon, 16 );
 
 	// We need to add <i> to work with mk_button.css correctly.
-	$icon = '<i class="mk-button--icon">'.$icon.'</i>';
+	$icon = '<i class="mk-button--icon">' . $icon . '</i>';
 }
 
+if ( $product_id ) {
+	$url = '?add-to-cart=' . $product_id;
+}
+
+// Element attributes.
+$element_attributes[] = ( 'true' === $nofollow ) ? 'rel="nofollow"' : '';
+$element_attributes[] = ! empty( $target ) ? 'target="' . $target . '"' : '';
+$element_attributes[] = ( $product_id ) ? 'data-quantity="1" data-product_id="' . $product_id . '"' : '';
 
 /**
  * Class Output
@@ -37,6 +44,10 @@ $class_element[] = 'mk-button--dimension-'.$dimension;
 $class_element[] = 'mk-button--size-'.$size;
 $class_element[] = 'mk-button--corner-'.$corner_style;
 
+if ( $product_id ) {
+	$class_element[] = 'add_to_cart_button ajax_add_to_cart';
+}
+
 $class_element_atomic[] = '';
 
 if($size == 'small' || $size == 'medium') {
@@ -50,8 +61,6 @@ if($fullwidth != 'true') {
 }else {
 	$class_element_atomic[] = 'block';
 }
-
-$nofollow_rel = ($nofollow == 'true') ? 'rel="nofollow"' : '';
 
 /**
  * Custom CSS Output
@@ -113,7 +122,7 @@ if ($dimension == 'three' || $dimension == 'two' || $dimension == 'flat') {
 		';
 	}
 	if($dimension == 'three') {
-		$app_styles .= ' 
+		$app_styles .= '
 			#mk-button-'.$style_id.' .mk-button,
 			#mk-button-'.$style_id.' .mk-button:active {
 				box-shadow: 0px 3px 0px 0px '.hexDarker($bg_color, 20).';
@@ -125,7 +134,7 @@ if ($dimension == 'three' || $dimension == 'two' || $dimension == 'flat') {
 		$hover_text_color = ($btn_hover_txt_color != '') ? 'color:'.$btn_hover_txt_color.' !important;' : '';
 		$fill = ($btn_hover_txt_color != '') ? 'color:'.$btn_hover_txt_color.' !important;' : '';
 		$hover_bg_color = ($btn_hover_bg != '') ? 'background-color:'.$btn_hover_bg.';' : '';
-		$app_styles .= ' 
+		$app_styles .= '
 			#mk-button-'.$style_id.' .mk-button:hover {
 				'.$hover_text_color.'
 				'.$hover_bg_color.'
@@ -163,7 +172,7 @@ if($dimension == 'outline' || $dimension == 'double-outline' || $dimension == 's
 		';
 	}
 	if ($dimension == 'savvy' && $outline_skin == 'custom') {
-		
+
 
 		$app_styles .= '
 			#mk-button-'.$style_id.' .mk-button {
@@ -192,7 +201,7 @@ if($dimension == 'outline' || $dimension == 'double-outline' || $dimension == 's
 		';
 	}
 	if ($dimension == 'double-outline' && $outline_skin == 'custom') {
-		
+
 		if(empty($outline_active_text_color) || empty($outline_hover_bg_color)) {
 			$app_styles .= '
 			#mk-button-'.$style_id.' .mk-button {
@@ -239,6 +248,24 @@ if($dimension == 'outline' || $dimension == 'double-outline' || $dimension == 's
 	}
 }
 
+/**
+ * Button attributes and content.
+ */
+$btn_attr    = '';
+$btn_content = '';
+
+// Concatinate all attributes.
+$btn_attr .= $id;
+$btn_attr .= 'href="' . $url . '"';
+$btn_attr .= implode( ' ', $element_attributes );
+$btn_attr .= 'class="mk-button js-smooth-scroll ' . implode( ' ', $class_element ) . ' _ relative text-center font-weight-700 no-backface ' . implode( ' ', $class_element_atomic ) . '"';
+
+// Content for button.
+$btn_content .= ( $dimension == 'double-outline' ) ? '<span class="double-outline-inside"></span>' : '';
+$btn_content .= $icon;
+$btn_content .= '<span class="mk-button--text">' . do_shortcode( strip_tags( $content ) ) . '</span>';
+$btn_content .= ( $icon_anim == 'vertical' ) ? '<span class="is-vis-hidden">'. do_shortcode( strip_tags( $content ) ) . '</span>' : '';
+
 Mk_Static_Files::addCSS($app_styles, $style_id);
 
 ?>
@@ -249,12 +276,7 @@ Mk_Static_Files::addCSS($app_styles, $style_id);
 	<div class="<?php echo $visibility; ?>">
 	<?php endif; ?>
 
-		<a <?php echo $id;?> <?php echo $url;?> <?php echo $nofollow_rel; ?> <?php echo $target;?> class="mk-button js-smooth-scroll <?php echo implode(' ', $class_element);?> _ relative text-center font-weight-700 no-backface <?php echo implode(' ', $class_element_atomic);?>">
-			<?php echo ($dimension == 'double-outline') ? '<span class="double-outline-inside"></span>' : ''; ?>
-			<?php echo $icon;?> 
-			<span class="mk-button--text"><?php echo do_shortcode( strip_tags( $content ) );?></span>
-			<?php echo ($icon_anim == 'vertical') ? '<span class="is-vis-hidden">'.do_shortcode( strip_tags( $content ) ).'</span>' : '';?>
-		</a>
+		<a <?php echo $btn_attr ?>><?php echo $btn_content ?></a>
 
 	<?php if ( ! empty( $visibility ) ) : ?>
 	</div>

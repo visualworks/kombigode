@@ -31,11 +31,13 @@ class MKHB_Main {
 	 * @since 5.9.5 Manage how to load the walkers for navigation. Join init_load and init_hooks.
 	 * @since 5.9.8 Hook HB_Grid on 'wp'. Previously, it's called on 'wp_loaded'.
 	 * @since 6.0.0 Load all the shortcode files on the frontend. Remove unused files.
+	 * @since 6.0.3 Load SimpleCssMinifier for compressing internal CSS.
 	 */
 	public function __construct() {
 		// Load the constants, helpers, etc.
 		require_once dirname( __FILE__ ) . '/mkhb-config.php';
 		require_once HB_INCLUDES_DIR . '/helpers/general.php';
+		require_once HB_INCLUDES_DIR . '/link-template.php';
 		require_once HB_INCLUDES_DIR . '/helpers/array.php';
 		require_once dirname( __FILE__ ) . '/class-mkhb-migration.php';
 
@@ -46,6 +48,12 @@ class MKHB_Main {
 		// Load main HB files.
 		require_once HB_INCLUDES_DIR . '/class-mkhb-post-type.php';
 		require_once HB_INCLUDES_DIR . '/class-mkhb-hooks.php';
+		require_once HB_INCLUDES_DIR . '/revision.php';
+
+		if ( is_user_logged_in() ) {
+			require_once HB_ADMIN_DIR . '/includes/post.php';
+		}
+
 		require_once HB_INCLUDES_DIR . '/class-mkhb-render.php';
 
 		if ( is_admin() ) {
@@ -67,6 +75,8 @@ class MKHB_Main {
 
 		// Load shortcode files on the frontend only.
 		if ( ! is_admin() ) {
+			// CSS Minifier lib, used by Jupiter.
+			require_once THEME_INCLUDES . '/minify/src/SimpleCssMinifier.php';
 			require_once HB_INCLUDES_DIR . '/shortcodes/mkhb-row.php';
 			require_once HB_INCLUDES_DIR . '/shortcodes/mkhb-column.php';
 			require_once HB_INCLUDES_DIR . '/shortcodes/mkhb-logo.php';
@@ -131,7 +141,7 @@ class MKHB_Main {
 			return HB_INCLUDES_DIR . '/templates/navigation-preview.php';
 		}
 
-		return  $template;
+		return $template;
 	}
 
 	/**
@@ -142,7 +152,9 @@ class MKHB_Main {
 	 * @param array $public_query_vars The array of whitelisted query variables.
 	 */
 	public function query_vars_filter( $public_query_vars ) {
-		$public_query_vars[] = 'header-builder';
+		$public_query_vars[] = 'header-builder-preview-id';
+		$public_query_vars[] = 'header-builder-preview';
+		$public_query_vars[] = 'header-builder-preview-nonce';
 		$public_query_vars[] = 'header-builder-id';
 		return $public_query_vars;
 	}
@@ -163,10 +175,7 @@ class MKHB_Main {
 		}
 
 		// Is user open HB in preview mode.
-		$is_previewing = in_array( get_query_var( 'header-builder' ), array(
-			'preview',
-			'navigaiton-preview',
-		), true );
+		$is_previewing = (bool) get_query_var( 'header-builder-preview' );
 
 		if ( $is_previewing ) {
 			return 'custom';
@@ -188,7 +197,7 @@ class MKHB_Main {
 	 */
 	public function body_class( $classes ) {
 		// Is user open HB in preview mode.
-		if ( mkhb_is_to_active() || 'preview' === get_query_var( 'header-builder' ) ) {
+		if ( mkhb_is_to_active() || (bool) get_query_var( 'header-builder-preview' ) ) {
 			$classes[] = 'mkhb-jupiter';
 		}
 
@@ -203,11 +212,14 @@ class MKHB_Main {
 	 * @since 5.9.5 Include make internal CSS inside hb_grid_style hook.
 	 * @since 5.9.8 Include common.js as common HB Javscript file.
 	 * @since 6.0.0 Remove unused enqueue files. Remove grid style hook.
+	 * @since 6.0.2 Add row and column assets because both of them always used in the FE.
 	 */
 	public function enqueue_styles() {
-		wp_enqueue_style( 'mkhb-grid', HB_ASSETS_URI . 'css/mkhb-grid.css', false, THEME_VERSION, 'all' );
 		wp_enqueue_style( 'mkhb-render', HB_ASSETS_URI . 'css/mkhb-render.css', array(), THEME_VERSION );
+		wp_enqueue_style( 'mkhb-row', HB_ASSETS_URI . 'css/mkhb-row.css', array(), THEME_VERSION );
+		wp_enqueue_style( 'mkhb-column', HB_ASSETS_URI . 'css/mkhb-column.css', array(), THEME_VERSION );
 		wp_enqueue_script( 'mkhb-render', HB_ASSETS_URI . 'js/mkhb-render.js', array( 'jquery' ), THEME_VERSION, true );
+		wp_enqueue_script( 'mkhb-column', HB_ASSETS_URI . 'js/mkhb-column.js', array( 'jquery' ), THEME_VERSION, true );
 	}
 
 	/**
@@ -233,7 +245,7 @@ class MKHB_Main {
 	 *              shortcodes based on the devices and workspaces.
 	 */
 	public function hb_grid() {
-		if ( ! is_admin() && ( mkhb_is_to_active() || 'preview' === get_query_var( 'header-builder' ) ) ) {
+		if ( ! is_admin() && ( mkhb_is_to_active() || (bool) get_query_var( 'header-builder-preview' ) ) ) {
 			new MKHB_Render();
 		}
 

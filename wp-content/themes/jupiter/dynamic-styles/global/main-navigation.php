@@ -156,7 +156,8 @@ Mk_Static_Files::addGlobalStyle("
 .mk-shopping-cart-box .product_list_widget li a,
 .mk-shopping-cart-box .product_list_widget li.empty,
 .mk-shopping-cart-box .product_list_widget li span,
-.mk-shopping-cart-box .widget_shopping_cart .total
+.mk-shopping-cart-box .widget_shopping_cart .total,
+.mk-shopping-cart-box .woocommerce-mini-cart__empty-message
 {
 	color: {$mk_options['main_nav_sub_text_color']};
 }

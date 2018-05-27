@@ -19,7 +19,7 @@ global $mk_options;
 		<div class="mk-grid header-grid">
 	<?php } ?>
 
-		<div class="mk-toolbar-holder">
+		<div class="mk-header-toolbar-holder">
 
 		<?php
 
@@ -46,15 +46,19 @@ global $mk_options;
 		}
 
 		if ( ! empty( $mk_options['header_search_location'] ) && $mk_options['header_search_location'] === 'toolbar' ) {
-			mk_get_header_view( 'global', 'search', [
-				'location' => 'toolbar',
-			] );
+			mk_get_header_view(
+				'global', 'search', [
+					'location' => 'toolbar',
+				]
+			);
 		}
 
 		if ( ! empty( $mk_options['header_social_location'] ) && $mk_options['header_social_location'] === 'toolbar' ) {
-			mk_get_header_view( 'global', 'social', [
-				'location' => 'toolbar',
-			] );
+			mk_get_header_view(
+				'global', 'social', [
+					'location' => 'toolbar',
+				]
+			);
 		}
 
 		if ( ! empty( $mk_options['header_toolbar_login'] ) && $mk_options['header_toolbar_login'] === 'true' ) {

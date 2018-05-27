@@ -1,7 +1,7 @@
 (function($) {
-	
+
 	var class_prefix = '.woocommerce-page.single-product .product ';
-	
+
 	wp.customize( 'mk_cz[sh_pp_set_layout]', function( value ) {
 
 		value.bind(function( to ) {
@@ -21,7 +21,7 @@
 
 	// This requires refactoring.
 	wp.customize('mk_cz[sh_pp_set_product_info]', function(value) {
-		
+
 		var selectors = [
 			'.summary .price ins',
 			'.summary .price del',
@@ -37,11 +37,11 @@
 			'.woocommerce-tabs #tab-title-additional_information|.woocommerce-tabs #tab-additional_information',
 			'.woocommerce-tabs #tab-title-description|.woocommerce-tabs #tab-description',
 		];
-		
+
 		var infos = typeof value.get() === 'object' ? value.get() : value.get().split(',');
-		
+
 		$(class_prefix + '.woocommerce-tabs').hide();
-		
+
 		for (var i = 0; i < selectors.length; i++) {
 			var parts = selectors[i].split('|');
 			for (var j = 0; j < parts.length; j++) {
@@ -84,17 +84,19 @@
 					}
 					if (parts[j] === '.summary .price del') {
 						$(class_prefix + '.summary .price > .amount').show();
-					}					
+					}
 				}
 			}
 		}
-		
+
 		value.bind(function(to) {
-			
+
+			$(document.body).trigger('mk-woo-align-quantity');
+
 			infos = typeof to === 'object' ? to : to.split(',');
-			
+
 			$(class_prefix + '.woocommerce-tabs').hide();
-			
+
 			for (var i = 0; i < selectors.length; i++) {
 				var parts = selectors[i].split('|');
 				for (var j = 0; j < parts.length; j++) {
@@ -125,7 +127,7 @@
 					}
 				}
 			}
-			
+
 		});
 	});
 
@@ -136,7 +138,7 @@
 		} else {
 			$('section.related.products').hide();
 		}
-			
+
 		value.bind(function( to ) {
 			if (to === 'true') {
 				$('section.related.products').show();
@@ -154,13 +156,30 @@
 		} else {
 			$('section.upsells.products').hide();
 		}
-			
+
 		value.bind(function( to ) {
 			if (to === 'true') {
 				$('section.upsells.products').show();
 			} else {
 				$('section.upsells.products').hide();
 			}
+		} );
+
+	} );
+
+	// Sticky product info.
+	wp.customize( 'mk_cz[sh_pp_set_sticky_info_enabled]', function( value ) {
+
+		if (value() === 'true') {
+			$( class_prefix ).addClass( 'mk-info-sticky' );
+			$( 'body' ).trigger( 'mk:woo-info-sticky' );
+		} else {
+			$( class_prefix ).removeClass( 'mk-info-sticky' );
+		}
+
+		value.bind(function( to ) {
+			$( class_prefix ).toggleClass( 'mk-info-sticky' );
+			$( 'body' ).trigger( 'mk:woo-info-sticky' );
 		} );
 
 	} );

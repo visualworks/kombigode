@@ -12,7 +12,7 @@ $GLOBALS['LIB_LOCATION'] = dirname( __FILE__ );
 
 class MP {
 
-	private $version = '3.0.6';
+	private $version = '3.0.15';
 	private $client_id;
 	private $client_secret;
 	private $ll_access_token;
@@ -49,7 +49,7 @@ class MP {
 		MPRestClient::set_email( $email );
 		MeliRestClient::set_email( $email );
 	}
-	
+
 	public function set_locale( $country_code ) {
 		MPRestClient::set_locale( $country_code );
 		MeliRestClient::set_locale( $country_code );
@@ -840,7 +840,7 @@ class MPRestClient {
 
 		// Set parameters and url
 		if ( isset( $request['params'] ) && is_array( $request['params'] ) ) {
-			if ( count( $request['params'] > 0 ) ) {
+			if ( count( $request['params'] ) > 0 ) {
 				$request['uri'] .= ( strpos( $request['uri'], '?' ) === false ) ? '?' : '&';
 				$request['uri'] .= self::build_query( $request['params'] );
 			}
@@ -1004,7 +1004,7 @@ class MPRestClient {
 	public static function set_email( $email ) {
 		self::$email_admin = $email;
 	}
-	
+
 	public static function set_locale( $country_code ) {
 		self::$site_locale = $country_code;
 	}
@@ -1084,7 +1084,7 @@ class MeliRestClient {
 
 		// Set parameters and url
 		if ( isset( $request['params'] ) && is_array( $request['params'] ) ) {
-			if ( count( $request['params'] > 0 ) ) {
+			if ( count( $request['params'] ) > 0 ) {
 				$request['uri'] .= ( strpos( $request['uri'], '?' ) === false ) ? '?' : '&';
 				$request['uri'] .= self::build_query( $request['params'] );
 			}
@@ -1247,7 +1247,7 @@ class MeliRestClient {
 	public static function set_email( $email ) {
 		self::$email_admin = $email;
 	}
-	
+
 	public static function set_locale( $country_code ) {
 		self::$site_locale = $country_code;
 	}

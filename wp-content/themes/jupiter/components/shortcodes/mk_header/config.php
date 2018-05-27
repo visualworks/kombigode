@@ -19,4 +19,18 @@ extract(shortcode_atts(array(
 ), $atts));
 Mk_Static_Files::addAssets('mk_header');
 global $is_header_shortcode_added;
-$is_header_shortcode_added = $style;
+
+/**
+ * Used to fix AM-2850.
+ *
+ * @since 6.0.3
+ *
+ * If users use more than 2 header shortcodes at the same page,
+ * $is_header_shortcode_added value for the 1st header shortcode will be
+ * overriden by 2nd header. Need to save header type information in array.
+ */
+if ( ! is_array( $is_header_shortcode_added ) ) {
+	$is_header_shortcode_added = array();
+}
+
+$is_header_shortcode_added[] = $style;

@@ -1,6 +1,6 @@
-<?php 
+<?php
 
-$id = uniqid();
+$id = Mk_Static_Files::shortcode_id();
 
 if (!empty($view_params['title'])) { ?>
     <h3 class="mk-fancy-title pattern-style"><span><?php echo $view_params['title']; ?></span>
@@ -15,17 +15,24 @@ if (!empty($view_params['title'])) { ?>
 		data-swipeSlideshow-config='{
 		    "effect" : "slide",
 		    "slide" : ".products > .item",
-		    "slidesPerView" : 4,
+			"slidesPerView" : <?php echo esc_attr( $view_params['per_view'] ); ?>,
 		    "displayTime" : 6000,
 		    "transitionTime" : 500,
 		    "pauseOnHover": true,
             "fluidHeight" : "toHighest" }'>
 
-	    <?php echo do_shortcode('['.($view_params['featured'] == 'false' ? 'recent_products' : 'featured_products').' 
-	                                per_page="' . $view_params['per_page'] . '" 
-	                                orderby="' . $view_params['orderby'] . '" 
-	                                order="' . $view_params['order'] . '"]'); ?>
+		<?php
+			echo do_shortcode(
+				'[' . ( 'false' === $view_params['featured'] ? 'recent_products' : 'featured_products' ) . '
+					per_page="' . $view_params['per_page'] . '"
+					orderby="' . $view_params['orderby'] . '"
+					order="' . $view_params['order'] . '"
+					category="' . $view_params['category'] . '"
+					ids="' . $view_params['posts'] . '"
+				]'
+			);
+		?>
 
 	</div>
-	
+
 </div>

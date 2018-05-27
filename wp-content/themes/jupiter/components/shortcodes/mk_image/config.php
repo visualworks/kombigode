@@ -19,6 +19,7 @@ extract( shortcode_atts( array(
 			'desc'                 => '',
 			'align'                => 'left',
 			'caption_location'     => 'inside-image',
+			'hover_image_overlay'  => 'true',
 			'visibility'           => '',
 			'el_class'             => '',
 			'drop_shadow'          => 'false',

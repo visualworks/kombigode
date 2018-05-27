@@ -51,16 +51,16 @@
   display: block;
   color: #222222;
 }
-.mka-clearfix { 
-    zoom: 1; 
+.mka-clearfix {
+    zoom: 1;
 }
 .mka-clearfix:before,
-.mka-clearfix:after { 
-    content: ""; 
-    display: table; 
+.mka-clearfix:after {
+    content: "";
+    display: table;
 }
-.mka-clearfix:after { 
-    clear: both; 
+.mka-clearfix:after {
+    clear: both;
 }
 .mka-hidden {
   display: none !important;
@@ -206,7 +206,7 @@ textarea.mka-textarea:focus {
   border: 0;
   border-radius: 25px;
   box-shadow: 0px 2px 4px 0px rgba(0, 0, 0, 0.2);
-  
+
   transition: background-color 0.1s ease, box-shadow 0.1s ease;
 }
 .mka-wrap .mka-button:hover {
@@ -1696,7 +1696,7 @@ body.mka-modal-active {
   background-color: #f95759;
   cursor:pointer;
 }
-.mka-multiselect-selected-item-close:before, 
+.mka-multiselect-selected-item-close:before,
 .mka-multiselect-selected-item-close:after {
   position: absolute;
   left: 7px;

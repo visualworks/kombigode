@@ -121,6 +121,28 @@
   line-height: 18px;
 }
 
+.mk-image .hover-overlay-disabled .mk-image-overlay {
+  background-color: transparent !important;
+}
+.mk-image.lightbox-enabled .hover-overlay-disabled.mk-image-inner:hover img {
+  -webkit-filter: none;
+  filter: none;
+  filter: none;
+  -webkit-filter: none;
+}
+.mk-image-inner.hover-overlay-disabled .mk-image-lightbox svg {
+  fill: transparent;
+}
+.mk-image .hover-overlay-disabled .mk-image-lightbox {
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  margin: 0;
+  width: auto;
+  height: auto;
+}
+
 @media handheld, only screen and (max-width: 480px) {
   .inside-image .mk-image-caption {
     display: none !important;

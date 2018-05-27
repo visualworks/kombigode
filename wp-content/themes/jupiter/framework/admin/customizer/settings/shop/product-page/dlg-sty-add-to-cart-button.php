@@ -6,6 +6,7 @@
  * @package WordPress
  * @subpackage Jupiter
  * @since 5.9.4
+ * @since 6.0.3 Add full width option.
  */
 
 // Add to Cart Button dialog.
@@ -27,27 +28,6 @@ $wp_customize->add_section(
 	)
 );
 
-// Text.
-$wp_customize->add_setting(
-	'mk_cz[sh_pp_sty_atc_btn_text]', array(
-		'type' => 'option',
-		'default' => __( 'Add to Cart', 'mk_framework' ),
-		'transport' => 'postMessage',
-	)
-);
-
-$wp_customize->add_control(
-	new MK_Input_Control(
-		$wp_customize,
-		'mk_cz[sh_pp_sty_atc_btn_text]',
-		array(
-			'section' => 'mk_s_pp_s_add_to_cart_button',
-			'column'  => 'mk-col-8',
-			'text' => __( 'Text', 'mk_framework' ),
-		)
-	)
-);
-
 // Show Icon.
 $wp_customize->add_setting(
 	'mk_cz[sh_pp_sty_atc_btn_show_icon]', array(
@@ -65,6 +45,27 @@ $wp_customize->add_control(
 			'section' => 'mk_s_pp_s_add_to_cart_button',
 			'column'  => 'mk-col-4',
 			'sublabel' => __( 'Show Icon', 'mk_framework' ),
+		)
+	)
+);
+
+// Full width.
+$wp_customize->add_setting(
+	'mk_cz[sh_pp_sty_atc_btn_full_width]', array(
+		'type' => 'option',
+		'default' => 'false',
+		'transport' => 'postMessage',
+	)
+);
+
+$wp_customize->add_control(
+	new MK_Toggle_Control(
+		$wp_customize,
+		'mk_cz[sh_pp_sty_atc_btn_full_width]',
+		array(
+			'section' => 'mk_s_pp_s_add_to_cart_button',
+			'column'  => 'mk-col-4',
+			'sublabel' => __( 'Full Width', 'mk_framework' ),
 		)
 	)
 );
@@ -375,4 +376,3 @@ $wp_customize->add_control(
 		)
 	)
 );
-

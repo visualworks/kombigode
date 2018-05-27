@@ -50,7 +50,18 @@ $disable_mobile = ($mk_options['footer_disable_mobile'] == 'true' ) ? $mk_footer
 <?php
 	global $is_header_shortcode_added;
 
-if ( $mk_options['seondary_header_for_all'] === 'true' || get_header_style() === '3' || $is_header_shortcode_added === '3' ) {
+	/**
+	 * After new changed, it will return null if there is no header shortcode
+	 * added. Need to check and save it as array if it's null to avoid error.
+	 *
+	 * @since 6.0.3
+	 * @see /components/shortcodes/mk_header/config.php
+	 */
+	if ( ! is_array( $is_header_shortcode_added ) ) {
+		$is_header_shortcode_added = array();
+	}
+
+if ( $mk_options['seondary_header_for_all'] === 'true' || get_header_style() === '3' || in_array( '3', $is_header_shortcode_added, true ) ) {
 	mk_get_header_view(
 		'holders', 'secondary-menu', [
 			'header_shortcode_style' => $is_header_shortcode_added,

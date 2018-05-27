@@ -1,7 +1,18 @@
+/**
+ * Add live preview functions for Image section of Product Page > Styles.
+ *
+ * @since 5.9.4
+ * @since 6.0.3 Add border color/width for layout 9/10.
+ */
 jQuery( document ).ready( function( $ ) {
 
 	var flexViewportContainer = '.woocommerce-page.single-product .images';
 	var flexViewport = '.woocommerce-page.single-product .images .flex-viewport';
+	var galleryImage = '.woocommerce-product-gallery__image';
+
+	if ( ! $('body').is('mk-product-layout-9, .mk-product-layout-9') ) {
+		flexViewport += ', .single-product .images > .woocommerce-product-gallery__wrapper'
+	}
 
 	// Height.
 	wp.customize( 'mk_cz[sh_pp_sty_img_image_ratio]' , function( value ) {
@@ -11,6 +22,15 @@ jQuery( document ).ready( function( $ ) {
 		} );
 
 	} );
+
+	// Background color.
+	wp.customize( 'mk_cz[sh_pp_sty_img_background_color]', function( value ) {
+		$( flexViewport ).css( 'background-color', value() );
+
+		value.bind( function( to ) {
+			$( flexViewport ).css( 'background-color', to );
+		} );
+	});
 
 	// Border width.
 	wp.customize( 'mk_cz[sh_pp_sty_img_border_width]' , function( value ) {
@@ -25,8 +45,11 @@ jQuery( document ).ready( function( $ ) {
 			$( '.flex-active-slide' ).resize();
 		}, 1000);
 
+		$( galleryImage ).css( 'border-width', value() + 'px' );
+
 		value.bind( function( to ) {
 			$( flexViewport ).css( 'border-width', to + 'px' );
+			$( galleryImage ).css( 'border-width', to + 'px' );
 
 			setTimeout( function() {
 				$( '.flex-active-slide' ).resize();
@@ -44,19 +67,22 @@ jQuery( document ).ready( function( $ ) {
 		styles[ flexViewport ] = 'border-color: ' + value();
 		mkPreviewInternalStyle( styles, el );
 
+		$( galleryImage ).css( 'border-color', value() );
+
 		value.bind( function( to ) {
 			$( flexViewport ).css( 'border-color', to );
+			$( galleryImage ).css( 'border-color', to );
 		} );
 
 	} );
 
-	// Method for Control's event handlers: sh_pp_sty_img_box_model.
+	// Box model.
 	wp.customize('mk_cz[sh_pp_sty_img_box_model]', function (value) {
 		var boxModel = mkPreviewBoxModel(value());
 		// calculate container width.
 		var newWidth = parseInt( boxModel['margin-left'], 10 ) + parseInt( boxModel['margin-right'], 10 );
 		var containerWidth = mk_get_image_gallery_width('mk_cz[sh_pp_set_layout]');
-		
+
 		$( flexViewportContainer ).css({
 			width: 'calc(' + containerWidth + '% - ' + newWidth + 'px)'
 		});
@@ -72,9 +98,8 @@ jQuery( document ).ready( function( $ ) {
 				width: 'calc(' + containerWidth + '% - ' + newWidth + 'px)'
 			});
 			$( flexViewportContainer ).css(boxModel);
-			$( '.flex-control-nav' ).resize()	
+			$( '.flex-control-nav' ).resize()
 		});
 	});
 
 } );
-

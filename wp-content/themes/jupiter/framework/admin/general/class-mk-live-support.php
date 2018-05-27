@@ -56,9 +56,14 @@ class Mk_Live_Support {
 	 * @copyright   Artbees LTD (c)
 	 * @link        http://artbees.net
 	 * @since       Version 5.9.5
+	 * @since       Version 6.1 Added Envato Hosted condition.
 	 * @return      bool
 	 */
 	private function eligible_for_live_support_check() {
+		if ( defined( 'ENVATO_HOSTED_SITE' ) ) {
+			return false;
+		}
+
 		if ( ! $this->get_api_key() ) {
 			return false;
 		}
@@ -101,14 +106,20 @@ class Mk_Live_Support {
 	 * @copyright   Artbees LTD (c)
 	 * @link        http://artbees.net
 	 * @since       Version 5.9.5
+	 * @since       6.1.0 Rename function and transient name.
 	 */
-	private function request_vip_user_info() {
-		$transient_name = 'mk_request_vip_user_info_' . $this->get_api_key();
+	private function request_user_info() {
+		$transient_name = 'mk_request_user_info_' . $this->get_api_key();
 		$return_result = get_transient( $transient_name );
 		if ( $return_result ) {
 			return $return_result;
 		}
 		$url  = 'https://themes.artbees.net/wp-admin/admin-ajax.php';
+
+		// Get Jupiter version.
+		$theme_data = wp_get_theme( get_option( 'template' ) );
+		$theme_version = $theme_data->Version;
+
 		$args = array(
 			'method'     => 'POST',
 			'blocking'   => true,
@@ -117,10 +128,12 @@ class Mk_Live_Support {
 				'Content-Type'    => 'application/x-www-form-urlencoded;charset=UTF-8',
 			),
 			'body'       => array(
-				'action'     => 'abb_get_vip_user_by_api_key',
-				'api_key'    => $this->get_api_key(),
+				'action'          => 'abb_get_vip_user_by_api_key',
+				'api_key'         => $this->get_api_key(),
+				'jupiter_version' => $theme_version,
 			),
 		);
+
 		$response = wp_remote_post( $url, $args );
 		// Check if Artbees Portal Response has Error.
 		if ( is_wp_error( $response ) ) {
@@ -198,26 +211,26 @@ class Mk_Live_Support {
 	 * @copyright   Artbees LTD (c)
 	 * @link        http://artbees.net
 	 * @since       Version 5.9.5
+	 * @since       6.1.0 Remove all name and condtions related to vip_user.
 	 * @last_update Version 5.9.5
 	 */
 	public function enqueue_live_support_script() {
 		if ( $this->eligible_for_live_support_check() ) {
-			$vip_user_info = $this->vip_user_info();
-			wp_enqueue_script( 'vip-live-support', THEME_ADMIN_ASSETS_URI . '/js/intercom.js', array( 'jquery' ) );
+			$user_info = $this->user_info();
+			wp_enqueue_script( 'live-support', THEME_ADMIN_ASSETS_URI . '/js/intercom.js', array( 'jquery' ) );
 
-			if ( isset( $vip_user_info['status'] ) && true === $vip_user_info['status'] ) {
-				wp_localize_script( 'vip-live-support', 'vip_user', $vip_user_info );
+			$support_active = isset( $user_info['support_active'] ) ? $user_info['support_active'] : false;
+			$user_status    = isset( $user_info['status'] ) ? $user_info['status'] : false;
+
+			// If user VIP status is true or INTERCOM_SUPPORT_ACTIVE is enabled.
+			if ( true === $user_status || true === $support_active ) {
+				wp_localize_script( 'live-support', 'mk_atp_user', $user_info );
 				return true;
 			}
 
-			if ( isset( $vip_user_info['status'] ) && true !== $vip_user_info['status'] && isset( $vip_user_info['message'] ) ) {
-				$script = 'console.log("Live Support Info : ' . $vip_user_info['message'] . '")';
-				wp_add_inline_script( 'vip-live-support', $script );
-			}
-
-			if ( ! isset( $vip_user_info['status'] ) ) {
-				$script = 'console.log("Live Support not available : An unkown error occurred.");';
-				wp_add_inline_script( 'vip-live-support', $script );
+			if ( ! isset( $user_info['status'] ) ) {
+				$script = 'console.log("Live Support not available : An unknown error occurred.");';
+				wp_add_inline_script( 'live-support', $script );
 			}
 		}
 
@@ -233,13 +246,14 @@ class Mk_Live_Support {
 	 * @copyright   Artbees LTD (c)
 	 * @link        http://artbees.net
 	 * @since       Version 5.9.5
+	 * @since       6.1.0 Rename function name and remove checking related to vip user.
 	 */
-	private function vip_user_info() {
-		$vip_user_info = $this->request_vip_user_info();
-		if ( $vip_user_info && isset( $vip_user_info['status'] ) && true === $vip_user_info['status'] ) {
-			update_option( 'mk_vip_user', true );
+	private function user_info() {
+		$user_info = $this->request_user_info();
+		if ( $user_info && isset( $user_info['status'] ) ) {
+			update_option( 'mk_atp_user', true );
 		}
-		return $vip_user_info;
+		return $user_info;
 	}
 
 }

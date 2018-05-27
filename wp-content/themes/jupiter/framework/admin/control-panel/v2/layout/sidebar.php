@@ -16,6 +16,7 @@ $check_latest_version = $update_class->check_latest_version();
 				</label>
 			</a>
 		</li>
+		<?php if ( ! defined( 'ENVATO_HOSTED_SITE' ) ) { ?>
 		<li class="mka-cp-sidebar-list-items">
 			<a class="mka-cp-sidebar-link" href="#mk-cp-register-product">
 				<span class="mka-cp-nav-item-icon mka-cp-nav-item-icon--register-product">
@@ -30,6 +31,7 @@ $check_latest_version = $update_class->check_latest_version();
 					</svg>
 			</a>
 		</li>
+		<?php } ?>
 		<li class="mka-cp-sidebar-list-items">
 			<a class="mka-cp-sidebar-link" href="#mk-cp-templates">
 				<span class="mka-cp-nav-item-icon mka-cp-nav-item-icon--templates">
@@ -75,6 +77,7 @@ $check_latest_version = $update_class->check_latest_version();
 				</label>
 			</a>
 		</li>
+		<?php if ( ! defined( 'ENVATO_HOSTED_SITE' ) ) { ?>
 		<li class="mka-cp-sidebar-list-items">
 			<a class="mka-cp-sidebar-link" href="#mk-cp-system-status">
 				<span class="mka-cp-nav-item-icon mka-cp-nav-item-icon--system-status">
@@ -84,6 +87,8 @@ $check_latest_version = $update_class->check_latest_version();
 				</label>
 			</a>
 		</li>
+		<?php } ?>
+		<?php if ( ! defined( 'ENVATO_HOSTED_SITE' ) ) { ?>
 		<li class="mka-cp-sidebar-list-items">
 			<a class="mka-cp-sidebar-link" href="#mk-cp-announcements">
 				<span class="mka-cp-nav-item-icon mka-cp-nav-item-icon--announcements">
@@ -93,6 +98,19 @@ $check_latest_version = $update_class->check_latest_version();
 				</label>
 			</a>
 		</li>
+		<?php } ?>
+		<?php if ( ! defined( 'ENVATO_HOSTED_SITE' ) ) { ?>
+		<li class="mka-cp-sidebar-list-items">
+			<a class="mka-cp-sidebar-link" href="#mk-cp-export-import">
+				<span class="mka-cp-nav-item-icon mka-cp-nav-item-icon--export-import">
+				</span>
+				<label class="mka-cp-nav-label">
+					<?php esc_html_e( 'Export & Import', 'mk_framework' ); ?>
+				</label>
+			</a>
+		</li>
+		<?php } ?>
+		<?php if ( ! defined( 'ENVATO_HOSTED_SITE' ) ) { ?>
 		<li class="mka-cp-sidebar-list-items">
 			<a class="mka-cp-sidebar-link" href="#mk-cp-updates-downgrades">
 				<span class="mka-cp-nav-item-icon mka-cp-nav-item-icon--updates">
@@ -108,6 +126,7 @@ $check_latest_version = $update_class->check_latest_version();
 			</a>
 			</a>
 		</li>
+		<?php } ?>
 	</ul>
 </div>
 <!-- End of Sidebar -->

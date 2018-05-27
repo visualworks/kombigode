@@ -35,8 +35,12 @@
     padding: 0;
     margin: 0;
     text-decoration: none;
-    color: #444;
+    color: #222;
     transition: all .15s ease-in-out;
+}
+
+.mkhb-shop-cart-el__link:hover {
+    color: #444;
 }
 
 .mkhb-shop-cart-el-res__link {
@@ -95,45 +99,4 @@
    ========================================================================= */
 .mkhb-shop-cart-el__box {
     z-index: 999;
-}
-
-/**
- * SHOP CART > BOX > WIDGET
- */
-.mkhb-shop-cart-el__box .widget {
-    margin: 0;
-}
-
-.mkhb-shop-cart-el__box .product_list_widget {
-    margin: 15px 0!important;
-}
-
-.mkhb-shop-cart-el__box .product_list_widget li {
-    margin: 0!important;
-    line-height: 22px!important;
-    padding: 10px 0!important;
-}
-
-.mkhb-shop-cart-el__box .product_list_widget li:first-child {
-    border-top: none;
-}
-
-.mkhb-shop-cart-el__box .product_list_widget li.empty {
-    padding-left: 20px!important;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-}
-
-.mkhb-shop-cart-el__box .product_list_widget li a {
-    font-size: 12px;
-    font-weight: 400!important;
-    padding-left: 9px;
-}
-
-.mkhb-shop-cart-el__box .product_list_widget li .quantity {
-    font-size: 16px;
-    font-weight: 700;
-    margin-top: 10px;
-    display: inline-block;
-    text-align: left;
 }

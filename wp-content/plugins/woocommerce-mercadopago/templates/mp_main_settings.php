@@ -299,17 +299,26 @@
 					</p>
 				</td>
 			</tr>
-			<!--<tr>
-				<th scope="row"><label><?php echo __( 'Custom Domain for IPN', 'woocommerce-mercadopago' ); ?></label></th>
+			<tr>
+				<th scope="row"><label><?php echo __( 'Custom banner for checkout', 'woocommerce-mercadopago' ); ?></label></th>
 				<td>
-					<input name="custom_domain" type="text" id="custom_domain" aria-describedby="tagline-description" value="<?php echo $custom_domain; ?>" class="regular-text"/>
+					<input name="custom_banner" type="text" id="custom_banner" aria-describedby="tagline-description" value="<?php echo $custom_banner; ?>" class="regular-text"/>
 					<p class="description" id="tagline-description">
-						<?php echo sprintf( '%s',
-							__( 'If your store is hosted as a subdomain, please inform the complete store URL here.<br>Format should be as: <code>https://yourdomain.com/yoursubdomain</code>.', 'woocommerce-mercadopago' )
+						<?php echo esc_html(
+							__( 'Inform the URL of your banner image. Let blank to use Mercado Pago default.', 'woocommerce-mercadopago' )
 						); ?>
 					</p>
 				</td>
-			</tr>-->
+			</tr>
+			<tr>
+				<th scope="row"><label><?php echo __( 'Custom URL for IPN', 'woocommerce-mercadopago' ); ?></label></th>
+				<td>
+					<input name="custom_domain" type="text" id="custom_domain" aria-describedby="tagline-description" value="<?php echo $custom_domain; ?>" class="regular-text"/>
+					<p class="description" id="tagline-description">
+						<?php echo $custom_domain_message; ?>
+					</p>
+				</td>
+			</tr>
 		</table>
 
 		<table class="form-table" border="0.5" frame="hsides" rules="void">

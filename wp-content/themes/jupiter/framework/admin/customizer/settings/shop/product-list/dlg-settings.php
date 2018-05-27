@@ -5,6 +5,7 @@
  * @package WordPress
  * @subpackage Jupiter
  * @since 5.9.4
+ * @since 6.0.3 Add Default option to Image Ratio.
  */
 
 // Settings tab.
@@ -164,8 +165,8 @@ $wp_customize->add_control(
 $wp_customize->add_setting(
 	'mk_cz[sh_pl_set_image_ratio]', array(
 		'type' => 'option',
-		'default'   => '1_by_1',
-		'transport' => 'refresh',
+		'default'   => 'default',
+		'transport' => 'postMessage',
 	)
 );
 
@@ -179,6 +180,7 @@ $wp_customize->add_control(
 			'input_type'  => 'button',
 			'label'  => __( 'Image Ratio', 'mk_framework' ),
 			'choices' => array(
+				'default' => __( 'Default', 'mk_framework' ),
 				'16_by_9' => __( '16:9', 'mk_framework' ),
 				'3_by_2' => __( '3:2', 'mk_framework' ),
 				'4_by_3' => __( '4:3', 'mk_framework' ),

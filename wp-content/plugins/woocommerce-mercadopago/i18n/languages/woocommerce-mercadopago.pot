@@ -439,10 +439,10 @@ msgstr ""
 msgid "Select the payment methods that you <strong>don\'t</strong> want to receive with Mercado Pago."
 msgstr ""
 
-msgid "Discount by Gateway"
+msgid "Discount/Fee by Gateway"
 msgstr ""
 
-msgid "Give a percentual (0 to 100) discount for your customers if they use this payment gateway."
+msgid "Give a percentual (-99 to 99) discount or fee for your customers if they use this payment gateway. Use negative for fees, positive for discounts."
 msgstr ""
 
 msgid "Two Cards Mode"
@@ -1013,4 +1013,67 @@ msgid "Your products have theirs dimensions well defined."
 msgstr ""
 
 msgid "You have product(s) with invalid dimensions."
+msgstr ""
+
+msgid "It seems you have <strong>Woo Mercado Pago Module</strong> installed. Please, uninstall it before using this version."
+msgstr ""
+
+msgid "Custom URL for IPN"
+msgstr ""
+
+msgid "If you want to use a custom URL for IPN inform it here.<br>Format should be as: <code>https://yourdomain.com/yoursubdomain</code>."
+msgstr ""
+
+msgid "Address Number"
+msgstr ""
+
+msgid "Address Additional Info"
+msgstr ""
+
+msgid "CVC"
+msgstr ""
+
+msgid "Needed informations"
+msgstr ""
+
+msgid "Note: Confirmation under payment approval."
+msgstr ""
+
+msgid "Invalid payment_method_id"
+msgstr ""
+
+msgid "Invalid transaction_amount"
+msgstr ""
+
+msgid "Invalid users involved"
+msgstr ""
+
+msgid "Unauthorized use of live credentials"
+msgstr ""
+
+msgid "Posible causes: Currency not supported; Values under the minimal or above the maximun allowed."
+msgstr ""
+
+msgid "Posible causes: Seller and buyer have the same email in Mercado Pago; Transaction involves production and test users."
+msgstr ""
+
+msgid "Posible causes: Pending permission of use in production of the seller credentials."
+msgstr ""
+
+msgid "Days for Expiration"
+msgstr ""
+
+msgid "Place the number of days (1 to 30) until expiration of the ticket."
+msgstr ""
+
+msgid "Fee of"
+msgstr ""
+
+msgid "Do not save my card"
+msgstr ""
+
+msgid "Custom banner for checkout"
+msgstr ""
+
+msgid "Inform the URL of your banner image. Let blank to use Mercado Pago default."
 msgstr ""

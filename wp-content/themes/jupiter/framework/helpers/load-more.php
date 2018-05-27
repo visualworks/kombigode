@@ -64,9 +64,20 @@ class Mk_Load_More {
 
 			$loaded_posts = ! empty( $_REQUEST['loaded_posts'] ) ? $_REQUEST['loaded_posts'] : array();
 
+		/**
+		 * Fix AM-2852
+		 *
+		 * Send query option empty 'post__not_in' caused an issue on
+		 * WP_Query call. Just send it if the $loaded_posts is not
+		 * empty.
+		 *
+		 * @since 6.0.3
+		 */
+		if ( ! empty( $loaded_posts ) ) {
 			$query['post__not_in'] = $loaded_posts;
+		}
 
-			$query = mk_wp_query( $query );
+			$query     = mk_wp_query( $query );
 			$r = $query['wp_query'];
 			$atts['i'] = $loop_iterator;
 

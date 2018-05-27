@@ -2467,6 +2467,9 @@ p.demo_store {
     margin: 0 0 20px 0 !important;
   }
 }
+.woocommerce .woocommerce-mini-cart__empty-message {
+  margin: 20px 10px;
+}
 .woocommerce ul.cart_list,
 .woocommerce ul.product_list_widget {
   list-style: none outside;

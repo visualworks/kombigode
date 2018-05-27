@@ -32,7 +32,7 @@ class MK_Theme_Options {
 
 	public function enqueue( $hook ) {
 
-		if ( $hook != 'jupiter_page_theme_options' ) {
+		if ( $hook !== strtolower( THEME_NAME ) . '_page_theme_options' ) {
 			return;
 		}
 
@@ -143,6 +143,7 @@ class MK_Theme_Options {
 			$post_type['animated-columns'],
 			$post_type['edge'],
 			$post_type['portfolio'],
+			$post_type['employees'],
 			$post_type['shop_order'],
 			$post_type['shop_order_refund'],
 			$post_type['shop_coupon'],
@@ -386,7 +387,7 @@ class MK_Theme_Options {
 							</span>
 						</p>
 						<vue-form-generator :schema="section" :model="model" :class></vue-form-generator>
-					</div> 
+					</div>
 				</div>
 				</div>
 				<!-- <pre v-if="model" v-html="prettyJSON(model)"></pre> -->

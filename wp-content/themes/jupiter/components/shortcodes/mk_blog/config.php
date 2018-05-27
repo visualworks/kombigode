@@ -31,7 +31,7 @@ extract(shortcode_atts(array(
 ), $atts));
 
 // Added for backward compatibility and will be removed in v5.5
-$count = (!empty($post_count) && $post_count != 10) ? $post_count : $count;
+$count = ( ! empty( $post_count ) ) ? $post_count : $count;
 $offset = (!empty($post_offset) && $post_offset != 0) ? $post_offset : $offset;
 
 

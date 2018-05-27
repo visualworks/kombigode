@@ -14,7 +14,7 @@
  * @see 	    https://docs.woocommerce.com/document/template-structure/
  * @author 		WooThemes
  * @package 	WooCommerce/Templates
- * @version     2.3.0
+ * @version     3.3.0
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -24,7 +24,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 <table class="shop_table woocommerce-checkout-review-order-table">
 	<thead>
 		<tr>
-			<th class="product-name"><?php _e( 'Order Summery', 'mk_framework' ); ?></th>
+			<th class="product-name"><?php esc_html_e( 'Order Summary', 'mk_framework' ); ?></th>
 		</tr>
 	</thead>
 	<tbody>
@@ -42,7 +42,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 						</td>
 						<td class="product-total">
 							<p class="mk-product-total-name"><?php echo apply_filters( 'woocommerce_cart_item_name', $_product->get_name(), $cart_item, $cart_item_key ) . '&nbsp;'; ?></p>
-							<?php echo WC()->cart->get_item_data( $cart_item ); ?>
+							<?php 
+							if(function_exists('wc_get_formatted_cart_item_data')) {
+								echo wc_get_formatted_cart_item_data( $cart_item );	
+							} else {
+								echo WC()->cart->get_item_data( $cart_item );
+							} ?>
 							<span class="product-price-wrap">
 								<?php echo $_product->get_price_html(); ?>
 								<?php echo apply_filters( 'woocommerce_checkout_cart_item_quantity', ' <strong class="product-quantity">' . sprintf( '&times; %s', $cart_item['quantity'] ) . '</strong>', $cart_item, $cart_item_key ); ?>
@@ -88,7 +93,17 @@ if ( ! defined( 'ABSPATH' ) ) {
 			</tr>
 		<?php endforeach; ?>
 
-		<?php if ( wc_tax_enabled() && 'excl' === WC()->cart->tax_display_cart ) : ?>
+		<?php 
+		/*
+		* TODO : this is temporary and will be removed in future versions.
+		*/
+	 	if(mk_is_woocommerce_version('3.3')) {
+	 		$display_prices_including_tax = (! WC()->cart->display_prices_including_tax());
+	 	} else {
+	 		$display_prices_including_tax = ('excl' === WC()->cart->tax_display_cart);
+	 	}
+
+		if ( wc_tax_enabled() && $display_prices_including_tax ) : ?>
 			<?php if ( 'itemized' === get_option( 'woocommerce_tax_total_display' ) ) : ?>
 				<?php foreach ( WC()->cart->get_tax_totals() as $code => $tax ) : ?>
 					<tr class="tax-rate tax-rate-<?php echo sanitize_title( $code ); ?>">

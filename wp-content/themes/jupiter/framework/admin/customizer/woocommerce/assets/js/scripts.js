@@ -1,5 +1,11 @@
 jQuery(document).ready(function( $ ) {
 
+	/**
+	 * Align quantity input based on variation inputs.
+	 *
+	 * @todo Improve logic to do to also align variation inputs based on quantity input.
+	 * @since 5.9.4
+	 */
 	var verticalStatus = false;
 	var slidesToShow = 6;
 
@@ -31,26 +37,87 @@ jQuery(document).ready(function( $ ) {
 		$( '.flex-control-nav' ).slick( 'slickGoTo', $( '.flex-active-slide').index() - 2 );
 	} );
 
-	// Align variations and quantity
+	/**
+	 * Align quantity input based on variation inputs.
+	 *
+	 * @todo Improve logic to do to also align variation inputs based on quantity input.
+	 * @since 6.0.2
+	 * @since 6.0.3 Add min-width to varations label based on qty label width.
+	 */
 	function mkAlignVariationsQuantity() {
 		var $variations = $( '.variations', '.summary' );
+		var $quantity = $( '.mk-product-quantity', '.summary' );
 
-		if ( ! $variations.length ) {
+		if ( ! $variations.is(':visible') ) {
+			$quantity.removeAttr('style');
 			return;
 		}
 
-		var variationsLabelWidth = $( 'td.label', $variations ).outerWidth();
-		$( '.mk-product-quantity', '.summary' ).css( 'margin-left', variationsLabelWidth - 79 );
+		if ( $('body').hasClass('mk-product-layout-8') ) {
+			$quantity.removeAttr('style');
+			return;
+		}
+
+		var $variationLabel = $( 'td.label', $variations );
+		var $quantityLabelWidth = $( '.mk-quantity-label', '.summary' ).width();
+
+		$variationLabel.css({
+			minWidth: $quantityLabelWidth
+		});
+
+		var variationLabelWidth = $variationLabel.outerWidth()
+		var variationLabelPadding = $variationLabel.css('padding-left');
+		var left = variationLabelWidth + parseInt(variationLabelPadding);
+
+		$quantity.css({
+			left: left,
+			position: 'absolute'
+		});
+
 	}
 
-	mkAlignVariationsQuantity();
+	var mkHandleAlign = debounce(function() {
+		mkAlignVariationsQuantity()
+	}, 250)
 
-	// Run functions on resize.
-	$( window ).on( 'resize', function() {
-		setTimeout( function() {
-			mkAlignVariationsQuantity();
-		}, 50 );
-	} )
+	mkAlignVariationsQuantity()
+	$(document.body).on('mk-woo-align-quantity', mkHandleAlign)
+	$(window).on('resize', mkHandleAlign)
+
+	/**
+	 * Add zoom for all images in layout 9 and 10.
+	 * Codes borrowed from `woocommerce/assets/js/frontend/single-product.js`.
+	 *
+	 * @since 6.0.3
+	 */
+	if ( $.isFunction( $.fn.zoom ) && wc_single_product_params.zoom_enabled ) {
+		var zoomTarget = $( '.woocommerce-product-gallery__image' );
+
+		var galleryWidth = zoomTarget.parents( '.flex-viewport' ).width(),
+			zoomEnabled  = false;
+
+		$( zoomTarget ).each( function( index, target ) {
+			var image = $( target ).find( 'img' );
+
+			if ( image.data( 'large_image_width' ) > galleryWidth ) {
+				zoomEnabled = true;
+				return false;
+			}
+		} );
+
+		// But only zoom if the img is larger than its container.
+		if ( zoomEnabled ) {
+			var zoom_options = {
+				touch: false
+			};
+
+			if ( 'ontouchstart' in window ) {
+				zoom_options.on = 'click';
+			}
+
+			zoomTarget.trigger( 'zoom.destroy' );
+			zoomTarget.zoom( zoom_options );
+		}
+	}
 
 });
-

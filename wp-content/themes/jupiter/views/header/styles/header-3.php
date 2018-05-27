@@ -50,13 +50,25 @@ global $woocommerce, $mk_options;
                         <div class="mk-grid header-grid">
                     <?php } ?>
 
-                            <div class="add-header-height">
-                                <?php
-                                    global $is_header_shortcode_added;
-                                    
-                                    if ( ( '3' === $mk_options['theme_header_style'] || '3' === $is_header_shortcode_added || '3' === get_header_style() ) && $seconday_show_logo != 'false' ) {
-                                        mk_get_header_view( 'global', 'secondary-menu-burger-icon', ['is_shortcode' => $is_shortcode, 'header_style' => 3] );
-                                    }
+							<div class="add-header-height">
+								<?php
+									global $is_header_shortcode_added;
+
+									/**
+									 * After new changed, it will return null if there
+									 * is no header shortcode added. Need to check and
+									 * save it as array if it's null to avoid error.
+									 *
+									 * @since 6.0.3
+									 * @see /components/shortcodes/mk_header/config.php
+									 */
+									if ( ! is_array( $is_header_shortcode_added ) ) {
+										$is_header_shortcode_added = array();
+									}
+
+									if ( ( '3' === $mk_options['theme_header_style'] || in_array( '3', $is_header_shortcode_added, true ) || '3' === get_header_style() ) && $seconday_show_logo != 'false' ) {
+										mk_get_header_view( 'global', 'secondary-menu-burger-icon', ['is_shortcode' => $is_shortcode, 'header_style' => 3] );
+									}
                                     
                                     if ( $woocommerce && $mk_options['woocommerce_catalog'] === 'false' && $mk_options['shopping_cart'] === 'true' && $show_cart != 'false' ) { 
                                         mk_get_header_view( 'master', 'checkout', ['header_style' => 3] );

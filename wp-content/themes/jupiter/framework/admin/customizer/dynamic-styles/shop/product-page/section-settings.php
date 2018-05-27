@@ -7,17 +7,13 @@
  * @package Jupiter
  * @subpackage MK_Customizer
  * @since 5.9.4
+ * @since 6.0.3 Add style for layout 10.
  */
 
 $css = '';
-
+$mk_options = get_option( THEME_OPTIONS );
 $layout = mk_cz_get_option( 'sh_pp_set_layout', '1' );
-
-$layout_dynamic_style = THEME_CUSTOMIZER_DIR . '/dynamic-styles/customise-shop/product-page/layouts/layout-' . $layout . '.php';
-
-if ( file_exists( $layout_dynamic_style ) ) {
-	$css = include( $layout_dynamic_style );
-}
+$grid_width = ! empty( $mk_options['grid_width'] ) ? $mk_options['grid_width'] + 125 : 0;
 
 $selectors = array(
 	'.summary .price ins',
@@ -88,5 +84,14 @@ if ( $hide_tabs ) {
 if ( $class ) {
 	$css .= implode( ', ', $class ) . '{display:none;}';
 }
+
+if ( '10' === $layout ) {
+	$css .= '@media handheld, only screen and (min-width: ' . $grid_width . 'px) {
+		.mk-product-layout-10 .full-width-layout {
+			padding-left: 5%;
+			padding-right: 5%;
+		}
+	}';
+};
 
 return $css;

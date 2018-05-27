@@ -37,12 +37,17 @@ function mkhb_search_shortcode( $atts ) {
 		return '';
 	}
 
-	$markup = mkhb_search_get_markup( $options );
-	$style = mkhb_search_get_style( $options );
+	// Set Search internal style.
+	$style = mkhb_search_style( $options );
 
-	wp_register_style( 'mkhb', false, array( 'mkhb-grid' ) );
-	wp_enqueue_style( 'mkhb' );
-	wp_add_inline_style( 'mkhb', $style );
+	// Set Search markup.
+	$markup = mkhb_search_markup( $options );
+
+	// MKHB Hooks as temporary storage.
+	$hooks = mkhb_hooks();
+
+	// Enqueue internal style.
+	$hooks::concat_hook( 'styles', $style );
 
 	return $markup;
 }
@@ -52,12 +57,14 @@ add_shortcode( 'mkhb_search', 'mkhb_search_shortcode' );
  * Generate the element's markup for use on the front-end.
  *
  * @since 6.0.0
+ * @since 6.0.3 Rename function name.
  *
  * @param  array $options All options will be used in the shortcode.
  * @return string $markup Element HTML code.
  */
-function mkhb_search_get_markup( $options ) {
+function mkhb_search_markup( $options ) {
 	$markup  = '';
+
 	// Search initial values for search form.
 	$preview_input  = '';
 	$search_keyword = '';
@@ -79,6 +86,7 @@ function mkhb_search_get_markup( $options ) {
 	// Search additional class.
 	$search_class = mkhb_shortcode_display_class( $options );
 
+	// Search attributes.
 	// @todo Temporary Solution - Data Attribute for inline container.
 	$data_attr = mkhb_shortcode_display_attr( $options );
 
@@ -124,48 +132,53 @@ function mkhb_search_get_markup( $options ) {
 /**
  * Generate the element's style for use on the front-end.
  *
+ * There are 2 cases here:
+ * 1. If search button link hover styles are overriden, return the overriden hover style.
+ * 2. If search button link styles are overriden, return the default hover style. It's
+ *    used to fix hover issue on the link.
+ *
  * @since 6.0.0
+ * @since 6.0.3 Print search style only if it's needed. Rename function name.
  *
  * @param  array $options All options will be used in the shortcode.
  * @return string $style Element CSS code.
  */
-function mkhb_search_get_style( $options ) {
+function mkhb_search_style( $options ) {
+	$search_style = '';
 	$style = '';
 
-	// Search display, alignment, padding & margin.
-	$style .= "#{$options['id']} {";
-	$display = '';
-	$text_align = '';
-
+	// Search Display.
 	if ( ! empty( $options['display'] ) ) {
 		if ( 'inline' === $options['display'] ) {
-			$display .= 'display: inline-block; vertical-align: top;';
+			$search_style .= 'display: inline-block; vertical-align: top;';
 		}
 	}
+
+	// Search Alignment.
 	if ( ! empty( $options['alignment'] ) ) {
-		$text_align .= "text-align: {$options['alignment']};";
+		$search_style .= "text-align: {$options['alignment']};";
 	}
 
 	// Search Margin and Padding Style.
-	$style .= mkhb_search_layout( $options );
+	$search_style = mkhb_search_layout( $options );
 
-	$style .= $display;
-	$style .= $text_align;
-	$style .= '}';
+	// Set Search style.
+	if ( ! empty( $search_style ) ) {
+		$style = "#{$options['id']} { $search_style }";
+	}
 
 	// Search color.
-	$style .= "#{$options['id']} .mkhb-search-el__container {";
 	if ( ! empty( $options['icon-color'] ) ) {
-		$style .= "color: {$options['icon-color']};";
+		$style .= "#{$options['id']} .mkhb-search-el__container { color: {$options['icon-color']}; }";
 	}
-	$style .= '}';
 
-	// Search color hover.
-	$style .= "#{$options['id']} .mkhb-search-el__container:hover {";
+	// 1.a Search color hover.
+	// 2.a If search color is overriden, set default color for hover state.
 	if ( ! empty( $options['icon-hover-color'] ) ) {
-		$style .= "color: {$options['icon-hover-color']};";
+		$style .= "#{$options['id']} .mkhb-search-el__container:hover { color: {$options['icon-hover-color']}; }";
+	} elseif ( ! empty( $options['icon-color'] ) ) {
+		$style .= "#{$options['id']} .mkhb-search-el__container:hover { color: rgba(119, 119, 119, 1); }";
 	}
-	$style .= '}';
 
 	return $style;
 }

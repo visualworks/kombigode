@@ -247,7 +247,7 @@ function mk_logic_message_helper( $which_page, $which_string, $which_type = 'use
 			'user_msg' => __( '', 'mk_framework' ),
 		),
 		array(
-			'sys_msg'  => 'Compeleted',
+			'sys_msg'  => 'Completed',
 			'user_msg' => __( '', 'mk_framework' ),
 		),
 		array(

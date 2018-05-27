@@ -12,11 +12,13 @@
 	border-radius: 0;
 	border-width: 0;
 	border-color: rgba(129,212,250,1);
+	border-style: solid;
 	color: #ffffff;
 	display: inline-block;
 	font-weight: 700;
 	font-size: 14px;
 	font-style: normal;
+	font-family: 'Roboto';
 	height: auto;
 	margin: 0;
 	max-width: 100%;

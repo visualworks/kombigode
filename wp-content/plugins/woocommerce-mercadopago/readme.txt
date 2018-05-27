@@ -1,10 +1,10 @@
 === WooCommerce MercadoPago ===
-Contributors: mercadopago, mercadolivre, claudiosanches
+Contributors: mercadopago, mercadolivre, claudiosanches, marcelohama
 Tags: ecommerce, mercadopago, woocommerce
 Requires at least: 4.8
 Tested up to: 4.8
 Requires PHP: 5.6
-Stable tag: 3.0.6
+Stable tag: 3.0.15
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -214,6 +214,51 @@ Features: LatAm Basic Checkout support. Great for merchants who want to get goin
 4. `Plugin Options`
 
 == Changelog ==
+
+= v3.0.15 (15/03/2018) =
+* Improvements
+	- Allowing customization by merchants, in ticket fields (credits to https://github.com/fernandoacosta)
+	- Fixed a bug in Mercado Envios processment.
+
+= v3.0.14 (13/03/2018) =
+* Improvements
+	- Discount and fee by gateway accepts two leading zeros after decimal point;
+	- Customers now have the option to not save their credit cards;
+	- Checkout banner is now customizable.
+
+= v3.0.13 (01/03/2018) =
+* Bug fixes
+	- Fixed a bug in modal window for Basic Checkout.
+
+= v3.0.12 (28/02/2018) =
+* Improvements
+	- Added date limit for ticket payment;
+	- Added option for extra tax by payment gateway;
+	- Increased stability.
+
+= v3.0.11 (19/02/2018) =
+* Improvements
+	- Improved feedback messages when an order fails;
+	- Improved credential validation for custom checkout by credit cards.
+
+= v3.0.10 (29/01/2018) =
+* Improvements
+	- Improved layout in Credit Card and Ticket forms;
+	- Improved support to WordPress themes.
+
+= v3.0.9 (16/01/2018) =
+* Bug fixes
+	- Fixed a bug in the URL of product image;
+	- Fix count error in sdk (credits to xchwarze).
+
+= v3.0.8 (05/01/2018) =
+* Improvements
+	- Increased support and handling to older PHP;
+	- IPN/Webhook now customizable.
+
+= v3.0.7 (21/12/2017) =
+* Improvements
+	- Checking presence of older versions to prevent inconsistences.
 
 = v3.0.6 (13/12/2017) =
 * Improvements

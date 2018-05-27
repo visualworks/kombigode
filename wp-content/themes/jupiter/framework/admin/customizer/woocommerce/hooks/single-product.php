@@ -7,32 +7,40 @@
  * @since 5.9.4
  */
 
+$image_ratio = mk_cz_get_option( 'sh_pp_sty_img_image_ratio', 'default' );
+$product_layout = mk_cz_get_option( 'sh_pp_set_layout', '1' );
+
 // Add badges section before title.
-add_action(
-	'woocommerce_single_product_summary', function() {
+add_action( 'woocommerce_single_product_summary', 'mk_woo_single_badges', 4 );
+
+/**
+ * Add wrapper and action for badges.
+ *
+ * @since 5.9.4
+ * @since 6.0.1 Change to named function.
+ * @return mixed HTML and action.
+ */
+function mk_woo_single_badges() {
 	?>
 		<div class="mk-single-product-badges">
 			<?php do_action( 'mk_single_product_badges' ); ?>
 		</div>
 	<?php
-	}, 4
-);
+}
 
 // Add Out of Stock badge before title.
-add_action(
-	'mk_single_product_badges', function() {
-		global $product;
+add_action( 'mk_single_product_badges', function() {
+	global $product;
 
-		if ( ! $product->is_in_stock() || 'variable' === $product->get_type() ) {
-			$style = ('variable' === $product->get_type()) ? 'display:none;' : '';
-			echo '<span class="mk-out-of-stock" style="' . esc_attr( $style ) . '">' . esc_html( mk_cz_get_option( 'sh_pp_sty_oos_bdg_text', 'Out of Stock' ) ) . '</span>';
-		}
+	if ( ! $product->is_in_stock() || 'variable' === $product->get_type() ) {
+		$style = ('variable' === $product->get_type()) ? 'display:none;' : '';
+		echo '<span class="mk-out-of-stock" style="' . esc_attr( $style ) . '">' . esc_html__( 'Out of Stock', 'mk_framework' ) . '</span>';
 	}
-);
+} );
 
 // Remove Sale bage then add it before title.
 remove_action( 'woocommerce_before_single_product_summary', 'woocommerce_show_product_sale_flash' );
-add_action( 'mk_single_product_badges', 'woocommerce_show_product_sale_flash' );
+add_action( 'mk_single_product_badges', 'woocommerce_show_product_sale_flash', 10 );
 
 // Show rating after price.
 remove_action( 'woocommerce_single_product_summary', 'woocommerce_template_single_rating' );
@@ -41,6 +49,120 @@ add_action( 'woocommerce_single_product_summary', 'woocommerce_template_single_r
 // Show meta after rating.
 remove_action( 'woocommerce_single_product_summary', 'woocommerce_template_single_meta', 40 );
 add_action( 'woocommerce_single_product_summary', 'woocommerce_template_single_meta', 12 );
+
+/**
+ * Add required body class.
+ *
+ * @since 6.0.3
+ */
+add_filter( 'body_class', function( $classes ) use ( $product_layout ) {
+	if ( ! is_product() ) {
+		return $classes;
+	}
+
+	// Define related/up-sells layout.
+	if ( in_array( $product_layout, array( '9', '10' ), true ) ) {
+		$classes[] = 'columns-3';
+	} else {
+		$classes[] = 'columns-4';
+	}
+
+	return $classes;
+}, 10 );
+
+/**
+ * Remove Tabs then add Accordions under Add to Cart button.
+ *
+ * @since 6.0.2
+ * @since 6.0.3 Add layout 9, 10.
+ */
+if ( in_array( $product_layout, array( '5', '6', '9', '10' ), true ) ) {
+	remove_action( 'woocommerce_after_single_product_summary', 'woocommerce_output_product_data_tabs', 10 );
+	add_action( 'woocommerce_single_product_summary', function() {
+		wc_get_template( 'single-product/accordions.php' );
+	}, 40 );
+}
+
+/**
+ * Define related/up-sell products layout for layout 9/10.
+ * Add an empty div ro fix layout issue when related/up-sells products are missing.
+ *
+ * @since 6.0.3
+ */
+if ( in_array( $product_layout, array( '9', '10' ), true ) ) {
+	add_action( 'woocommerce_after_single_product_summary', function() {
+		echo '<div class="clearboth"></div>';
+	}, 50 );
+
+	if ( 'true' === mk_cz_get_option( 'sh_pp_set_sticky_info_enabled', 'true' ) ) {
+		add_filter( 'post_class', function( $classes ) {
+			$classes[] = 'mk-info-sticky';
+			return $classes;
+		}, 10 );
+	}
+}
+
+/**
+ * Remove Tabs then add Accordions under Social icons for layout 3/4.
+ *
+ * @since 6.0.2
+ */
+if ( in_array( $product_layout, array( '3', '4' ), true ) ) {
+	remove_action( 'woocommerce_after_single_product_summary', 'woocommerce_output_product_data_tabs', 10 );
+	add_action( 'woocommerce_after_single_product_summary', function() {
+		wc_get_template( 'single-product/accordions.php' );
+	}, 10 );
+
+	remove_action( 'woocommerce_single_product_summary', 'mk_woo_single_badges', 4 );
+	add_action( 'woocommerce_before_single_product_summary', 'mk_woo_single_badges', 30 );
+}
+
+/**
+ * Make single product full-width for layout 4/8/10.
+ *
+ * @since 6.0.3
+ */
+if ( in_array( $product_layout, array( '4', '8', '10' ), true ) ) {
+
+	add_action( 'wp', function() {
+		if ( ! is_product() ) {
+			return;
+		}
+
+		add_filter( 'mk_woo_theme_page_wrapper_class', function( $classes ) {
+
+			if ( in_array( 'full-layout', $classes, true ) ) {
+				unset( $classes[ array_search( 'full-layout', $classes, true ) ] );
+			}
+
+			if ( in_array( 'mk-grid', $classes, true ) ) {
+				unset( $classes[ array_search( 'mk-grid', $classes, true ) ] );
+			}
+
+			$classes[] = 'full-width-layout';
+
+			return $classes;
+		}, 10 );
+	} );
+
+}
+
+/**
+ * Add a wrapper for layout 4/8.
+ *
+ * @since 6.0.3
+ */
+if ( in_array( $product_layout, array( '4', '8' ), true ) ) {
+
+	add_action( 'woocommerce_before_single_product_summary', function() {
+		echo '<div class="mk-grid">';
+	}, 25 );
+
+	add_action( 'woocommerce_after_single_product_summary', function() {
+		echo '</div>';
+	}, 30 );
+
+}
 
 // Filter the price variation separator.
 add_filter(
@@ -57,24 +179,6 @@ add_filter(
 		}
 		return $price;
 	}, 100, 2
-);
-
-// Filter the sale badge for single page.
-add_filter(
-	'woocommerce_sale_flash', function( $html, $post, $product ) {
-
-		if ( ! $product->is_in_stock() || ! $product->is_on_sale() ) {
-			return;
-		}
-
-		if ( is_product() ) {
-			$style = ('variable' === $product->get_type()) ? 'display:none;' : '';
-			return '<span class="onsale" style="' . esc_attr( $style ) . '">' . esc_html( mk_cz_get_option( 'sh_pp_sty_sal_bdg_text', 'sale' ) ) . '</span>';
-		}
-
-		return $html;
-
-	}, 10, 3
 );
 
 add_action(
@@ -181,8 +285,6 @@ add_action(
 	}, 0
 );
 
-
-
 // Filter body css class based on selected layout.
 add_filter(
 	'body_class', function( $classes ) {
@@ -196,21 +298,23 @@ add_filter(
 	}
 );
 
-// Add Gallery orientation class to product post.
-add_filter(
-	'post_class', function( $classes ) {
+/**
+ * Filter ptoduct classes.
+ *
+ * @since 5.9.4 Add Gallery orientation.
+ * @since 6.0.3 Add button full width.
+ */
+add_filter( 'post_class', function( $classes ) {
+	if ( is_product() ) {
+		$classes[] = 'mk-product-orientation-' . mk_cz_get_option( 'sh_pp_sty_img_orientation', 'horizontal' );
 
-		if ( is_product() ) {
-			return array_merge(
-				$classes,
-				array( 'mk-product-orientation-' . mk_cz_get_option( 'sh_pp_sty_img_orientation', 'horizontal' ) )
-			);
+		if ( 'true' === mk_cz_get_option( 'sh_pp_sty_atc_btn_full_width', 'false' ) ) {
+			$classes[] = 'mk-button-full-width';
 		}
-
-		return $classes;
-
 	}
-);
+
+	return $classes;
+} );
 
 // Turn on directionNav for single product flexslider.
 add_filter(
@@ -222,49 +326,44 @@ add_filter(
 );
 
 // Modify WooCommerece shop_single image size.
-$image_ratio = mk_cz_get_option( 'sh_pp_sty_img_image_ratio', '1_by_1' );
-$product_layout = mk_cz_get_option( 'sh_pp_set_layout', '1' );
+if ( 'default' !== $image_ratio ) {
 
-if ( $image_ratio ) {
+	add_filter( 'woocommerce_get_image_size_shop_single', function( $size ) use ( $image_ratio, $product_layout ) {
 
-	add_filter(
-		'woocommerce_get_image_size_shop_single', function( $size ) use ( $image_ratio, $product_layout ) {
+		$width = 700;
 
-			$width = 600;
-
-			// Other layout need to be checked in future.
-			if ( '7' === $product_layout ) {
-				$width = 1140; // later get grid_width from theme options.
-			}
-
-			switch ( $image_ratio ) {
-				case '16_by_9':
-					$height = round( ($width * 9) / 16 );
-					break;
-				case '3_by_2':
-					$height = round( ($width * 2) / 3 );
-					break;
-				case '2_by_3':
-					$height = round( ($width * 3) / 2 );
-					break;
-				case '9_by_16':
-					$height = round( ($width * 16) / 9 );
-					break;
-				default:
-					$height = $width;
-					break;
-			}
-
-			$size = array(
-				'width'  => $width,
-				'height' => $height,
-				'crop'   => 1, // We may need to add an extra option for this later.
-			);
-
-			return $size;
-
+		// Other layout need to be checked in future.
+		if ( '7' === $product_layout ) {
+			$width = 1240; // later get grid_width from theme options.
 		}
-	);
+
+		switch ( $image_ratio ) {
+			case '16_by_9':
+				$height = round( ($width * 9) / 16 );
+				break;
+			case '3_by_2':
+				$height = round( ($width * 2) / 3 );
+				break;
+			case '2_by_3':
+				$height = round( ($width * 3) / 2 );
+				break;
+			case '9_by_16':
+				$height = round( ($width * 16) / 9 );
+				break;
+			default:
+				$height = $width;
+				break;
+		}
+
+		$size = array(
+			'width'  => $width,
+			'height' => $height,
+			'crop'   => 1, // We may need to add an extra option for this later.
+		);
+
+		return $size;
+
+	} );
 
 } // End if().
 
@@ -321,3 +420,10 @@ if ( ! is_customize_preview() ) {
 
 } // End if().
 
+/**
+ * Show variation price under the quantity.
+ *
+ * @since 6.0.1
+ */
+remove_action( 'woocommerce_single_variation', 'woocommerce_single_variation', 10 );
+add_action( 'woocommerce_after_add_to_cart_quantity', 'woocommerce_single_variation', 10 );

@@ -1,6 +1,5 @@
 /* ============================================================================
    HB Nav Container
-   Version: 6.0.0
    ========================================================================= */
 .mkhb-nav-container {
 	z-index: 30;
@@ -652,11 +651,15 @@
 .mkhb-navigation-resp__bar {
 	position: relative;
 }
+.mkhb-navigation-resp__sub-bar:before,
+.mkhb-navigation-resp__sub-bar:after,
 .mkhb-navigation-resp__bar,
 .mkhb-navigation-resp__bar:before,
 .mkhb-navigation-resp__bar:after {
 	background: #ffffff;
 }
+.mkhb-navigation-resp__box:hover .mkhb-navigation-resp__sub-bar:before,
+.mkhb-navigation-resp__box:hover .mkhb-navigation-resp__sub-bar:after,
 .mkhb-navigation-resp__box:hover .mkhb-navigation-resp__bar,
 .mkhb-navigation-resp__box:hover .mkhb-navigation-resp__bar:before,
 .mkhb-navigation-resp__box:hover .mkhb-navigation-resp__bar:after {
@@ -713,21 +716,17 @@
 .fullscreen-active .mkhb-navigation-resp__box--morphing .mkhb-navigation-resp__sub-bar:before,
 .mkhb-navigation-resp__box--morphing .mkhb-navigation-resp__sub-bar:before,
 .mkhb-navigation-resp__box--morphing .mkhb-navigation-resp__sub-bar:after {
-	transition: transform 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+	transition: transform 0.25s cubic-bezier(0.23, 1, 0.32, 1);
 }
 
 .mkhb-navigation-resp__box--morphing .mkhb-navigation-resp__bar:before,
-.fullscreen-active .mkhb-navigation-resp__box--morphing .mkhb-navigation-resp__bar:before {
-	transition: bottom 0.5s cubic-bezier(0.23, 1, 0.32, 1),
-	width 0.3s ease,
-	left 0.5s cubic-bezier(0.23, 1, 0.32, 1);
-}
-
+.fullscreen-active .mkhb-navigation-resp__box--morphing .mkhb-navigation-resp__bar:before,
 .mkhb-navigation-resp__box--morphing .mkhb-navigation-resp__bar:after,
 .fullscreen-active .mkhb-navigation-resp__box--morphing .mkhb-navigation-resp__bar:after {
-	transition: top 0.5s cubic-bezier(0.23, 1, 0.32, 1),
-	width 0.3s ease,
-	left 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+	transition:
+		transform 0.5s cubic-bezier(0.23, 1, 0.32, 1),
+		left 0.5s cubic-bezier(0.23, 1, 0.32, 1),
+		width 0.5s cubic-bezier(0.23, 1, 0.32, 1);
 }
 
 .mkhb-navigation-resp__box--morphing .mkhb-navigation-resp__bar:after,
@@ -738,7 +737,6 @@
 .fullscreen-active .mkhb-navigation-resp__box--morphing .mkhb-navigation-resp__bar:after,
 .fullscreen-active .mkhb-navigation-resp__box--morphing .mkhb-navigation-resp__bar:before {
 	transform: rotate(0deg);
-	left: 50%;
 	left: 50%;
 	width: 0 !important;
 }

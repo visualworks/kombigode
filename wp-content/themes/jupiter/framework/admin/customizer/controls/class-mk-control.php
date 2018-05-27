@@ -12,6 +12,13 @@
  *
  * @see WP_Customize_Control
  * @since 5.9.4
+ *
+ * @SuppressWarnings(PHPMD.NumberOfChildren)
+ * - The class MK_Control has 15 children. Consider to rebalance this class
+ *   hierarchy to keep number of children under 15
+ * @SuppressWarnings(PHPMD.ExcessiveClassComplexity)
+ * - The class MK_Control has an overall complexity of 52 which is very high.
+ *   The configured complexity threshold is 50.
  */
 class MK_Control extends WP_Customize_Control {
 
@@ -133,26 +140,53 @@ class MK_Control extends WP_Customize_Control {
 	public function render() {
 		$class = 'customize-control customize-control-' . $this->type . ' ' . $this->column;
 
-		?><li id="<?php echo esc_attr( $this->id ); ?>" class="<?php echo esc_attr( $class ); ?>">
-			<?php $this->render_content(); ?>
-			<?php if ( count( $this->condition ) ) { ?>
-				<script>
-					wp.customize( '<?php echo esc_attr( $this->condition['setting'] ); ?>', function( setting ) {
-						wp.customize.control( '<?php echo esc_attr( $this->id ); ?>', mkShowControlIfhasValues( setting, ['<?php echo esc_attr( $this->condition['value'] ); ?>']) );
-					});
-				</script>
-			<?php } ?>
+		?>
+		<li id="<?php echo esc_attr( $this->id ); ?>" class="<?php echo esc_attr( $class ); ?>">
+			<?php
+			$this->render_content();
+			$this->render_condition();
+			?>
 		</li>
 		<?php
 	}
 
 	/**
-	 * Render the control's label.
+	 * Renders the logical visibility condition
+	 *
+	 * @since 6.0.3
 	 */
-	protected function render_label() {
-		if ( ! empty( $this->label ) ) {
+	protected function render_condition() {
+		if ( ! count( $this->condition ) ) {
+			return;
+		}
+
+		$condition = $this->condition;
+		$relation  = 'AND';
+
+		if ( isset( $condition['relation'] ) && ! empty( $condition['relation'] ) ) {
+			$relation = strtoupper( $condition['relation'] );
+			unset( $condition['relation'] );
+		}
+
 		?>
-		<span class="customize-control-title"><?php echo esc_html( $this->label ); ?></span>
+		<script>
+			mkControlVisibilityCondition( '<?php echo esc_attr( $this->id ); ?>', <?php echo wp_json_encode( $condition ); ?>, '<?php echo esc_attr( $relation ); ?>' );
+		</script>
+		<?php
+	}
+
+	/**
+	 * Render the control's label.
+	 *
+	 * @param string $label Set the custom label value.
+	 */
+	protected function render_label( $label = null ) {
+		if ( is_null( $label ) ) {
+			$label = $this->label;
+		}
+		if ( ! empty( $label ) ) {
+		?>
+		<span class="customize-control-title"><?php echo esc_html( $label ); ?></span>
 		<?php
 		}
 	}
@@ -290,7 +324,7 @@ class MK_Control extends WP_Customize_Control {
 			<select <?php $this->link( $args['link'] ); ?> <?php $this->render_input_attrs( $args['input_attrs'] ); ?>>
 				<?php
 				foreach ( $args['choices'] as $value => $label ) {
-					echo'<option';
+					echo '<option';
 					if ( is_array( $label ) ) {
 						foreach ( $label as $option_data_key => $option_data_value ) {
 							if ( 'label' !== $option_data_key ) {
@@ -422,4 +456,66 @@ class MK_Control extends WP_Customize_Control {
 	<?php
 	}
 
+	/**
+	 * Render the control's textarea element.
+	 *
+	 * @param array $args Method arguments associative array.
+	 * @see   self::normalize_args();
+	 */
+	public function render_textarea( $args = array() ) {
+
+		$args = $this->normalize_args(
+			wp_parse_args(
+				$args,
+				array(
+					'value' => $this->value(),
+				)
+			)
+		);
+
+		?>
+		<div class="mk-element mk-element-textarea <?php echo esc_attr( $this->wrap_class( $args ) ); ?>">
+			<?php
+			$this->render_input_group_text( $args['text'] );
+			?>
+			<textarea <?php $this->link( $args['link'] ); ?> <?php $this->render_input_attrs( $args['input_attrs'] ); ?>>
+				<?php echo esc_attr( $args['value'] ); ?>
+			</textarea>
+		</div>
+		<?php
+	}
+
+	/**
+	 * Render the control's button element.
+	 *
+	 * @param array $args Method arguments associative array.
+	 * @see   self::normalize_args();
+	 */
+	public function render_button( $args = array() ) {
+
+		$args = $this->normalize_args(
+			wp_parse_args(
+				$args,
+				array(
+					'value' => $this->value(),
+				)
+			)
+		);
+
+		?>
+		<div class="mk-element mk-element-button <?php echo esc_attr( $this->wrap_class( $args ) ); ?>">
+			<button class="mk-button" <?php $this->render_input_attrs( $args['input_attrs'] ); ?>>
+				<?php
+				if ( ! empty( $args['icon'] ) ) {
+					echo '<span class="mk-button-icon"><img src="' . esc_attr( THEME_CUSTOMIZER_URI ) . '/assets/icons/' . esc_attr( $args['icon'] ) . '.svg"></span>';
+				}
+
+				if ( ! empty( $args['text'] ) ) {
+					echo esc_html( $args['text'] );
+				}
+				?>
+			</button>
+		</div>
+		<?php
+	}
 }

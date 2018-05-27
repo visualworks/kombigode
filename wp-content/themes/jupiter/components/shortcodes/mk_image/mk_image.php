@@ -8,6 +8,7 @@ include( $path . '/config.php' );
 $id = Mk_Static_Files::shortcode_id();
 
 $lightbox_enabled = $src_lightbox = $image_svg_enabled = $max_width_css = $is_svg_class = '';
+$hover_overlay_disabled = '';
 
 $image_id = mk_get_attachment_id_from_url( $src );
 $alt = get_post_meta( $image_id, '_wp_attachment_image_alt', true );
@@ -19,6 +20,11 @@ $image_title = ! (empty( $image_media_title ) ) ? $image_media_title : ( ! empty
 if ( 'true' == $lightbox ) {
 	$lightbox_enabled = 'lightbox-enabled';
 	$custom_lightbox = ! empty( $custom_lightbox ) ? ( $src_lightbox = $custom_lightbox ) : $src_lightbox = $src;
+
+	// Image hover overlay.
+	if ( 'false' === $hover_image_overlay ) {
+		$hover_overlay_disabled = 'hover-overlay-disabled';
+	}
 }
 
 $is_svg = ( pathinfo( $src, PATHINFO_EXTENSION ) == 'svg' );
@@ -74,7 +80,7 @@ $output .= mk_get_view( 'global', 'shortcode-heading', true, [ 'title' => $headi
 
 $svg = ( 'true' == $svg ) ? ( 'style="max-width:' . $actual_image_width . 'px" ' ) : '';
 $output .= '<div  class="mk-image-holder" style="' . $max_width_css . '">';
-$output .= '<div class="mk-image-inner ' . $is_svg_class . '">';
+$output .= '<div class="mk-image-inner ' . $is_svg_class . ' ' . $hover_overlay_disabled . '">';
 $output .= ($link) ? '<a href="' . $link . '" target="' . $target . '" class="mk-image-link">' : '';
 
 $output .= '<img class="lightbox-' . $lightbox . '" alt="' . esc_attr( $image_alt ) . '" title="' . esc_attr( $image_title ) . '" width="' . $actual_image_width . '" height="' . $actual_image_height . '" src="' . $image_output_src . '" ' . $image_svg_enabled . '/>';

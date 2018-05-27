@@ -119,3 +119,8 @@
     float: none !important;
   }
 }
+
+/* Hide cart link */
+.mk-gradient-button .added_to_cart {
+	display: none;
+}

@@ -17,7 +17,11 @@ include ($path . '/config.php');
 		'featured' => $featured,
 		'title' => $title,
 		'image_size' => $image_size,
-		'per_view' => $per_view
+		'per_view'             => $per_view,
+		'arrow_color'          => $arrow_color,
+		'arrow_bg_color'       => $arrow_bg_color,
+		'arrow_hover_color'    => $arrow_hover_color,
+		'arrow_hover_bg_color' => $arrow_hover_bg_color,
 	);
 	echo mk_get_shortcode_view('mk_woocommerce_recent_carousel', 'loop-styles/' . $style, true, $atts);
 ?>

@@ -5,9 +5,12 @@
  * @package Jupiter
  * @subpackage MK_Customizer
  * @since 5.9.4
- * @since 6.0.1 Limit image size override to shop page (excluding shortcodes)
- *        and increase width by 50px to improve the quality.
+ * @since 6.0.1
+ *        Limit image size override to shop page (excluding shortcodes).
+ *        Increase width by 50px to improve the quality.
  */
+
+$image_ratio = mk_cz_get_option( 'sh_pl_set_image_ratio', 'default' );
 
 // Remove default shop page title.
 add_filter( 'woocommerce_show_page_title', '__return_false' );
@@ -40,35 +43,13 @@ add_filter( 'loop_shop_columns', function( $columns ) {
 
 }, 100 );
 
-add_filter( 'body_class', function( $classes ) {
-	return array_merge( $classes, array(
-		'columns-' . mk_cz_get_option( 'sh_pl_set_columns', 4 ),
-		'mk-sh-pl-hover-style-' . mk_cz_get_option( 'sh_pl_set_hover_style', 'none' ),
-	) );
-} );
-
-// Filter the add to cart button text.
-add_filter( 'woocommerce_product_add_to_cart_text', function( $text, $product ) {
-
-	if ( ! $product->is_type( 'simple' ) || ! $product->is_in_stock() ) {
-		return $text;
-	}
-
-	if ( is_shop() || is_product_category() || is_product_tag() ) {
-		return mk_cz_get_option( 'sh_pl_sty_atc_btn_text', $text );
-	}
-
-	return $text;
-
-}, 10, 2 );
-
 // Add out of stock badge on product list.
 add_action( 'woocommerce_shop_loop_item_title', function() {
 
 	global $product;
 
 	if ( ! $product->is_in_stock() ) {
-		echo '<span class="mk-out-of-stock">' . esc_html( mk_cz_get_option( 'sh_pl_sty_oos_bdg_text', 'Out of Stock' ) ) . '</span>';
+		echo '<span class="mk-out-of-stock">' . esc_html__( 'Out of Stock', 'mk_framework' ) . '</span>';
 	}
 } );
 
@@ -111,45 +92,53 @@ add_filter( 'woocommerce_after_shop_loop_item', function() {
 
 remove_action( 'woocommerce_before_shop_loop_item_title', 'woocommerce_template_loop_product_thumbnail', 10 );
 
-add_filter( 'single_product_archive_thumbnail_size', function( $size ) {
+/**
+ * Filter product list image size.
+ *
+ * @since 5.9.4
+ * @since 6.0.3 Add check for Default Image Ratio.
+ * @return array width and height.
+ */
+if ( 'default' !== $image_ratio ) {
+	add_filter( 'single_product_archive_thumbnail_size', function( $size ) use ( $image_ratio ) {
 
-	if ( is_shop() || is_product_category() || is_product_tag() ) {
+		if ( is_shop() || is_product_category() || is_product_tag() ) {
 
-		$columns = mk_cz_get_option( 'sh_pl_set_columns', 4 );
-		$grid_width = mk_get_option( 'grid_width', 1140 );
+			$columns = mk_cz_get_option( 'sh_pl_set_columns', 4 );
+			$grid_width = mk_get_option( 'grid_width', 1140 );
 
-		$width = round( $grid_width / $columns ) + 50;
-		$image_ratio = mk_cz_get_option( 'sh_pl_set_image_ratio', '1_by_1' );
+			$width = round( $grid_width / $columns ) + 50;
 
-		switch ( $image_ratio ) {
-			case '16_by_9':
-				$height = round( ($width * 9) / 16 );
-				break;
-			case '3_by_2':
-				$height = round( ($width * 2) / 3 );
-				break;
-			case '4_by_3':
-				$height = round( ($width * 3) / 4 );
-				break;
-			case '3_by_4':
-				$height = round( ($width * 4) / 3 );
-				break;
-			case '2_by_3':
-				$height = round( ($width * 3) / 2 );
-				break;
-			case '9_by_16':
-				$height = round( ($width * 16) / 9 );
-				break;
-			default:
-				return $size;
+			switch ( $image_ratio ) {
+				case '16_by_9':
+					$height = round( ( $width * 9 ) / 16 );
+					break;
+				case '3_by_2':
+					$height = round( ( $width * 2 ) / 3 );
+					break;
+				case '4_by_3':
+					$height = round( ( $width * 3 ) / 4 );
+					break;
+				case '3_by_4':
+					$height = round( ( $width * 4 ) / 3 );
+					break;
+				case '2_by_3':
+					$height = round( ( $width * 3 ) / 2 );
+					break;
+				case '9_by_16':
+					$height = round( ( $width * 16 ) / 9 );
+					break;
+				default:
+					return $size;
+			}
+
+			$size = array( $width, $height );
+
 		}
 
-		$size = array( $width, $height );
-
-	}
-
-	return $size;
-} );
+		return $size;
+	} );
+} // End if().
 
 add_action( 'woocommerce_before_shop_loop_item_title', function() {
 	global $product;
@@ -171,21 +160,6 @@ add_action( 'woocommerce_before_shop_loop_item_title', function() {
 	</div>
 	<?php
 }, 9 );
-
-// Filter the sale badge for products list.
-add_filter( 'woocommerce_sale_flash', function( $html, $post, $product ) {
-
-	if ( ! $product->is_in_stock() || ! $product->is_on_sale() ) {
-		return;
-	}
-
-	if ( is_shop() || is_product_category() || is_product_tag() ) {
-		return '<span class="onsale">' . esc_html( mk_cz_get_option( 'sh_pl_sty_sal_bdg_text', 'sale' ) ) . '</span>';
-	}
-
-	return $html;
-
-}, 10, 3 );
 
 add_action( 'woocommerce_after_single_product_summary', function() {
 

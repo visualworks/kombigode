@@ -72,14 +72,22 @@ function mk_cs_box_model( $setting, array $excludes = array() ) {
 /**
  * Get container width based on product layout.
  *
+ * @todo Improve logic to get width automatically not hard coded value per layout.
+ * @since 5.9.4
+ * @since 6.0.3 Improve logic to handle layout 9/10.
  * @param string $setting  Customizer control setting name.
  */
 function mk_get_image_gallery_width( $setting ) {
 	$product_layout = (int) mk_cz_get_option( $setting );
-	// Images container width for default layout is 48.
-	$container_width = 48;
+	$container_width = 48; // Default value.
+
 	if ( 3 === $product_layout ) {
 		$container_width = 100;
 	}
+
+	if ( 9 === $product_layout || 10 === $product_layout ) {
+		$container_width = 61;
+	}
+
 	return $container_width;
 }

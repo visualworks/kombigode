@@ -69,12 +69,17 @@ function mkhb_nav_shortcode( $atts ) {
 		return '';
 	}
 
-	$markup = mkhb_nav_get_markup( $options )[0];
+	// Set Navigation internal style.
 	$style = mkhb_nav_get_markup( $options )[1];
 
-	wp_register_style( 'mkhb', false, array( 'mkhb-grid' ) );
-	wp_enqueue_style( 'mkhb' );
-	wp_add_inline_style( 'mkhb', $style );
+	// Set Navigation markup.
+	$markup = mkhb_nav_get_markup( $options )[0];
+
+	// MKHB Hooks as temporary storage.
+	$hooks = mkhb_hooks();
+
+	// Enqueue internal style.
+	$hooks::concat_hook( 'styles', $style );
 
 	// Enqueue current font.
 	$data = array(
@@ -83,7 +88,6 @@ function mkhb_nav_shortcode( $atts ) {
 		'font-weight' => $options['text-weight'],
 	);
 
-	$hooks = mkhb_hooks();
 	$hooks::set_hook( 'fonts', $data );
 
 	return $markup;
@@ -616,10 +620,6 @@ function mkhb_nav_burger_style_animation( $options = array(), $style_args = arra
 			#{$options['id']} .fullscreen-active .mkhb-navigation-resp__sub-bar:before {
 				bottom: 0;
 			}
-			#{$options['id']} .mkhb-navigation-resp__box--morphing .mkhb-navigation-resp__bar,
-			#{$options['id']} .mkhb-navigation-resp__box--morphing:hover .mkhb-navigation-resp__bar {
-				background: rgba( 255, 255, 255, 0 );
-			}
 		";
 	}
 
@@ -903,7 +903,7 @@ function mkhb_nav_active_menu( $options ) {
 		return $menu;
 	}
 
-	if ( isset( $_GET['header-builder'] ) && 'preview' === $_GET['header-builder'] ) { // WPCS: XSS ok, CSRF ok.
+	if ( isset( $_GET['header-builder-preview'] ) && (bool) $_GET['header-builder-preview'] ) { // WPCS: XSS ok, CSRF ok.
 		add_filter( 'wp_nav_menu', 'mkhb_active_current_menu_item' );
 	}
 

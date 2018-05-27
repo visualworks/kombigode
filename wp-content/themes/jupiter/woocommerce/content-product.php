@@ -17,13 +17,15 @@
  */
 
 
-if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
+if ( ! defined( 'ABSPATH' ) ) {
+	exit; // Exit if accessed directly
+}
 
 global $product, $woocommerce_loop, $mk_options;
 
 
 // Store loop count we're currently on
-if ( empty( $woocommerce_loop['loop'] ) ){
+if ( empty( $woocommerce_loop['loop'] ) ) {
 	$woocommerce_loop['loop'] = 0;
 }
 
@@ -42,34 +44,34 @@ $grid_width = $mk_options['grid_width'];
 $content_width = $mk_options['content_width'];
 $height = $mk_options['woo_loop_img_height'];
 
-if(is_shop() || is_product_category() || is_product_tag()) {
+if ( is_shop() || is_product_category() || is_product_tag() ) {
 	$columns = mk_get_option( 'shop_archive_columns', false );
 	if ( $columns === 'default' ) {
 		$columns = false;
 	}
 } else {
-	if ( !empty( $woocommerce_loop['columns'] )){
+	if ( ! empty( $woocommerce_loop['columns'] ) ) {
 		$columns = $woocommerce_loop['columns'];
 	}
 }
 
 $layout = false;
-if(global_get_post_id()) {
+if ( global_get_post_id() ) {
 	$layout = get_post_meta( global_get_post_id(), '_layout', true );
-	if (isset($_REQUEST['layout']) && !empty($_REQUEST['layout'])) {
-        $layout = esc_html($_REQUEST['layout']);
-    }
-    if(is_singular('product')) {
-    	$layout = $mk_options['woocommerce_single_layout'];
-    	$columns = false;
-    }
+	if ( isset( $_REQUEST['layout'] ) && ! empty( $_REQUEST['layout'] ) ) {
+		$layout = esc_html( $_REQUEST['layout'] );
+	}
+	if ( is_singular( 'product' ) ) {
+		$layout = $mk_options['woocommerce_single_layout'];
+		$columns = false;
+	}
 } else {
-	$layout = get_post_meta(mk_get_shop_id(), '_layout', true );
+	$layout = get_post_meta( mk_get_shop_id(), '_layout', true );
 }
 
-if($columns) {
+if ( $columns ) {
 
-	switch ($columns) {
+	switch ( $columns ) {
 		case 1:
 			$grid = 'mk--col--12-12';
 			break;
@@ -81,95 +83,112 @@ if($columns) {
 			break;
 		case 4:
 			$grid = 'mk--col--3-12';
-			break;			
+			break;
 		default:
 			$grid = 'mk--col--3-12';
 			break;
 	}
 
 	// Custom columns taken from Theme Options > Shop > General > Product Loop Image Size option.
-	$classes = 'item mk--col '.$grid;
-	$width = absint($grid_width/$columns);
-	$column_width = absint($grid_width/$columns);
+	$classes = 'item mk--col ' . $grid;
+	$width = absint( $grid_width / $columns );
+	$column_width = absint( $grid_width / $columns );
 
 } else {
-		if($layout == 'full') {
-			$classes[] = 'item mk--col mk--col--3-12';
-			$width = round($grid_width/4) - 28;
-			$column_width = round($grid_width/4);
-		} else {
-			$classes[] = 'item mk--col mk--col--4-12';
-			$width = round((($content_width / 100) * $grid_width)/3) - 31;
-			$column_width = round($grid_width/3);
-		}
+	if ( $layout == 'full' ) {
+		$classes[] = 'item mk--col mk--col--3-12';
+		$width = round( $grid_width / 4 ) - 28;
+		$column_width = round( $grid_width / 4 );
+	} else {
+		$classes[] = 'item mk--col mk--col--4-12';
+		$width = round( (($content_width / 100) * $grid_width) / 3 ) - 31;
+		$column_width = round( $grid_width / 3 );
+	}
 }
 
 ?>
 
-<article <?php post_class($classes); ?>>
+<article <?php post_class( $classes ); ?>>
 <div class="mk-product-holder">
 		<div class="product-loop-thumb">
 		<?php
 
-if($mk_options['woocommerce_catalog'] == 'false') { 
-	if ( ! $product->is_in_stock() ) {
+		if ( $mk_options['woocommerce_catalog'] == 'false' ) {
+			if ( ! $product->is_in_stock() ) {
 				$availability = $product->get_availability();
 				echo apply_filters( 'woocommerce_stock_html', '<span class="out-of-stock">' . __( 'OUT OF STOCK', 'mk_framework' ) . '</span>', $availability['availability'], $product );
-	}
+			}
 
-	if ($product->is_on_sale()) :
-	 echo apply_filters('woocommerce_sale_flash', '<span class="onsale">'.__( 'Sale', 'mk_framework' ).'</span>', $post, $product);
-	endif;
-}
+			if ( $product->is_on_sale() ) :
+				echo apply_filters( 'woocommerce_sale_flash', '<span class="onsale">' . __( 'Sale', 'mk_framework' ) . '</span>', $post, $product );
+			endif;
+		}
 
-$image_size = isset($mk_options['woo_loop_image_size']) ? $mk_options['woo_loop_image_size'] : 'crop';
+		$image_size = isset( $mk_options['woo_loop_image_size'] ) ? $mk_options['woo_loop_image_size'] : 'crop';
 
-if ( has_post_thumbnail() ) {
-	
-
-	echo '<a href="'. esc_url( get_permalink() ) . '" class="product-link">';
+		if ( has_post_thumbnail() ) {
 
 
-
-	$featured_image_src = Mk_Image_Resize::resize_by_id_adaptive( get_post_thumbnail_id(), $image_size, $width, $height, $crop = false, $dummy = true);
-
-	echo '<img src="'.$featured_image_src['dummy'].'" '.$featured_image_src['data-set'].' class="product-loop-image" alt="'.the_title_attribute(array('echo' => false)).'" title="'.the_title_attribute(array('echo' => false)).'" itemprop="image" />';	
-	
-	echo '<span class="product-loading-icon added-cart"></span>';
-
-	$product_gallery = get_post_meta( $post->ID, '_product_image_gallery', true );
-
-	if ( !empty( $product_gallery ) ) {
-		$gallery = explode( ',', $product_gallery );
-		$hover_image_id  = $gallery[0];
-
-		$hover_image_src = Mk_Image_Resize::resize_by_id_adaptive( $hover_image_id, $image_size, $width, $height, $crop = false, $dummy = true);
-		
-		echo '<img src="'.$hover_image_src['dummy'].'" '.$hover_image_src['data-set'].' alt="'.the_title_attribute(array('echo' => false)).'" class="product-hover-image" title="'.the_title_attribute(array('echo' => false)).'">';
+			echo '<a href="' . esc_url( get_permalink() ) . '" class="product-link">';
 
 
-	}
-	echo '</a>';
 
-} else {
+			$featured_image_src = Mk_Image_Resize::resize_by_id_adaptive( get_post_thumbnail_id(), $image_size, $width, $height, $crop = false, $dummy = true );
 
-	echo '<img src="'.Mk_Image_Resize::generate_dummy_image($width, $height).'" alt="Placeholder" width="'.$width.'" height="'.$height.'" />';
+			echo '<img src="' . $featured_image_src['dummy'] . '" ' . $featured_image_src['data-set'] . ' class="product-loop-image" alt="' . the_title_attribute(
+				array(
+					'echo' => false,
+				)
+			) . '" title="' . the_title_attribute(
+				array(
+					'echo' => false,
+				)
+			) . '" itemprop="image" />';
 
-}
+			echo '<span class="product-loading-icon added-cart"></span>';
+
+			$product_gallery = get_post_meta( $post->ID, '_product_image_gallery', true );
+
+			if ( ! empty( $product_gallery ) ) {
+				$gallery = explode( ',', $product_gallery );
+				$hover_image_id  = $gallery[0];
+
+				$hover_image_src = Mk_Image_Resize::resize_by_id_adaptive( $hover_image_id, $image_size, $width, $height, $crop = false, $dummy = true );
+
+				echo '<img src="' . $hover_image_src['dummy'] . '" ' . $hover_image_src['data-set'] . ' alt="' . the_title_attribute(
+					array(
+						'echo' => false,
+					)
+				) . '" class="product-hover-image" title="' . the_title_attribute(
+					array(
+						'echo' => false,
+					)
+				) . '">';
+
+
+			}
+			echo '</a>';
+
+		} else {
+
+			echo '<img src="' . Mk_Image_Resize::generate_dummy_image( $width, $height ) . '" alt="Placeholder" width="' . esc_attr( $width ) . '" height="' . esc_attr( $height ) . '" />';
+
+		}
 ?>
 	
-	<?php if($mk_options['woocommerce_catalog'] == 'false') { 
+	<?php
+	if ( $mk_options['woocommerce_catalog'] == 'false' ) {
 		ob_start();
-		do_action('mk_woocommerce_shop_loop_rating');
+		do_action( 'mk_woocommerce_shop_loop_rating' );
 		$wc_rating_html = ob_get_clean();
-		$wc_rating_html = trim($wc_rating_html);
-		$wc_rating_state = !empty($wc_rating_html) ? 'with-rating' : 'without-rating';
+		$wc_rating_html = trim( $wc_rating_html );
+		$wc_rating_state = ! empty( $wc_rating_html ) ? 'with-rating' : 'without-rating';
 		?>
-	<div class="product-item-footer <?php echo $wc_rating_state; ?>">
-			<?php if(!empty($wc_rating_html)) : ?>
+	<div class="product-item-footer <?php echo esc_attr( $wc_rating_state ); ?>">
+			<?php if ( ! empty( $wc_rating_html ) ) : ?>
 				<div class="woocommerce-product-rating"><?php echo $wc_rating_html; ?></div>
 			<?php endif; ?>
-			<?php do_action( 'woocommerce_after_shop_loop_item' );?>
+			<?php do_action( 'woocommerce_after_shop_loop_item' ); ?>
 	</div>
 <?php } ?>
 </div>
@@ -177,27 +196,28 @@ if ( has_post_thumbnail() ) {
 
 		<div class="mk-shop-item-detail">
 			<?php
-			 	global $mk_options;
-				if ( ! empty( $mk_options['woocommerce_loop_enable_love_button'] ) ) :
-					if ( $mk_options['woocommerce_loop_enable_love_button'] != 'false' ) :
+				 global $mk_options;
+			if ( ! empty( $mk_options['woocommerce_loop_enable_love_button'] ) ) :
+				if ( $mk_options['woocommerce_loop_enable_love_button'] != 'false' ) :
 			?>
 			<div class="mk-love-holder">
-						<?php echo Mk_Love_Post::send_love(); ?>
+					<?php echo Mk_Love_Post::send_love(); ?>
 			</div>
 			<?php
-					endif;
+				endif;
 				endif;
 			?>
 			
 			<h3 class="product-title"><a href="<?php echo esc_url( get_permalink() ); ?>"><?php the_title(); ?></a></h3>
-			<?php if($mk_options['woocommerce_catalog'] == 'false') { 
-					do_action( 'woocommerce_after_shop_loop_item_title' ); 
-				}
+			<?php
+			if ( $mk_options['woocommerce_catalog'] == 'false' ) {
+					do_action( 'woocommerce_after_shop_loop_item_title' );
+			}
 			?>
 
-			<?php 
-			if($mk_options['woocommerce_loop_show_desc'] == 'true') : 
-				echo '<div class="product-item-desc">' . apply_filters( 'woocommerce_short_description', $post->post_excerpt ) . '</div>'; 
+			<?php
+			if ( $mk_options['woocommerce_loop_show_desc'] == 'true' ) :
+				echo '<div class="product-item-desc">' . apply_filters( 'woocommerce_short_description', $post->post_excerpt ) . '</div>';
 			endif;
 			?>
 		</div>

@@ -33,6 +33,10 @@ $row_classes[] = $equal_columns == 'true' ? ' equal-columns' : '';
 $row_classes[] = 'js-master-row';
 $row_classes[] = ( 'yes' === $disable_element ) ? 'vc_hidden-lg vc_hidden-xs vc_hidden-sm vc_hidden-md' : '';
 
+if ( 'true' === $fullwidth && 'true' === $fullwidth_content ) {
+	$row_classes[] = 'mk-full-content-true';
+}
+
 // Prallax video & image
 $has_video_bg = ( ! empty( $video_bg ) && ! empty( $video_bg_url ) && vc_extract_youtube_id( $video_bg_url ) );
 
@@ -74,23 +78,30 @@ if ( ! $parallax && $has_video_bg ) {
 }
 
 $after_output = '';
-if ( $fullwidth == 'true' ) {
-	$wrapper_attributes[] = 'data-mk-full-width="true"';
-	$wrapper_attributes[] = 'data-mk-full-width-init="false"';
-	$after_output .= '<div class="vc_row-full-width vc_clearfix"></div>';
+if ( 'full-width' !== $page_layout ) {
+	if ( $fullwidth == 'true' ) {
+		$wrapper_attributes[] = 'data-mk-full-width="true"';
+		$wrapper_attributes[] = 'data-mk-full-width-init="false"';
+		$after_output .= '<div class="vc_row-full-width vc_clearfix"></div>';
+	}
+	if ( $fullwidth_content == 'true' ) {
+		$wrapper_attributes[] = 'data-mk-stretch-content="true"';
+	}
 }
-if ( $fullwidth_content == 'true' ) {
-	$wrapper_attributes[] = 'data-mk-stretch-content="true"';
+
+if ( 'true' !== $fullwidth ) {
+	$row_classes[] = 'mk-grid';
 }
+
 ?>
 
 <div <?php echo $id; ?> <?php echo implode( ' ', $wrapper_attributes ) ?> class="wpb_row vc_row vc_row-fluid <?php echo implode( ' ', $row_classes ); ?>">
 	<?php if ( $fullwidth == 'true' && $fullwidth_content == 'false' ) { ?>
 		<div class="mk-grid">
-	<?php } ?>	
+	<?php } ?>
 			<?php echo wpb_js_remove_wpautop( $content ); ?>
-	<?php if ( $fullwidth == 'true' && $fullwidth_content == 'false' ) { ?>	
-		</div>	
+	<?php if ( $fullwidth == 'true' && $fullwidth_content == 'false' ) { ?>
+		</div>
 	<?php } ?>
 </div>
 <?php

@@ -3,7 +3,7 @@
  * Plugin Name: WooCommerce MercadoPago
  * Plugin URI: https://github.com/mercadopago/cart-woocommerce
  * Description: This is the <strong>oficial</strong> module of Mercado Pago for WooCommerce plugin. This module enables WooCommerce to use Mercado Pago as a payment Gateway for purchases made in your e-commerce store.
- * Version: 3.0.6
+ * Version: 3.0.15
  * Author: Mercado Pago
  * Author URI: https://www.mercadopago.com.br/developers/
  * Text Domain: woocommerce-mercadopago
@@ -49,6 +49,23 @@ if ( version_compare( PHP_VERSION, '5.6', '<=' ) ) {
 	return;
 }
 
+/**
+ * Summary: Places a warning error to notify user that other older versions are active.
+ * Description: Places a warning error to notify user that other older versions are active.
+ * @since 3.0.7
+ */
+function wc_mercado_pago_notify_deprecated_presence() {
+	echo '<div class="error"><p>' .
+		__( 'It seems you have <strong>Woo Mercado Pago Module</strong> installed. Please, uninstall it before using this version.', 'woocommerce-mercadopago' ) .
+	'</p></div>';
+}
+
+// Check if previously versions are installed, as we can't let both operate.
+if ( class_exists( 'WC_WooMercadoPago_Module' ) ) {
+	add_action( 'admin_notices', 'wc_mercado_pago_notify_deprecated_presence' );
+	return;
+}
+
 // Load Mercado Pago SDK
 require_once dirname( __FILE__ ) . '/includes/sdk/lib/mercadopago.php';
 
@@ -62,11 +79,12 @@ if ( ! class_exists( 'WC_Woo_Mercado_Pago_Module' ) ) :
 	 * - validate_credentials_v0()
 	 * - validate_credentials_v1()
 	 * - woocommerce_instance()
+	 * - get_common_error_messages( $key )
 	 * - get_conversion_rate( $used_currency )
 	 * - get_common_settings()
 	 * - get_categories()
 	 * - get_site_data( $is_v1 = false )
-	 * - workaround_ampersand_bug( $link )
+	 * - fix_url_ampersand( $link )
 	 * - get_templates_path()
 	 * - get_module_version()
 	 * - get_client_id( $at )
@@ -88,7 +106,7 @@ if ( ! class_exists( 'WC_Woo_Mercado_Pago_Module' ) ) :
 		// ============================================================
 
 		// General constants.
-		const VERSION = '3.0.6';
+		const VERSION = '3.0.15';
 		const MIN_PHP = 5.6;
 
 		// Arrays to hold configurations for LatAm environment.
@@ -435,6 +453,26 @@ if ( ! class_exists( 'WC_Woo_Mercado_Pago_Module' ) ) :
 			}
 		}
 
+		// Get common error messages
+		public static function get_common_error_messages( $key ) {
+			if ( $key === 'Invalid payment_method_id' ) {
+				return __( 'Invalid payment_method_id', 'woocommerce-mercadopago' );
+			}
+			if ( $key === 'Invalid transaction_amount' ) {
+				return __( 'Invalid transaction_amount', 'woocommerce-mercadopago' ) . ' ' .
+				__( 'Posible causes: Currency not supported; Values under the minimal or above the maximun allowed.', 'woocommerce-mercadopago' );
+			}
+			if ( $key === 'Invalid users involved' ) {
+				return __( 'Invalid users involved', 'woocommerce-mercadopago' ) . ' ' .
+				__( 'Posible causes: Seller and buyer have the same email in Mercado Pago; Transaction involves production and test users.', 'woocommerce-mercadopago' );
+			}
+			if ( $key === 'Unauthorized use of live credentials' ) {
+				return __( 'Unauthorized use of live credentials', 'woocommerce-mercadopago' ) . ' ' .
+				__( 'Posible causes: Pending permission of use in production of the seller credentials.', 'woocommerce-mercadopago' );
+			}
+			return $key;
+		}
+
 		/**
 		 * Summary: Get the rate of conversion between two currencies.
 		 * Description: The currencies are the one used in WooCommerce and the one used in $site_id.
@@ -527,7 +565,7 @@ if ( ! class_exists( 'WC_Woo_Mercado_Pago_Module' ) ) :
 		}
 
 		// Fix to URL Problem : #038; replaces & and breaks the navigation.
-		public static function workaround_ampersand_bug( $link ) {
+		public static function fix_url_ampersand( $link ) {
 			return str_replace( '\/', '/', str_replace( '&#038;', '&', $link) );
 		}
 
@@ -840,7 +878,7 @@ if ( ! class_exists( 'WC_Woo_Mercado_Pago_Module' ) ) :
 			'</table>';
 			return $subscription_js . $subscription_meta_box;
 		}
-		
+
 		/**
 		 * Check if product dimensions are well defined
 		 */
@@ -851,7 +889,11 @@ if ( ! class_exists( 'WC_Woo_Mercado_Pago_Module' ) ) :
 			foreach ( $all_product_data as $p ) {
 				$product = wc_get_product( $p->ID );
 				if ( ! $product->is_virtual() ) {
+					$w = $product->get_weight();
 					$dimensions = $product->get_dimensions( false );
+					if ( empty( $w ) || ! is_numeric( $w ) ) {
+						return false;
+					}
 					if ( ! is_numeric( $dimensions['height'] ) ) {
 						return false;
 					}
@@ -859,9 +901,6 @@ if ( ! class_exists( 'WC_Woo_Mercado_Pago_Module' ) ) :
 						return false;
 					}
 					if ( ! is_numeric( $dimensions['length'] ) ) {
-						return false;
-					}
-					if ( empty( $product->get_weight() ) || ! is_numeric( $product->get_weight() ) ) {
 						return false;
 					}
 				}
@@ -979,11 +1018,16 @@ if ( ! class_exists( 'WC_Woo_Mercado_Pago_Module' ) ) :
 					} else {
 						update_option( '_mp_store_identificator', '', true );
 					}
-					/*if ( isset( $_POST['custom_domain'] ) ) {
+					if ( isset( $_POST['custom_banner'] ) ) {
+						update_option( '_mp_custom_banner', $_POST['custom_banner'], true );
+					} else {
+						update_option( '_mp_custom_banner', '', true );
+					}
+					if ( isset( $_POST['custom_domain'] ) ) {
 						update_option( '_mp_custom_domain', $_POST['custom_domain'], true );
 					} else {
 						update_option( '_mp_custom_domain', '', true );
-					}*/
+					}
 					if ( isset( $_POST['currency_conversion_v0'] ) ) {
 						update_option( '_mp_currency_conversion_v0', $_POST['currency_conversion_v0'], true );
 					} else {
@@ -1074,7 +1118,17 @@ if ( ! class_exists( 'WC_Woo_Mercado_Pago_Module' ) ) :
 				// Store identification.
 				$store_identificator = get_option( '_mp_store_identificator', 'WC-' );
 				// Custom domain for IPN.
-				/*$custom_domain = get_option( '_mp_custom_domain', '' );*/
+				$custom_banner = get_option( '_mp_custom_banner', '' );
+				// Custom domain for IPN.
+				$custom_domain = get_option( '_mp_custom_domain', '' );
+				if ( ! empty( $custom_domain ) && filter_var( $custom_domain, FILTER_VALIDATE_URL ) === FALSE ) {
+					$custom_domain_message = '<img width="14" height="14" src="' . plugins_url( 'assets/images/warning.png', __FILE__ ) . '"> ' .
+					__( 'This appears to be an invalid URL.', 'woocommerce-mercadopago' ) . ' ';
+				} else {
+					$custom_domain_message = sprintf( '%s',
+						__( 'If you want to use a custom URL for IPN inform it here.<br>Format should be as: <code>https://yourdomain.com/yoursubdomain</code>.', 'woocommerce-mercadopago' )
+					);
+				}
 				// Debug mode.
 				$_mp_debug_mode = get_option( '_mp_debug_mode', '' );
 				if ( empty( $_mp_debug_mode ) ) {
@@ -1228,6 +1282,51 @@ if ( ! class_exists( 'WC_Woo_Mercado_Pago_Module' ) ) :
 	});
 
 	// ==========================================================================================
+
+	// add custom field for checkout
+	/*add_filter( 'woocommerce_checkout_fields', 'custom_override_checkout_fields', 10, 2 );
+	// check for specific countries to add specific custom fields
+	function custom_override_checkout_fields( $fields ) {
+		$fields['billing']['billing_payer_doc_type']['type'] = 'select';
+		$fields['billing']['billing_payer_doc_type']['options'] = array(
+			'option_1' => 'CPF',
+			'option_2' => 'CNPJ'
+		);
+		$fields['billing']['billing_payer_doc_type']['label'] = esc_html__( 'Document Type', 'woocommerce-mercadopago' );
+		$fields['billing']['billing_payer_doc_type']['class'] = array(
+			'form-row-first'
+		);
+		$fields['billing']['billing_payer_doc']['type'] = 'text';
+		$fields['billing']['billing_payer_doc']['label'] = esc_html__( 'Document number', 'woocommerce-mercadopago' );
+		$fields['billing']['billing_payer_doc']['required'] = true;
+		$fields['billing']['billing_payer_doc']['class'] = array(
+			'form-row-last'
+		);
+		$fields['billing']['billing_address_number']['type'] = 'text';
+		$fields['billing']['billing_address_number']['label'] = esc_html__( 'Address Number', 'woocommerce-mercadopago' );
+		$fields['billing']['billing_address_number']['class'] = array(
+			'form-row-first'
+		);
+		$fields['billing']['billing_address_2']['class'] = array(
+			'form-row-last'
+		);
+		$fields['billing']['billing_address_2']['label'] = esc_html__( 'Address Additional Info', 'woocommerce-mercadopago' );'Complemento';
+		$order = array(
+			'billing_first_name', 'billing_last_name',
+			'billing_payer_doc_type', 'billing_payer_doc',
+			'billing_company',
+			'billing_address_1',
+			'billing_address_number', 'billing_address_2',
+			'billing_postcode',
+			'billing_country',
+			'billing_email', 'billing_phone'
+		);
+		foreach( $order as $field ) {
+			$ordered_fields[$field] = $fields['billing'][$field];
+		}
+		$fields['billing'] = $ordered_fields;
+		return $fields;
+	}*/
 
 	// add our own item to the order actions meta box
 	add_action( 'woocommerce_order_actions', 'add_mp_order_meta_box_actions' );

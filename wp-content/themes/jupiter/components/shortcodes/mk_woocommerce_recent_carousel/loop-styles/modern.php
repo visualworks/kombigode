@@ -1,6 +1,23 @@
 <?php
 
-$id = uniqid();
+$id = Mk_Static_Files::shortcode_id();
+
+// WC Carousel Modern styles.
+$wc_carousel_style         = '';
+$wc_carousel_style_a       = array();
+$wc_carousel_style_a_hover = array();
+
+// WC Carousel Modern anchor styles.
+$wc_carousel_style_a[] = "color: {$view_params['arrow_color']};";
+$wc_carousel_style_a[] = "background-color: {$view_params['arrow_bg_color']};";
+$wc_carousel_style    .= '.mk-woocommerce-carousel.modern-style #mk-swiper-' . $id . ' .swiper-arrows {' . implode( '', $wc_carousel_style_a ) . '}';
+
+// WC Carousel Modern hover anchor styles.
+$wc_carousel_style_a_hover[] = "color: {$view_params['arrow_hover_color']};";
+$wc_carousel_style_a_hover[] = "background-color: {$view_params['arrow_hover_bg_color']};";
+$wc_carousel_style          .= '.mk-woocommerce-carousel.modern-style #mk-swiper-' . $id . ' .swiper-arrows:hover {' . implode( '', $wc_carousel_style_a_hover ) . '}';
+
+Mk_Static_Files::addCSS( $wc_carousel_style, $id );
 
 $query = array(
     'post_type' => 'product',
@@ -66,7 +83,7 @@ $query['order'] = $view_params['order'];
 ?>
 
 <div class="mk-swipe-slideshow">
-    <div id="mk-swiper-<?php echo $id; ?>" 
+    <div id="mk-swiper-<?php echo $id; ?>"
         data-mk-component='SwipeSlideshow'
         data-swipeSlideshow-config='{
             "effect" : "slide",

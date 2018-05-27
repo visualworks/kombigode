@@ -13,20 +13,21 @@ extract( shortcode_atts( array(
 	'grandient_color_angle' 	=> 'vertical',
 	'grandient_color_style' 	=> 'linear',
 	'grandient_color_fallback' => '',
-	'text_color' 					=> 'light',
+	'text_color' 				=> 'light',
 	'icon' 						=> '',
 	'icon_anim' 				=> '',
 	'url' 						=> '',
+	'product_id'                => '',
 	'target' 					=> '_self',
 	'align' 					=> 'left',
 	'fullwidth' 				=> 'false',
 	'button_custom_width' 		=> 0,
-	'margin_top' 				=> 0,		
+	'margin_top' 				=> 0,
 	'margin_bottom' 			=> 15,
 	'margin_right'				=> 15,
 	'visibility' 				=> '',
 	'animation' 				=> '',
-	'el_class' 					=> ''
+	'el_class' 					=> '',
 ), $atts ) );
-Mk_Static_Files::addAssets('mk_button_gradient');
-Mk_Static_Files::addAssets('mk_button');
+Mk_Static_Files::addAssets( 'mk_button_gradient' );
+Mk_Static_Files::addAssets( 'mk_button' );

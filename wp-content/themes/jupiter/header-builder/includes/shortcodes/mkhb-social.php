@@ -33,7 +33,7 @@ function mkhb_social_shortcode( $atts ) {
 			'border-width' => '',
 			'border-color' => '',
 			'space-between-icons' => '',
-			'padding' => '5 5 5 5',
+			'padding' => '',
 			'margin' => '',
 			'device' => 'desktop',
 			'visibility' => 'desktop, tablet, mobile',
@@ -46,12 +46,17 @@ function mkhb_social_shortcode( $atts ) {
 		return '';
 	}
 
-	$markup = mkhb_social_get_markup( $options );
-	$style = mkhb_social_get_style( $options );
+	// Set Social internal style.
+	$style = mkhb_social_style( $options );
 
-	wp_register_style( 'mkhb', false, array( 'mkhb-grid' ) );
-	wp_enqueue_style( 'mkhb' );
-	wp_add_inline_style( 'mkhb', $style );
+	// Set Social markup.
+	$markup = mkhb_social_markup( $options );
+
+	// MKHB Hooks as temporary storage.
+	$hooks = mkhb_hooks();
+
+	// Enqueue internal style.
+	$hooks::concat_hook( 'styles', $style );
 
 	return $markup;
 }
@@ -61,11 +66,12 @@ add_shortcode( 'mkhb_social_media', 'mkhb_social_shortcode' );
  * Generate the element's markup for use on the front-end.
  *
  * @since 6.0.0
+ * @since 6.0.3 Rename function name.
  *
  * @param  array $options All options will be used in the shortcode.
  * @return string $markup Element HTML code.
  */
-function mkhb_social_get_markup( $options ) {
+function mkhb_social_markup( $options ) {
 	$markup = sprintf(
 		'<div id="%s" class="mkhb-social-media-el"></div>',
 		esc_attr( $options['id'] )
@@ -82,6 +88,7 @@ function mkhb_social_get_markup( $options ) {
 	// Social Network additional class.
 	$social_class = mkhb_shortcode_display_class( $options );
 
+	// Social attributes.
 	// @todo Temporary Solution - Data Attribute for inline container.
 	$data_attr = mkhb_shortcode_display_attr( $options );
 
@@ -100,30 +107,36 @@ function mkhb_social_get_markup( $options ) {
  * Generate the element's style for use on the front-end.
  *
  * @since 6.0.0
+ * @since 6.0.3 Print social style only if it's needed. Rename function name.
  *
  * @param  array $options All options will be used in the shortcode.
  * @return string $style Element CSS code.
  */
-function mkhb_social_get_style( $options ) {
+function mkhb_social_style( $options ) {
+	$social_style = '';
 	$style = '';
 
-	// Social Media layout.
-	$style = "#{$options['id']} {";
+	// Social Media Alignment.
 	if ( ! empty( $options['alignment'] ) ) {
-		$style .= "text-align: {$options['alignment']};";
+		$social_style .= "text-align: {$options['alignment']};";
 	}
 
 	// Social Media Margin.
 	if ( ! empty( $options['margin'] ) ) {
-		$style .= "margin: {$options['margin']};";
+		$social_style .= "margin: {$options['margin']};";
 	}
 
+	// Social Media Display.
 	if ( ! empty( $options['display'] ) ) {
 		if ( 'inline' === $options['display'] ) {
-			$style .= 'display: inline-block; vertical-align: top;';
+			$social_style .= 'display: inline-block; vertical-align: top;';
 		}
 	}
-	$style .= '}';
+
+	// If Social Media style not empty, render.
+	if ( ! empty( $social_style ) ) {
+		$style .= "#{$options['id']} { $social_style }";
+	}
 
 	// Render icons.
 	$icons = mkhb_render_icons( $options );
@@ -133,7 +146,7 @@ function mkhb_social_get_style( $options ) {
 		return $style;
 	}
 
-	$style .= mkhb_get_social_style( $options );
+	$style .= mkhb_social_icon_style( $options );
 	$style .= mkhb_social_hover_style( $options );
 
 	return $style;
@@ -143,107 +156,100 @@ function mkhb_social_get_style( $options ) {
  * Generate the element's style for use on the front-end.
  *
  * @since 6.0.0
+ * @since 6.0.3 Print social style only if it's needed. Rename function name.
  *
  * @param  array $options All options will be used in the shortcode.
  * @return string $style Element CSS code.
  */
-function mkhb_get_social_style( $options ) {
+function mkhb_social_icon_style( $options ) {
 	$style = '';
+	$link_style = '';
 
-	// Social media margin.
-	$space = '';
+	// Social Media margin.
 	if ( ! empty( $options['space-between-icons'] ) ) {
-		$space = 'margin-right: ' . $options['space-between-icons'] . ';';
+		$link_style .= 'margin-right: ' . $options['space-between-icons'] . ';';
 	}
 
-	// Social media colors.
-	$icon_color = '';
-	$box_bg_color = '';
+	// Social Media colors.
 	if ( ! empty( $options['color'] ) ) {
-		$icon_color = "color: {$options['color']};";
+		$link_style .= "color: {$options['color']};";
 	}
+
+	// Social Media BG Color.
 	if ( ! empty( $options['background-color'] ) ) {
-		$box_bg_color = "background: {$options['background-color']};";
+		$link_style .= "background: {$options['background-color']};";
 	}
 
-	// Social media layout.
-	$padding = '';
-	$margin  = '';
-	$border_radius = '';
-
-	// Social media Padding.
+	// Social Media Padding.
 	if ( ! empty( $options['padding'] ) ) {
-		$padding = "padding: {$options['padding']};";
+		$link_style .= "padding: {$options['padding']};";
 	}
 
-	// Social media Margin.
-	if ( ! empty( $options['margin'] ) ) {
-		$margin = "margin: {$options['margin']};";
-	}
-
+	// Social Media Border Radius.
 	if ( ! empty( $options['border-radius'] ) ) {
-		$border_radius .= "border-radius: {$options['border-radius']};";
+		$link_style .= "border-radius: {$options['border-radius']};";
 	}
 
-	// Social media border.
-	$box_border = mkhb_social_border( $options );
+	// Social Media Width and Height.
+	$link_style .= mkhb_social_icon_size( $options );
 
-	// Social media Width and Height.
-	$icon_size = mkhb_social_get_size( $options );
+	// Social Media border.
+	$link_style .= mkhb_social_border( $options );
 
-	$style .= "
-		#{$options['id']} .mkhb-icon-el__link {
-			{$icon_color}
-			{$icon_size}
-			{$box_bg_color}
-			{$padding}
-			{$border_radius};
-			{$box_border}
-			{$space}
-		}
-		#{$options['id']} .mkhb-icon-el {
-			display: inline-block;
-		}
-		#{$options['id']} .mkhb-icon-el:last-child .mkhb-icon-el__link {
-			margin-right: 0px;
-		}
-	";
+	// If Social Media Link style is not empty, render.
+	if ( ! empty( $link_style ) ) {
+		$style .= "#{$options['id']} .mkhb-icon-el__link { $link_style }";
+	}
 
 	return $style;
 }
 
-
 /**
  * Generate the element's style for use on the front-end.
  *
+ * There are 2 cases here:
+ * 1. If social net link hover styles are overriden, return the overriden hover style.
+ * 2. If social net link styles are overriden, return the default hover style. It's
+ *    used to fix hover issue on the link.
+ *
  * @since 6.0.0
+ * @since 6.0.3 Print social style only if it's needed.
  *
  * @param  array $options All options will be used in the shortcode.
  * @return string $style Element CSS code.
  */
 function mkhb_social_hover_style( $options ) {
+	$hover_style = '';
 	$style = '';
 
-	$icon_hover_color = '';
-	$box_hover_bg_color = '';
-	$box_hover_border_col = '';
+	// 1.a Social Media Hover Color.
+	// 2.a If social color is overriden, set default color for hover state.
 	if ( ! empty( $options['hover-color'] ) ) {
-		$icon_hover_color = "color: {$options['hover-color']};";
-	}
-	if ( ! empty( $options['hover-background-color'] ) ) {
-		$box_hover_bg_color = "background: {$options['hover-background-color']};";
-	}
-	if ( ! empty( $options['hover-border-color'] ) ) {
-		$box_hover_border_col = "border-color: {$options['hover-border-color']};";
+		$hover_style .= "color: {$options['hover-color']};";
+	} elseif ( ! empty( $options['color'] ) ) {
+		$hover_style .= 'color: #eeeeee;';
 	}
 
-	$style .= "
-		#{$options['id']} .mkhb-icon-el__link--hoverable:hover {
-			{$icon_hover_color}
-			{$box_hover_bg_color}
-			{$box_hover_border_col}
-		}
-	";
+	// 1.b Social Media Hover BG Color.
+	// 2.b If social bg color is overriden, set default color for hover state.
+	if ( ! empty( $options['hover-background-color'] ) ) {
+		$hover_style .= "background: {$options['hover-background-color']};";
+	} elseif ( ! empty( $options['background-color'] ) ) {
+		$hover_style .= 'background: #999999;';
+	}
+
+	// 1.c Social Media Hover Border Color.
+	// 2.c If social border color is overriden, set default color for hover state.
+	if ( ! empty( $options['hover-border-color'] ) ) {
+		$hover_style .= "border-color: {$options['hover-border-color']};";
+	} elseif ( ! empty( $options['border-color'] ) ) {
+		$hover_style .= 'border-color: rgba(255, 255, 255, 0);';
+	}
+
+	// If Social Media Link Hover style is not empty, render.
+	if ( ! empty( $hover_style ) ) {
+		$style .= "#{$options['id']} .mkhb-icon-el__link--hoverable:hover { $hover_style }";
+	}
 
 	return $style;
 }
@@ -253,51 +259,67 @@ function mkhb_social_hover_style( $options ) {
  * Generate the element's style for use on the front-end.
  *
  * @since 6.0.0
+ * @since 6.0.3 Rename function name.
  *
  * @param  array $options All options will be used in the shortcode.
  * @return string          Icon internal CSS width & height.
  */
-function mkhb_social_get_size( $options ) {
+function mkhb_social_icon_size( $options ) {
 	// Icon box layout.
 	$box_height = ( ! empty( $options['size'] ) ) ? intval( $options['size'] ) : 0;
 	$box_width = ( ! empty( $options['size'] ) ) ? intval( $options['size'] ) : 0;
-	if ( ! empty( $options['border-width'] ) && ! empty( $options['margin'] ) && ! empty( $options['padding'] ) ) {
-		$border_widths = explode( ' ', $options['border-width'] );
-		$padding_widths = explode( ' ', $options['padding'] );
 
-		$border_offset['height'] = intval( $border_widths[0] ) + intval( $border_widths[2] );
-		$border_offset['width']  = intval( $border_widths[1] ) + intval( $border_widths[3] );
-		$padding_offset['height'] = intval( $padding_widths[0] ) + intval( $padding_widths[2] );
-		$padding_offset['width']  = intval( $padding_widths[1] ) + intval( $padding_widths[3] );
-		$box_height = intval( $options['size'] ) + $border_offset['height'] + $padding_offset['height'];
-		$box_width = intval( $options['size'] ) + $border_offset['width'] + $padding_offset['width'];
+	// Icon box padding.
+	$padding = '5px 5px 5px 5px';
+	if ( ! empty( $options['padding'] ) ) {
+		$padding = $options['padding'];
 	}
 
-	$icon_size = "height: {$box_height}px;width: {$box_width}px;";
+	// Icon box border width.
+	$border_width = '2px 2px 2px 2px';
+	if ( ! empty( $options['border-width'] ) ) {
+		$border_width = $options['border-width'];
+	}
+
+	// Explode border width and padding.
+	$border_widths = explode( ' ', $border_width );
+	$padding_widths = explode( ' ', $padding );
+
+	// Calculate the offset.
+	$border_offset['height'] = intval( $border_widths[0] ) + intval( $border_widths[2] );
+	$border_offset['width']  = intval( $border_widths[1] ) + intval( $border_widths[3] );
+	$padding_offset['height'] = intval( $padding_widths[0] ) + intval( $padding_widths[2] );
+	$padding_offset['width']  = intval( $padding_widths[1] ) + intval( $padding_widths[3] );
+
+	// Setup box height and width.
+	$box_height = intval( $options['size'] ) + $border_offset['height'] + $padding_offset['height'];
+	$box_width = intval( $options['size'] ) + $border_offset['width'] + $padding_offset['width'];
+
+	$icon_size = "height: {$box_height}px; width: {$box_width}px;";
 
 	return $icon_size;
 }
 
 /**
- * Generate internal style for HB Row Border.
+ * Generate internal style for HB Social Border.
+ *
+ * @since 6.0.0
+ * @since 6.0.3 Update border CSS property.
  *
  * @param  array $options  All options will be used in the shortcode.
- * @return string          Row internal CSS border.
+ * @return string          Social internal CSS border.
  */
 function mkhb_social_border( $options ) {
 	$style = '';
 
-	// Border Width, Style, and Color.
-	if ( ! empty( $options['border-width'] ) && ! empty( $options['border-color'] ) ) {
-		$border_widths = explode( ' ', $options['border-width'] );
-		$border_colors = explode( ' ', $options['border-color'] );
+	// Border Width.
+	if ( ! empty( $options['border-width'] ) ) {
+		$style .= "border-width: {$options['border-width']};";
+	}
 
-		$style .= "
-			border-top: {$border_widths[0]} solid {$border_colors[0]};
-			border-right: {$border_widths[1]} solid {$border_colors[1]};
-			border-bottom: {$border_widths[2]} solid {$border_colors[2]};
-			border-left: {$border_widths[3]} solid {$border_colors[3]};
-		";
+	// Border Color.
+	if ( ! empty( $options['border-color'] ) ) {
+		$style .= "border-color: {$options['border-color']};";
 	}
 
 	return $style;

@@ -6,6 +6,7 @@
  * @package WordPress
  * @subpackage Jupiter
  * @since 5.9.4
+ * @since 6.0.3 Add default margin button in box model.
  */
 
 // Image dialog.
@@ -46,7 +47,7 @@ $wp_customize->add_control(
 // Image Ratio.
 $wp_customize->add_setting( 'mk_cz[sh_pp_sty_img_image_ratio]', array(
 	'type' => 'option',
-	'default'   => '1_by_1',
+	'default'   => 'default',
 	'transport' => 'postMessage',
 ) );
 
@@ -59,11 +60,31 @@ $wp_customize->add_control(
 			'column' => 'mk-col-6',
 			'input_type' => 'button',
 			'choices' => array(
+				'default' => __( 'Default', 'mk_framework' ),
 				'3_by_2' => __( '3:2', 'mk_framework' ),
 				'1_by_1' => __( '1:1', 'mk_framework' ),
 				'2_by_3' => __( '2:3', 'mk_framework' ),
 				'9_by_16' => __( '9:16', 'mk_framework' ),
 			),
+		)
+	)
+);
+
+// Background color.
+$wp_customize->add_setting( 'mk_cz[sh_pp_sty_img_background_color]', array(
+	'type' => 'option',
+	'default'   => 'rgba(255, 255, 255, 0)',
+	'transport' => 'postMessage',
+) );
+
+$wp_customize->add_control(
+	new MK_Color_Control(
+		$wp_customize,
+		'mk_cz[sh_pp_sty_img_background_color]',
+		array(
+			'section'  => 'mk_s_pp_s_image',
+			'column'   => 'mk-col-2-alt',
+			'icon'     => 'mk-background-color',
 		)
 	)
 );
@@ -111,6 +132,24 @@ $wp_customize->add_control(
 	)
 );
 
+// Divider 1.
+$wp_customize->add_setting(
+	'mk_cz[sh_cc_sty_img_divider_1]', array(
+		'type' => 'option',
+		'column'   => 'mk-col-12 mk-divider-plain',
+	)
+);
+
+$wp_customize->add_control(
+	new MK_Divider_Control(
+		$wp_customize,
+		'mk_cz[sh_cc_sty_img_divider_1]',
+		array(
+			'section' => 'mk_s_pp_s_image',
+		)
+	)
+);
+
 // Gallery Thumbnail Orientation.
 $wp_customize->add_setting( 'mk_cz[sh_pp_sty_img_orientation]', array(
 	'type' => 'option',
@@ -137,14 +176,14 @@ $wp_customize->add_control(
 );
 
 // Divider.
-$wp_customize->add_setting( 'mk_cz[sh_pp_sty_img_divider]', array(
+$wp_customize->add_setting( 'mk_cz[sh_cc_sty_img_divider_2]', array(
 	'type' => 'option',
 ) );
 
 $wp_customize->add_control(
 	new MK_Divider_Control(
 		$wp_customize,
-		'mk_cz[sh_pp_sty_img_divider]',
+		'mk_cz[sh_cc_sty_img_divider_2]',
 		array(
 			'section' => 'mk_s_pp_s_image',
 		)
@@ -157,7 +196,7 @@ $wp_customize->add_setting( 'mk_cz[sh_pp_sty_img_box_model]', array(
 	'default' => array(
 		'margin_top' => 0,
 		'margin_right' => 0,
-		'margin_bottom' => 0,
+		'margin_bottom' => 33,
 		'margin_left' => 0,
 	),
 	'transport' => 'postMessage',

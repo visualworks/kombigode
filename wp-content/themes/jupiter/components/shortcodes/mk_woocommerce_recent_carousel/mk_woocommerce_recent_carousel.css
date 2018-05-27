@@ -54,6 +54,15 @@
     white-space: nowrap;
 }
 
+.mk-woocommerce-carousel.modern-style .mk-swiper-wrapper {
+    height: 100%;
+    position: relative;
+}
+
+.mk-woocommerce-carousel.modern-style .mk-swiper-container {
+    padding: 0 60px;
+}
+
 .mk-woocommerce-carousel .swiper-slide {
     float: none;
     display: inline-block;
@@ -108,7 +117,7 @@
 }
 
 .mk-woocommerce-carousel.modern-style .item-holder, .mk-woocommerce-carousel.modern-style .item-holder .mk-lightbox {
-    padding: 0 20px;
+    padding: 0 15px;
     width: 100%;
 }
 
@@ -117,10 +126,10 @@
 }
 
 .mk-woocommerce-carousel.modern-style .mk-lightbox {
-    margin-bottom: 30px;
+    margin-bottom: 20px;
     display: inline-block;
     position: relative;
-    left: -20px;
+    left: -15px;
 }
 
 .mk-woocommerce-carousel.modern-style .mk-lightbox i {
@@ -172,10 +181,9 @@
     top: calc(50% - 10px) !important;
     width: 40px;
     height: 40px;
-    line-height: 36px;
+    line-height: 40px;
     border-radius: 0;
     background-color: #ffffff;
-    border: 2px solid #222222;
     opacity: 1;
     color: #222222;
 }
@@ -187,7 +195,7 @@
 .mk-woocommerce-carousel.modern-style .swiper-arrows:hover {
     background-color: #222222;
     opacity: 1 !important;
-    color: #ffffff !important;
+    color: #ffffff;
 }
 
 .mk-woocommerce-carousel.modern-style .mk-swiper-prev {

@@ -6,6 +6,9 @@
 	padding: 0;
 	text-align: left;
 	vertical-align: top;
+	border-width: 0;
+	border-color: #ffffff;
+	border-style: solid;
 }
 
 .mkhb-col--bg-image {

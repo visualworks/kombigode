@@ -4,12 +4,14 @@
  *
  * Override this template by copying it to yourtheme/woocommerce/archive-product.php
  *
- * @author 		WooThemes
- * @package 	WooCommerce/Templates
+ * @author      WooThemes
+ * @package     WooCommerce/Templates
  * @version     2.0.0
  */
 
-if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
+if ( ! defined( 'ABSPATH' ) ) {
+	exit; // Exit if accessed directly
+}
 
 get_header( 'shop' ); ?>
 
@@ -24,7 +26,7 @@ get_header( 'shop' ); ?>
 	?>
 
 		<?php
-		 do_action( 'woocommerce_archive_description' ); 
+		 do_action( 'woocommerce_archive_description' );
 		?>
 		
 		<div id="mk-archive-products">
@@ -43,17 +45,21 @@ get_header( 'shop' ); ?>
 
 			<?php
 				$args = array(
-			      'before'  => woocommerce_product_loop_start( false ),
-			      'after'   => woocommerce_product_loop_end( false ),
-			    );
+					'before'  => woocommerce_product_loop_start( false ),
+					'after'   => woocommerce_product_loop_end( false ),
+				);
 				woocommerce_product_subcategories( $args );
-			?>	
-
+			?>
+	
+			
 			
 
 			<?php woocommerce_product_loop_start(); ?>
 
-				<?php while ( have_posts() ) : the_post(); ?>
+				<?php
+				while ( have_posts() ) :
+					the_post();
+?>
 
 					<?php wc_get_template_part( 'content', 'product' ); ?>
 
@@ -70,7 +76,14 @@ get_header( 'shop' ); ?>
 				do_action( 'woocommerce_after_shop_loop' );
 			?>
 
-		<?php elseif ( ! woocommerce_product_subcategories( array( 'before' => woocommerce_product_loop_start( false ), 'after' => woocommerce_product_loop_end( false ) ) ) ) : ?>
+		<?php
+		elseif ( ! woocommerce_product_subcategories(
+			array(
+				'before' => woocommerce_product_loop_start( false ),
+				'after' => woocommerce_product_loop_end( false ),
+			)
+		) ) :
+?>
 
 			<?php wc_get_template( 'loop/no-products-found.php' ); ?>
 

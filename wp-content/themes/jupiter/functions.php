@@ -73,7 +73,7 @@ class Theme {
 
 		add_filter(
 			'http_request_timeout', function ( $timeout ) {
-				$timeout = 30;
+				$timeout = 60;
 				return $timeout;
 			}
 		);
@@ -91,7 +91,12 @@ class Theme {
 	 * @return void
 	 */
 	public function constants( $options ) {
-		$mk_theme = wp_get_theme();
+
+		$mk_parent_theme = get_file_data(
+			get_template_directory() . '/style.css',
+			array( 'Asset Version' ),
+			get_template()
+		);
 
 		define( 'NEW_UI_LIBRARY', false );
 		define( 'NEW_CUSTOM_ICON', true );
@@ -99,14 +104,16 @@ class Theme {
 		define( 'THEME_DIR', get_template_directory() );
 		define( 'THEME_DIR_URI', get_template_directory_uri() );
 		define( 'THEME_NAME', $options['theme_name'] );
-		define( 'THEME_VERSION', $mk_theme->get( 'Version' ) );
+		define( 'THEME_VERSION', $mk_parent_theme[0] );
 		define( 'THEME_OPTIONS', $options['theme_name'] . '_options' . $this->lang() );
 		define( 'THEME_OPTIONS_BUILD', $options['theme_name'] . '_options_build' . $this->lang() );
 		define( 'IMAGE_SIZE_OPTION', THEME_NAME . '_image_sizes' );
 		define( 'THEME_SLUG', $options['theme_slug'] );
 		define( 'THEME_STYLES_SUFFIX', '/assets/stylesheet' );
 		define( 'THEME_STYLES', THEME_DIR_URI . THEME_STYLES_SUFFIX );
+		define( 'THEME_STYLES_DIR', THEME_DIR . THEME_STYLES_SUFFIX );
 		define( 'THEME_JS', THEME_DIR_URI . '/assets/js' );
+		define( 'THEME_JS_DIR', THEME_DIR . '/assets/js' );
 		define( 'THEME_IMAGES', THEME_DIR_URI . '/assets/images' );
 		define( 'FONTFACE_DIR', THEME_DIR . '/fontface' );
 		define( 'FONTFACE_URI', THEME_DIR_URI . '/fontface' );
@@ -130,6 +137,7 @@ class Theme {
 		define( 'THEME_GENERATORS', THEME_ADMIN . '/generators' );
 		define( 'THEME_ADMIN_URI', THEME_DIR_URI . '/framework/admin' );
 		define( 'THEME_ADMIN_ASSETS_URI', THEME_DIR_URI . '/framework/admin/assets' );
+		define( 'THEME_ADMIN_ASSETS_DIR', THEME_DIR . '/framework/admin/assets' );
 		define( 'THEME_CUSTOMIZER_DIR', THEME_DIR . '/framework/admin/customizer' );
 		define( 'THEME_CUSTOMIZER_URI', THEME_DIR_URI . '/framework/admin/customizer' );
 
@@ -291,6 +299,7 @@ class Theme {
 			include_once THEME_CONTROL_PANEL . '/logic/template-management.php';
 			include_once THEME_CONTROL_PANEL . '/logic/updates-class.php';
 			include_once THEME_CONTROL_PANEL . '/logic/class-mk-updates-downgrades.php';
+			include_once THEME_CONTROL_PANEL . '/logic/class-mk-export-import.php';
 			include_once THEME_CONTROL_PANEL . '/logic/icon-selector.php';
 			include_once THEME_ADMIN . '/menus-custom-fields/menu-item-custom-fields.php';
 			include_once THEME_ADMIN . '/theme-options/options-check.php';
@@ -300,6 +309,7 @@ class Theme {
 			include_once THEME_ADMIN . '/theme-options/options-save.php';
 			include_once THEME_ADMIN . '/theme-options/class-mk-theme-options-misc.php';
 			include_once THEME_INCLUDES . '/tgm-plugin-activation/request-plugins.php';
+
 
 		}
 		include_once THEME_CONTROL_PANEL . '/logic/tracking.php';
@@ -384,17 +394,19 @@ class Theme {
 	 * Compatibility check for hosting php version.
 	 * Returns error if php version is below v5.4
 	 *
-	 * @author      Bob ULUSOY & Ugur Mirza ZEYREK
-	 * @copyright   Artbees LTD (c)
-	 * @link        http://artbees.net
-	 * @since       Version 5.0.5
-	 * @last_update Version 5.0.7
+	 * @author Artbees
+	 * @since 5.0.5
+	 * @since 5.0.7
+	 * @since 6.0.2 Increse PHP version to 5.6 and improve explanation.
 	 */
 	public function theme_requirement_check() {
 		if ( ! in_array( $GLOBALS['pagenow'], array( 'admin-ajax.php' ) ) ) {
-			if ( version_compare( phpversion(), '5.4', '<' ) ) {
-				echo '<h2>As stated in <a href="http://demos.artbees.net/jupiter5/jupiter-v5-migration/">Jupiter V5.0 Migration Note</a> your PHP version must be above V5.4. We no longer support php legacy versions (v5.2.X, v5.3.X).</h2>';
-				echo 'Read more about <a href="https://wordpress.org/about/requirements/">WordPress environment requirements</a>. <br><br> Please contact with your hosting provider or server administrator for php version update. <br><br> Your current PHP version is <b>' . phpversion() . '</b>';
+			if ( version_compare( phpversion(), '5.6', '<' ) ) {
+				printf(
+					__( '<h2>Your server\'s PHP version (%1$s) is not supported.</h2> <p>This version is old, insecure and slow. Please update it as soon as possible.</p><h3>Required/Recommened Version:</h3><p>Please read <a href="%2$s" target="_blank">Checking Server Requirements</a> article to learn about WordPress, Jupiter and other plugins\' server requirements.</p><h3>Update:</h3><p>Please contact your host provider/server administrator to increase the PHP version.</p>', 'mk_framework' ),
+					esc_attr( phpversion() ),
+					'https://themes.artbees.net/docs/checking-server-requirements/'
+				);
 				wp_die();
 			}
 		}
@@ -407,6 +419,11 @@ class Theme {
 		include_once THEME_ADMIN . '/theme-options/class-theme-options.php';
 	}
 
+	/**
+	 * Define the proper language code.
+	 *
+	 * @return array The language code.
+	 */
 	public function lang() {
 		global $mk_lang;
 

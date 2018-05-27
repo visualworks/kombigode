@@ -27,6 +27,7 @@ class MKHB_Model {
 	 * Create custom handlers for your own custom AJAX requests.
 	 */
 	public function __construct() {
+		add_action( 'wp_ajax_mkhb_save_header_revision', array( &$this, 'save_header_revision' ) );
 		add_action( 'wp_ajax_mkhb_set_header', array( &$this, 'set_header' ) );
 		add_action( 'wp_ajax_mkhb_get_header', array( &$this, 'get_header' ) );
 		add_action( 'wp_ajax_mkhb_get_headers', array( &$this, 'get_headers' ) );
@@ -35,6 +36,27 @@ class MKHB_Model {
 		add_action( 'wp_ajax_mkhb_set_global_header', array( &$this, 'set_global_header' ) );
 		add_action( 'wp_ajax_mkhb_check_title_header', array( &$this, 'check_title_header' ) );
 		add_action( 'save_post', array( &$this, 'page_styling_meta_update' ) );
+	}
+
+	/**
+	 * Save a revision of the header post.
+	 *
+	 * This function is intended to be called on two occasions:
+	 *   (1) every tick of a WP heartbeat (i.e., autosave);
+	 *   (2) every time a user clicks the "Preview" button.
+	 *
+	 * @see mkhb_header_preview()
+	 *
+	 * @since 6.0.3
+	 */
+	public function save_header_revision() {
+		$preview_link = mkhb_header_preview();
+
+		if ( is_wp_error( $preview_link ) ) {
+			wp_send_json_error( $preview_link->get_error_message() );
+		}
+
+		wp_send_json_success( $preview_link );
 	}
 
 	/**
@@ -54,9 +76,12 @@ class MKHB_Model {
 				'post_status' => 'publish',
 			);
 
+			$post_data = $_POST;
+			$post_data = _mkhb_translate_header_post_data( $post_data );
+
 			// UPDATE - Check if post id is not null, it means update.
-			if ( ! empty( $_POST['post_id'] ) ) {
-				$params['ID'] = absint( $_POST['post_id'] );
+			if ( ! empty( $post_data['post_id'] ) ) {
+				$params['ID'] = absint( $post_data['post_id'] );
 				$data = get_post( $params['ID'] );
 				if ( ! empty( $data->post_title ) ) {
 					$params['post_title'] = $data->post_title;
@@ -64,13 +89,13 @@ class MKHB_Model {
 			}
 
 			// RENAME - Check if post title is not null.
-			if ( ! empty( $_POST['title'] ) ) {
-				$params['post_title'] = sanitize_text_field( $_POST['title'] );
+			if ( ! empty( $post_data['title'] ) ) {
+				$params['post_title'] = sanitize_text_field( $post_data['title'] );
 			}
 
 			// SAVE CONTENT - Check if post meta is not empty.
-			if ( ! empty( $_POST['metas'] ) ) {
-				$params['meta_input'] = $this->set_meta_header( $_POST['metas'] );
+			if ( ! empty( $post_data['metas'] ) ) {
+				$params['meta_input'] = $post_data['metas'];
 			}
 
 			// Save the data into post mkhb_header.
@@ -87,7 +112,7 @@ class MKHB_Model {
 			);
 
 			// If we need to return list of header post after saving the data.
-			if ( ! empty( $_POST['retrieve'] ) ) {
+			if ( ! empty( $post_data['retrieve'] ) ) {
 				$return['list'] = $this->get_headers_data( 'title_id' );
 			}
 
@@ -586,152 +611,6 @@ class MKHB_Model {
 		update_post_meta( $post_id, '_hb_override_template_id', '' );
 		update_post_meta( $post_id, '_hb_override_template_id_old', '' );
 		update_post_meta( $header_id, '_mkhb_active_on', $new_active_on );
-	}
-
-	/**
-	 * Set meta input for current header based on device and workspace.
-	 *
-	 * @since 6.0.0
-	 *
-	 * @param  array $metas HB meta data.
-	 * @return array        Meta input data for post header.
-	 */
-	private function set_meta_header( $metas ) {
-		$meta_input = array(
-			'_mkhb_content_normal_header_desktop' => '',
-			'_mkhb_content_normal_header_tablet'  => '',
-			'_mkhb_content_normal_header_mobile'  => '',
-			'_mkhb_content_sticky_header_desktop' => '',
-			'_mkhb_content_sticky_header_tablet'  => '',
-			'_mkhb_content_sticky_header_mobile'  => '',
-			'_mkhb_chains'        => array(),
-			'_mkhb_chain'         => array(),
-			'_mkhb_specificities' => array(),
-			'_mkhb_active_device' => '',
-			'_mkhb_active_header' => '',
-			'_mkhb_options_laptop'                     => true,
-			'_mkhb_options_mobile'                     => false,
-			'_mkhb_options_overlapping_content'        => true,
-			'_mkhb_options_sticky_header'              => false,
-			'_mkhb_options_sticky_header_offset'       => 'header',
-			'_mkhb_options_sticky_header_behaviour'    => 'slide-down',
-		);
-
-		// Normal - Desktop.
-		if ( isset( $metas['normal_desktop'] ) ) {
-			$meta_input['_mkhb_content_normal_header_desktop'] = $metas['normal_desktop'];
-		}
-
-		// Normal - Tablet.
-		if ( isset( $metas['normal_tablet'] ) ) {
-			$meta_input['_mkhb_content_normal_header_tablet'] = $metas['normal_tablet'];
-		}
-
-		// Normal - Mobile.
-		if ( isset( $metas['normal_mobile'] ) ) {
-			$meta_input['_mkhb_content_normal_header_mobile'] = $metas['normal_mobile'];
-		}
-
-		// Sticky - Desktop.
-		if ( isset( $metas['sticky_desktop'] ) ) {
-			$meta_input['_mkhb_content_sticky_header_desktop'] = $metas['sticky_desktop'];
-		}
-
-		// Sticky - Tablet.
-		if ( isset( $metas['sticky_tablet'] ) ) {
-			$meta_input['_mkhb_content_sticky_header_tablet'] = $metas['sticky_tablet'];
-		}
-
-		// Sticky - Mobile.
-		if ( isset( $metas['sticky_mobile'] ) ) {
-			$meta_input['_mkhb_content_sticky_header_mobile'] = $metas['sticky_mobile'];
-		}
-
-		$option_meta = $this->set_option_meta_header( $metas, $meta_input );
-		$additional_meta = $this->set_additional_meta_header( $metas, $option_meta );
-
-		return $additional_meta;
-	}
-
-	/**
-	 * Set meta input for current header based on option.
-	 *
-	 * @since 6.0.0
-	 *
-	 * @param  array $metas      HB meta data.
-	 * @param  array $meta_input Existing meta input.
-	 * @return array             Meta input data for post header.
-	 */
-	private function set_option_meta_header( $metas, $meta_input ) {
-		// Chains.
-		if ( isset( $metas['chains'] ) ) {
-			$meta_input['_mkhb_chains'] = $metas['chains'];
-		}
-
-		// Chain.
-		if ( isset( $metas['chain'] ) ) {
-			$meta_input['_mkhb_chain'] = $metas['chain'];
-		}
-
-		// Specificity.
-		if ( isset( $metas['specificities'] ) ) {
-			$meta_input['_mkhb_specificities'] = $metas['specificities'];
-		}
-
-		// Device.
-		if ( isset( $metas['active_device'] ) ) {
-			$meta_input['_mkhb_active_device'] = $metas['active_device'];
-		}
-
-		// Header.
-		if ( isset( $metas['active_header'] ) ) {
-			$meta_input['_mkhb_active_header'] = $metas['active_header'];
-		}
-
-		return $meta_input;
-	}
-
-	/**
-	 * Set meta input for current header based on additional meta.
-	 *
-	 * @since 6.0.0
-	 *
-	 * @param  array $metas      HB meta data.
-	 * @param  array $meta_input Existing meta input.
-	 * @return array             Meta input data for post header.
-	 */
-	private function set_additional_meta_header( $metas, $meta_input ) {
-		// Option laptop.
-		if ( isset( $metas['options_laptop'] ) ) {
-			$meta_input['_mkhb_options_laptop'] = $metas['options_laptop'];
-		}
-
-		// Option mobile.
-		if ( isset( $metas['options_mobile'] ) ) {
-			$meta_input['_mkhb_options_mobile'] = $metas['options_mobile'];
-		}
-
-		// Option overlapping.
-		if ( isset( $metas['options_overlapping_content'] ) ) {
-			$meta_input['_mkhb_options_overlapping_content'] = $metas['options_overlapping_content'];
-		}
-
-		// Option sticky.
-		if ( isset( $metas['options_sticky_header'] ) ) {
-			$meta_input['_mkhb_options_sticky_header'] = $metas['options_sticky_header'];
-		}
-
-		// Option offset.
-		if ( isset( $metas['options_sticky_header_offset'] ) ) {
-			$meta_input['_mkhb_options_sticky_header_offset'] = $metas['options_sticky_header_offset'];
-		}
-
-		// Option behaviour.
-		if ( isset( $metas['options_sticky_header_behaviour'] ) ) {
-			$meta_input['_mkhb_options_sticky_header_behaviour'] = $metas['options_sticky_header_behaviour'];
-		}
-
-		return $meta_input;
 	}
 
 	/**

@@ -3,7 +3,7 @@ $phpinfo =  pathinfo( __FILE__ );
 $path = $phpinfo['dirname'];
 include( $path . '/config.php' );
 
-$id = uniqid();
+$id = Mk_Static_Files::shortcode_id();
 
 $style = ( $style == 'true' ) ? 'pattern' : 'simple';
 
@@ -43,22 +43,33 @@ $class[] = ( $color_style == 'gradient_color' ) ? 'color-gradient' : 'color-sing
 
 <<?php echo $tag_name; ?> id="fancy-title-<?php echo $id; ?>" class="mk-fancy-title <?php echo implode(' ', $class); ?>">
 	<span>
-		<?php 
+		<?php
 			if($color_style == 'gradient_color') {
 				echo "<i>";
-			} 
+			}
 		?>
 		<?php
-		if($strip_tags == 'true') {
-			echo do_shortcode(strip_tags($content));
-		} else {
-			echo do_shortcode($content);
-		}
+		/**
+		 * Return to original code by commenting the code below. Need to save the code
+		 * above for further need. AM-2754 and AM-2810.
+		 */
+			// As default, the first paragraph of VC $content will be generated outside p tag.
+			// We need to ensure all generated content is wrapped inside p tag for next process.
+			$content = wpautop( preg_replace( '/<\/?p\>/', "\n", $content ) . "\n" );
+			$content = shortcode_unautop( $content );
+
+			// Strip tags if Strip Tags option enabled.
+			if ( 'true' == $strip_tags ) {
+				$content = strip_tags( $content );
+			}
+
+			// Print or render the content.
+			echo do_shortcode( $content );
 		?>
-		<?php 
+		<?php
 			if($color_style == 'gradient_color') {
 				echo "</i>";
-			} 
+			}
 		?>
 	</span>
 </<?php echo $tag_name; ?>>
@@ -107,7 +118,7 @@ if($color_style == 'gradient_color'){
 			color: '.$grandient_color_fallback.';
 			-webkit-text-fill-color: initial;
 	  	}
-	  	
+
 	', $id);
 }
 
@@ -120,7 +131,7 @@ if ($force_font_size == 'true') {
 				}
 			}
 		';
-	} 
+	}
 	if($size_tablet != '0') {
 		$app_styles .= '
 			@media handheld, only screen and (min-width: 768px) and (max-width: 1024px) {

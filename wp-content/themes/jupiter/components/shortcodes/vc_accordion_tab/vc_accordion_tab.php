@@ -5,8 +5,8 @@ include( $path . '/config.php' );
 
 ?>
 
-<div class="mk-accordion-single">
-	
+<div id="<?php echo esc_attr( $id ); ?>"class="mk-accordion-single">
+
 	<div class="mk-accordion-tab">
 		<?php echo $icon; ?>
 		<span><?php echo $title; ?></span>

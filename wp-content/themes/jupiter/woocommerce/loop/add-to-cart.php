@@ -13,7 +13,7 @@
  * @see         https://docs.woocommerce.com/document/template-structure/
  * @author      WooThemes
  * @package     WooCommerce/Templates
- * @version     3.0.0
+ * @version     3.3.0
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -56,14 +56,15 @@ $button_class = implode(
 echo apply_filters(
 	'woocommerce_loop_add_to_cart_link',
 	sprintf(
-		'<a rel="nofollow" href="%s" data-quantity="%s" data-product_id="%s" data-product_sku="%s" class="%s">%s<span class="product_loop_button_text">%s</a>',
+		'<a rel="nofollow" href="%s" data-quantity="%s" data-product_id="%s" data-product_sku="%s" class="%s" %s>%s<span class="product_loop_button_text">%s</a>',
 		esc_url( $product->add_to_cart_url() ),
 		esc_attr( isset( $quantity ) ? $quantity : 1 ),
 		esc_attr( $product->get_id() ),
 		esc_attr( $product->get_sku() ),
 		esc_attr( $button_class ),
-		Mk_SVG_Icons::get_svg_icon_by_class_name( false,$icon_class,16 ),
+		isset( $args['attributes'] ) ? wc_implode_html_attributes( $args['attributes'] ) : '',
+		Mk_SVG_Icons::get_svg_icon_by_class_name( false, $icon_class, 16 ),
 		esc_html( $product->add_to_cart_text() )
 	),
-	$product
+	$product, $args
 );

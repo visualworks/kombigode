@@ -31,11 +31,11 @@ function mk_jupiter_register_required_plugins() {
 	$plugins = array(
 
 		array(
-			'name' => __( 'Visual Composer', 'mk_framework' ),
+			'name' => __( 'WPBakery Page Builder', 'mk_framework' ),
 			'slug' => 'js_composer_theme',
-			'source' => 'http://static-cdn.artbees.net/plugins/js_composer_theme.zip',
+			'source' => 'https://static.artbees.net/plugins/js_composer_theme.zip',
 			'required' => true,
-			'version' => '5.4.4',
+			'version' => '5.4.5',
 			'force_activation' => false,
 			'force_deactivation' => false,
 		),
@@ -43,7 +43,7 @@ function mk_jupiter_register_required_plugins() {
 		array(
 			'name' => __( 'Artbees Themes Captcha', 'mk_framework' ),
 			'slug' => 'artbees-captcha',
-			'source' => 'http://static-cdn.artbees.net/plugins/artbees-captcha.zip',
+			'source' => 'https://static.artbees.net/plugins/artbees-captcha.zip',
 			'required' => true,
 			'version' => '1.0',
 			'force_activation' => false,
@@ -53,9 +53,9 @@ function mk_jupiter_register_required_plugins() {
 		array(
 			'name' => __( 'Layer Slider', 'mk_framework' ),
 			'slug' => 'LayerSlider',
-			'source' => 'http://static-cdn.artbees.net/plugins/LayerSlider.zip',
+			'source' => 'https://static.artbees.net/plugins/LayerSlider.zip',
 			'required' => false,
-			'version' => '6.6.2',
+			'version' => '6.6.8',
 			'force_activation' => false,
 			'force_deactivation' => false,
 		),
@@ -63,9 +63,9 @@ function mk_jupiter_register_required_plugins() {
 		array(
 			'name' => __( 'Slider Revolution', 'mk_framework' ),
 			'slug' => 'revslider',
-			'source' => 'http://static-cdn.artbees.net/plugins/revslider.zip',
+			'source' => 'https://static.artbees.net/plugins/revslider.zip',
 			'required' => false,
-			'version' => '5.4.6.3.1',
+			'version' => '5.4.6.4',
 			'force_activation' => false,
 			'force_deactivation' => false,
 		),
@@ -73,7 +73,7 @@ function mk_jupiter_register_required_plugins() {
 		array(
 			'name' => __( 'Master Slider', 'mk_framework' ),
 			'slug' => 'masterslider',
-			'source' => 'http://static-cdn.artbees.net/plugins/masterslider.zip',
+			'source' => 'https://static.artbees.net/plugins/masterslider.zip',
 			'required' => false,
 			'version' => '3.2.2',
 			'force_activation' => false,

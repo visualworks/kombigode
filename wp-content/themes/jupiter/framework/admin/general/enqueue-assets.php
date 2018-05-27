@@ -1,8 +1,4 @@
 <?php
-if ( ! defined( 'THEME_FRAMEWORK' ) ) {
-	exit( 'No direct script access allowed' );
-}
-
 /**
  * Output static assets needed for theme backend end pages.
  *
@@ -12,14 +8,17 @@ if ( ! defined( 'THEME_FRAMEWORK' ) ) {
  * @since       Version 5.1.2
  * @package     artbees
  */
+
+if ( ! defined( 'THEME_FRAMEWORK' ) ) {
+	exit( 'No direct script access allowed' );
+}
+
 class Mk_Theme_Backend_Assets {
 
 	var $theme_version;
 	var $is_js_min;
 	var $is_css_min;
 	var $assets_css_path;
-	var $controlpanel_assets_css_path;
-	var $controlpanel_assets_js_path;
 
 	function __construct() {
 
@@ -35,8 +34,10 @@ class Mk_Theme_Backend_Assets {
 		 // $this->is_js_min = !(defined('MK_DEV') ? constant("MK_DEV") : true);
 		 // $this->is_css_min = !(defined('MK_DEV') ? constant("MK_DEV") : true);
 		 // Paths for assets.
-		 $this->assets_css_path = THEME_ADMIN_ASSETS_URI . '/stylesheet/css' . ($this->is_css_min ? '/min' : '');
-		 $this->assets_js_path = THEME_ADMIN_ASSETS_URI . '/js' . ($this->is_js_min ? '/min' : '');
+		$this->assets_css_path = THEME_ADMIN_ASSETS_URI . '/stylesheet/css' . ($this->is_css_min ? '/min' : '');
+		$this->assets_js_path = THEME_ADMIN_ASSETS_URI . '/js' . ($this->is_js_min ? '/min' : '');
+		$this->assets_css_dir = THEME_ADMIN_ASSETS_DIR . '/stylesheet/css' . ($this->is_css_min ? '/min' : '');
+		$this->assets_js_dir = THEME_ADMIN_ASSETS_DIR . '/js' . ($this->is_js_min ? '/min' : '');
 		 $this->controlpanel_assets_css_path = THEME_CONTROL_PANEL_ASSETS . '/css';
 		 $this->controlpanel_assets_js_path = THEME_CONTROL_PANEL_ASSETS . '/js';
 
@@ -78,19 +79,36 @@ class Mk_Theme_Backend_Assets {
 			wp_enqueue_script( 'mk-options-dependency',     $this->assets_js_path . '/options-dependency.js',   array( 'jquery' ), $this->theme_version, true );
 			wp_enqueue_script( 'progress-circle',       $this->assets_js_path . '/progress-circle.js',      array( 'jquery' ), $this->theme_version, true );
 			wp_enqueue_script( 'attrchange',            $this->assets_js_path . '/attrchange.js',           array( 'jquery' ), $this->theme_version, true );
-			wp_enqueue_script( 'theme-backend-scripts',     $this->assets_js_path . '/backend-scripts.js',      array( 'jquery' ), $this->theme_version, true );
-			wp_enqueue_style( 'theme-backend-styles', $this->assets_css_path . '/theme-backend-styles.css', false, $this->theme_version );
+
+			$mk_backend_js_file = '/backend-scripts.js';
+
+			wp_enqueue_script(
+				'theme-backend-scripts',
+				$this->assets_js_path . $mk_backend_js_file,
+				array( 'jquery' ),
+				filemtime( $this->assets_js_dir . $mk_backend_js_file ),
+				true
+			);
+
+			$mk_backend_css_file = '/theme-backend-styles.' . THEME_VERSION . '.css';
+
+			wp_enqueue_style(
+				'theme-backend-styles',
+				$this->assets_css_path . $mk_backend_css_file,
+				false,
+				filemtime( $this->assets_css_dir . $mk_backend_css_file )
+			);
 
 			global $mk_options;
 			$loggedin_menu = isset( $mk_options['loggedin_menu'] ) ? $mk_options['loggedin_menu'] : '';
 			$global_lazyload = isset( $mk_options['global_lazyload'] ) ? $mk_options['global_lazyload'] : '';
-			$theme_backend_localized_data = array(
+			$mk_localized_data = array(
 				'security'      => wp_create_nonce( 'mk_admin' ),
 				'loggedin_menu' => $loggedin_menu,
 				'mk_global_lazyload' => $global_lazyload,
 				'meta_main_nav_loc_warning_msg' => __( 'You have set "Main Navigation For Logged In User" in your Theme Options which overrides this option here.', 'mk_framework' ),
 			);
-				wp_localize_script( 'theme-backend-scripts', 'theme_backend_localized_data', $theme_backend_localized_data );
+				wp_localize_script( 'theme-backend-scripts', 'theme_backend_localized_data', $mk_localized_data );
 		}
 
 		if ( mk_theme_is_masterkey() ) {
@@ -170,13 +188,13 @@ class Mk_Theme_Backend_Assets {
 	 * Enqueues assets specifically for widgets.php
 	 */
 	function widgets_assets() {
-
-		if ( ! mk_theme_is_widgets() ) {
+		// Scripts below should be enqueued in Widget and Customizer admin page.
+		if ( ! mk_theme_is_widgets() && ! is_customize_preview() ) {
 			return false;
 		}
 
-		wp_enqueue_script( 'widget-scripts', $this->assets_js_path . '/widgets.js', array( 'jquery' ), $this->theme_version, true );
-		 wp_enqueue_style( 'theme-style', $this->assets_css_path . '/widgets.css', false, $this->theme_version );
+		wp_enqueue_script( 'mk-widget-scripts', $this->assets_js_path . '/widgets.js', array( 'jquery' ), $this->theme_version, true );
+		wp_enqueue_style( 'mk-widget-styles', $this->assets_css_path . '/widgets.css', false, $this->theme_version );
 	}
 
 
@@ -222,12 +240,21 @@ class Mk_Theme_Backend_Assets {
 
 	}
 
-
-	function ui_control_panel() {
+	/**
+	 * Enqueue scripts and styles for Control Panel.
+	 *
+	 * @since 5.9.5
+	 * @since 6.0.3
+	 *        Add nonce for mk-ui-control-panel script.
+	 *        Add media scripts.
+	 * @return boolean
+	 */
+	public function ui_control_panel() {
 
 		if ( ! mk_is_control_panel() ) {
 			return false;
 		}
+		wp_enqueue_media();
 		wp_enqueue_style( 'control-panel-modal-plugin', THEME_CONTROL_PANEL_ASSETS . '/css/sweetalert.css', false, $this->theme_version );
 		wp_enqueue_script( 'control-panel-sweet-alert', THEME_CONTROL_PANEL_ASSETS . '/js/sweetalert.min.js', array( 'jquery' ), $this->theme_version );
 		wp_enqueue_script( 'mk-ui-library', $this->controlpanel_assets_js_path . '/ui-library.js', array( 'jquery', 'mk-rangeslider', 'mk-gsap' ), $this->theme_version, true );
@@ -235,8 +262,14 @@ class Mk_Theme_Backend_Assets {
 		wp_enqueue_style( 'mk-ui-control-panel', $this->controlpanel_assets_css_path . '/ui-control-panel.css', false, $this->theme_version );
 		wp_enqueue_script( 'mk-ui-control-panel', $this->controlpanel_assets_js_path . '/ui-control-panel.js', array( 'jquery' ), $this->theme_version, true );
 		wp_enqueue_style( 'mk-ui-show-more', THEME_CONTROL_PANEL_ASSETS . '/css/ui-show-more.css', false, $this->theme_version );
-		wp_enqueue_script( 'mk-show-more', $this->controlpanel_assets_js_path . '/dynamicmaxheight.min.js', array('jquery'), $this->theme_version, false );
+		wp_enqueue_script( 'mk-show-more', $this->controlpanel_assets_js_path . '/dynamicmaxheight.min.js', array( 'jquery' ), $this->theme_version, false );
 		wp_localize_script( 'mk-ui-control-panel', 'mk_cp_textdomain', mk_adminpanel_textdomain() );
+
+		wp_localize_script(
+			'mk-ui-control-panel', 'mk_control_panel', array(
+				'nonce' => wp_create_nonce( 'mk_control_panel' ),
+			)
+		);
 	}
 
 

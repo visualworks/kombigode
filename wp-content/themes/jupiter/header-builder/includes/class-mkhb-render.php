@@ -106,6 +106,7 @@ class MKHB_Render {
 	 * Run hooks after HB shortcodes are generated.
 	 *
 	 * @since 6.0.0
+	 * @since 6.0.3 Add hook action for adding internal CSS.
 	 */
 	public function run_hooks() {
 		// Initiate hooks instance.
@@ -115,6 +116,15 @@ class MKHB_Render {
 		$this->hooks = array();
 		if ( ! empty( $instance ) ) {
 			$this->hooks = $instance::get_hooks();
+		}
+
+		// Internal styles.
+		if ( ! empty( $this->hooks['styles'] ) ) {
+			$minifier = new SimpleCssMinifier();
+			$style = $minifier->minify( $this->hooks['styles'] );
+			wp_register_style( 'mkhb', false, array( 'mkhb-render' ) );
+			wp_enqueue_style( 'mkhb' );
+			wp_add_inline_style( 'mkhb', $style );
 		}
 
 		// Navigation, Textbox, and Button fonts.
@@ -138,6 +148,8 @@ class MKHB_Render {
 
 	/**
 	 * Enqueue all shortcodes fonts used.
+	 *
+	 * @since 6.0.0
 	 *
 	 * @param  array $google_fonts All Google Fonts list from theme options.
 	 * @return array               All updated list after rendering shortcodes.
@@ -434,16 +446,7 @@ class MKHB_Render {
 	 */
 	public function enqueue_styles() {
 		// Enqueue HB shortcodes default style.
-		if ( has_shortcode( $this->raw_content, 'mkhb_row' ) ) {
-			wp_enqueue_style( 'mkhb-row', HB_ASSETS_URI . 'css/mkhb-row.css', array(), THEME_VERSION );
-		}
-
-		if ( has_shortcode( $this->raw_content, 'mkhb_col' ) ) {
-			wp_enqueue_style( 'mkhb-column', HB_ASSETS_URI . 'css/mkhb-column.css', array(), THEME_VERSION );
-			wp_enqueue_script( 'mkhb-column', HB_ASSETS_URI . 'js/mkhb-column.js', array( 'jquery' ), THEME_VERSION, true );
-		}
-
-		if ( has_shortcode( $this->raw_content, 'hb_logo' ) ) {
+		if ( has_shortcode( $this->raw_content, 'mkhb_logo' ) ) {
 			wp_enqueue_style( 'mkhb-logo', HB_ASSETS_URI . 'css/mkhb-logo.css', array(), THEME_VERSION );
 		}
 
@@ -474,6 +477,8 @@ class MKHB_Render {
 	 * Load Icons styles when mk_enqueue_styles() is called.
 	 *
 	 * @since 6.0.0
+	 * @since 6.0.3 Enqueue mkhb-icon before mkhb-social. Most of the markup of Social
+	 *              element is similar with Icon element. We can use the exact same CSS.
 	 */
 	private function enqueue_styles_icons() {
 		if ( has_shortcode( $this->raw_content, 'mkhb_search' ) ) {
@@ -482,6 +487,7 @@ class MKHB_Render {
 		}
 
 		if ( has_shortcode( $this->raw_content, 'mkhb_social_media' ) ) {
+			wp_enqueue_style( 'mkhb-icon', HB_ASSETS_URI . 'css/mkhb-icon.css', array(), THEME_VERSION );
 			wp_enqueue_style( 'mkhb-social', HB_ASSETS_URI . 'css/mkhb-social.css', array(), THEME_VERSION );
 		}
 

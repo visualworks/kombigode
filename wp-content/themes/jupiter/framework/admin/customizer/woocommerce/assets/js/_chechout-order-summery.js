@@ -13,9 +13,12 @@ jQuery( document ).ready(function( $ ) {
 
 	var mkFloatCheckoutSummeryTable = function( scroll ) {
 		var table = $( '#customer_details .col-2' );
+
+		if(table.length == 0) return false;
+
 		var steps = $( '.mk-checkout-steps' );
 		var tableTop = 53 + steps.outerHeight( true );
-		var tableRight = $( '.theme-content  > .woocommerce' ).offset().left;
+		var tableRight = $( '.woocommerce-billing-fields__field-wrapper' ).position().left;
 
 		if ( scroll == true ) {
 			tableTop += window.pageYOffset;
@@ -40,10 +43,6 @@ jQuery( document ).ready(function( $ ) {
 	$( 'body' ).on( 'mk-position-order-summery', function() {
 		mkFloatCheckoutSummeryTable();
 	});
-
-	// $( window ).on( 'scroll', function() {
-	// 	mkFloatCheckoutSummeryTable( true );
-	// });
 
 	mkFloatCheckoutSummeryTable();
 

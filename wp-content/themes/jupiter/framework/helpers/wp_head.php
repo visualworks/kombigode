@@ -325,6 +325,8 @@ if ( ! function_exists( 'mk_preloader_body_overlay' ) ) {
 /**
  * Populates classes to be added to body tag
  *
+ * @since 6.0.1 Override current header style into 'custom' if HB is active.
+ *
  * @return HTML
  */
 if ( ! function_exists( 'mk_get_body_class' ) ) {
@@ -341,6 +343,17 @@ if ( ! function_exists( 'mk_get_body_class' ) ) {
 				$header_style_meta = get_post_meta( $post_id, 'theme_header_style', true );
 				$header_style = (isset( $header_style_meta ) && ! empty( $header_style_meta )) ? $header_style_meta : $header_style;
 			}
+		}
+
+		// Get current header type. Default is 'pre_built_header'.
+		$to_header = 'pre_built_header';
+		if ( ! empty( $mk_options['header_layout_builder'] ) ) {
+			$to_header = $mk_options['header_layout_builder'];
+		}
+
+		// If current header is HB, change $header_style into 'custom'.
+		if ( 'header_builder' === $to_header ) {
+			$header_style = 'custom';
 		}
 
 		if ( ($mk_options['background_selector_orientation'] == 'boxed_layout') && ! ($post_id && get_post_meta( $post_id, '_enable_local_backgrounds', true ) == 'true' && get_post_meta( $post_id, 'background_selector_orientation', true ) == 'full_width_layout') ) {
@@ -733,55 +746,6 @@ if ( ! function_exists( 'mk_enable_regression_testing' ) ) {
 	add_action( 'wp_head', 'mk_enable_regression_testing' );
 }
 
-
-/*
-Adds inline styles from media.css to be served as entry point for js element queries.
-We need to keep it inline to preserve compatibility with 3rd party minification plugins
-*/
-if ( ! function_exists( 'mk_media_css' ) ) {
-	function mk_media_css() {
-
-		$file_dir = THEME_DIR . '/assets/stylesheet/min/media.css';
-		$file_uri = THEME_DIR_URI . '/assets/stylesheet/min/media.css';
-
-		$mkfs = new Mk_Fs(
-			array(
-				'context' => THEME_DIR . '/assets/stylesheet/min',
-			)
-		);
-
-		$wp_get_file_body = $mkfs->get_contents( $file_dir );
-
-		if ( $wp_get_file_body == false ) {
-			$wp_remote_get_file = wp_remote_get( $file_uri );
-			$wp_remote_get_file_body = '';
-
-			if ( is_array( $wp_remote_get_file ) and array_key_exists( 'body', $wp_remote_get_file ) ) {
-				$wp_remote_get_file_body = $wp_remote_get_file['body'];
-
-			} elseif ( is_numeric( strpos( $file_uri, 'https://' ) ) ) {
-
-				$file_uri           = str_replace( 'https://', 'http://', $file_uri );
-				$wp_remote_get_file = wp_remote_get( $file_uri );
-
-				if ( ! is_array( $wp_remote_get_file ) or ! array_key_exists( 'body', $wp_remote_get_file ) ) {
-					echo 'SSL connection error. Code: mk_media_css';
-					die;
-				}
-
-				$wp_remote_get_file_body = $wp_remote_get_file['body'];
-			}
-
-			$wp_file_body = $wp_remote_get_file_body;
-
-		} else {
-			$wp_file_body = $wp_get_file_body;
-		}
-
-		echo '<style id="js-media-query-css">' . $wp_file_body . '</style>';
-	}
-	add_action( 'wp_head', 'mk_media_css' );
-}// End if().
 
 /**
  * Generate Google fonts array. The array can be used directly in the

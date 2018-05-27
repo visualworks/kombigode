@@ -1,13 +1,15 @@
 /**
  * Created by mirzaartbees on 15.6.2017.
+ *
+ * @version  6.1.0 Rename vip_user into mk_atp_user.
  */
-if(typeof(vip_user) != "undefined" && vip_user !== null) {
+if(typeof(mk_atp_user) != "undefined" && mk_atp_user !== null) {
     //Set your APP_ID
-    var APP_ID = vip_user.APP_ID;
-    var user_email = vip_user.user_email;
-    var user_name = vip_user.user_name;
-    var user_id = vip_user.user_id;
-    var user_hash = vip_user.user_hash;
+    var APP_ID = mk_atp_user.APP_ID;
+    var user_email = mk_atp_user.user_email;
+    var user_name = mk_atp_user.user_name;
+    var user_id = mk_atp_user.user_id;
+    var user_hash = mk_atp_user.user_hash;
 
     window.intercomSettings = {
         app_id: APP_ID,

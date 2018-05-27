@@ -439,11 +439,11 @@ msgstr "Excluir medios de pago"
 msgid "Select the payment methods that you <strong>don\'t</strong> want to receive with Mercado Pago."
 msgstr "Selecione los medios de pago que <strong>no</strong> desea aceptar con Mercado Pago."
 
-msgid "Discount by Gateway"
-msgstr "Descuento por Gateway"
+msgid "Discount/Fee by Gateway"
+msgstr "Descuento/Tarifa por Gateway"
 
-msgid "Give a percentual (0 to 100) discount for your customers if they use this payment gateway."
-msgstr "Dé un descuento porcentual para sus clientes si utilizan este medio de pago."
+msgid "Give a percentual (-99 to 99) discount or fee for your customers if they use this payment gateway. Use negative for fees, positive for discounts."
+msgstr "Dé un descuento o tarifa porcentual para sus clientes si utilizan este medio de pago. Use negativo para las tarifas, positivo para los descuentos."
 
 msgid "Two Cards Mode"
 msgstr "Modo de Dos Tarjetas"
@@ -1014,3 +1014,66 @@ msgstr "Sus productos tienen las dimensiones bien definidas."
 
 msgid "You have product(s) with invalid dimensions."
 msgstr "Hay un o más productos que tienen dimensiones invalidas."
+
+msgid "It seems you have <strong>Woo Mercado Pago Module</strong> installed. Please, uninstall it before using this version."
+msgstr "Parece que tienes el módulo <strong>Woo Mercado Pago Module</strong> instalado. Por favor, desinstálelo antes de usar esta versión."
+
+msgid "Custom URL for IPN"
+msgstr "URL customizada para IPN"
+
+msgid "If you want to use a custom URL for IPN inform it here.<br>Format should be as: <code>https://yourdomain.com/yoursubdomain</code>."
+msgstr "Si quieres usar una URL customizada para IPN colóquela acá.<br>El formato debe ser: <code>https://yourdomain.com/yoursubdomain</code>."
+
+msgid "Address Number"
+msgstr "Número"
+
+msgid "Address Additional Info"
+msgstr "Complemento"
+
+msgid "CVC"
+msgstr "CVV"
+
+msgid "Needed informations"
+msgstr "Información obligatoria"
+
+msgid "Note: Confirmation under payment approval."
+msgstr "Nota: confirmación después de la aprobación"
+
+msgid "Invalid payment_method_id"
+msgstr "El medio de pago no es válido o no está disponible."
+
+msgid "Invalid transaction_amount"
+msgstr "El monto de transacción no puede ser procesado por Mercado Pago."
+
+msgid "Invalid users involved"
+msgstr "Los usuários no son válidos."
+
+msgid "Unauthorized use of live credentials"
+msgstr "Uso no autorizado de credenciales de producción."
+
+msgid "Posible causes: Currency not supported; Values under the minimal or above the maximun allowed."
+msgstr "Posibles causas: Moneda no soportada; Montos por debajo del mínimo o por encima del máximo permitido."
+
+msgid "Posible causes: Seller and buyer have the same email in Mercado Pago; Transaction involves production and test users."
+msgstr "Posibles causas: Comprador y vendedor tienen la misma cuenta en Mercado Pago; La transacción involucrando usuários de producción y de prueba."
+
+msgid "Posible causes: Pending permission of use in production of the seller credentials."
+msgstr "Posibles causas: Pendencia de permiso de uso en producción para la credencial del vendedor."
+
+msgid "Days for Expiration"
+msgstr "Días para Caducidad"
+
+msgid "Place the number of days (1 to 30) until expiration of the ticket."
+msgstr "Coloque la cantidad de días (de 1 a 30) hasta la expiración del ticket."
+
+msgid "Fee of"
+msgstr "Tarifa de"
+
+msgid "Do not save my card"
+msgstr "No guardar mi tarjeta"
+
+msgid "Custom banner for checkout"
+msgstr "Customización de banner para checkout"
+
+msgid "Inform the URL of your banner image. Let blank to use Mercado Pago default."
+msgstr "Informe la URL de su imagen de banner. Dejar en blanco para usar el valor predeterminado de Mercado Pago."

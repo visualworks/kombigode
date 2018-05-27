@@ -10,25 +10,31 @@
 // Enqueue woocommerce styles.
 add_action( 'wp_enqueue_scripts', function() {
 
+	$mk_woocommerce_common_file = '/plugins/min/woocommerce-common.' . THEME_VERSION . '.css';
+
 	wp_enqueue_style(
 		'mk-woocommerce-common',
-		THEME_STYLES . '/plugins/min/woocommerce-common.css',
+		THEME_STYLES . $mk_woocommerce_common_file,
 		'',
-		THEME_VERSION
+		filemtime( THEME_STYLES_DIR . $mk_woocommerce_common_file )
 	);
+
+	$mk_cz_woocommerce_css_file = '/woocommerce/assets/css/woocommerce.' . THEME_VERSION . '.css';
 
 	wp_enqueue_style(
 		'mk-cz-woocommerce',
-		THEME_CUSTOMIZER_URI . '/woocommerce/assets/css/woocommerce.css',
+		THEME_CUSTOMIZER_URI . $mk_cz_woocommerce_css_file,
 		'',
-		THEME_VERSION
+		filemtime( THEME_CUSTOMIZER_DIR . $mk_cz_woocommerce_css_file )
 	);
+
+	$mk_cz_woocommerce_js_file = '/woocommerce/assets/js/woocommerce.' . THEME_VERSION . '.js';
 
 	wp_enqueue_script(
 		'mk-cz-woocommerce',
-		THEME_CUSTOMIZER_URI . '/woocommerce/assets/js/woocommerce.js',
+		THEME_CUSTOMIZER_URI . $mk_cz_woocommerce_js_file,
 		array( 'jquery' ),
-		THEME_VERSION,
+		filemtime( THEME_CUSTOMIZER_DIR . $mk_cz_woocommerce_js_file ),
 		true
 	);
 
@@ -59,6 +65,7 @@ add_action( 'mk_woocommerce_before_complete_order', 'mk_woo_steps' );
  * Renders the steps nan in cart pages.
  *
  * @since 5.9.7
+ * @since 6.0.1 Make strings translatable.
  */
 function mk_woo_steps() {
 	$step_style = mk_cz_get_option( 'sh_cc_sty_stp_style', 'number' );
@@ -80,9 +87,9 @@ function mk_woo_steps() {
 	if ( 'number' === $step_style ) {
 		echo '
 		<div class="mk-checkout-steps mk-checkout-steps-number ' . esc_attr( $steps_class ) . '">' .
-			'<span class="mk-checkout-step mk-checkout-step-cart ' . esc_attr( $step_cart_class ) . '"><span class="mk-checkout-step-svg-wrap"><svg width="18" height="18" viewBox="0 0 1792 1792" xmlns="http://www.w3.org/2000/svg"><path d="M1671 566q0 40-28 68l-724 724-136 136q-28 28-68 28t-68-28l-136-136-362-362q-28-28-28-68t28-68l136-136q28-28 68-28t68 28l294 295 656-657q28-28 68-28t68 28l136 136q28 28 28 68z" fill="#d8d8d8"/></svg></span><span class="mk-checkout-step-number">1</span><span class="mk-checkout-step-text">Cart</span></span>' .
-			'<span class="mk-checkout-step mk-checkout-step-payment ' . esc_attr( $step_payment_class ) . '"><span class="mk-checkout-step-svg-wrap"><svg width="18" height="18" viewBox="0 0 1792 1792" xmlns="http://www.w3.org/2000/svg"><path d="M1671 566q0 40-28 68l-724 724-136 136q-28 28-68 28t-68-28l-136-136-362-362q-28-28-28-68t28-68l136-136q28-28 68-28t68 28l294 295 656-657q28-28 68-28t68 28l136 136q28 28 28 68z" fill="#d8d8d8"/></svg></span><span class="mk-checkout-step-number">2</span><span class="mk-checkout-step-text">Delivery & Payment</span></span>' .
-			'<span class="mk-checkout-step mk-checkout-step-complete ' . esc_attr( $step_complete_class ) . '"><span class="mk-checkout-step-svg-wrap"><svg width="18" height="18" viewBox="0 0 1792 1792" xmlns="http://www.w3.org/2000/svg"><path d="M1671 566q0 40-28 68l-724 724-136 136q-28 28-68 28t-68-28l-136-136-362-362q-28-28-28-68t28-68l136-136q28-28 68-28t68 28l294 295 656-657q28-28 68-28t68 28l136 136q28 28 28 68z" fill="#d8d8d8"/></svg></span><span class="mk-checkout-step-number">3</span><span class="mk-checkout-step-text">Complete Order</span></span>' .
+			'<span class="mk-checkout-step mk-checkout-step-cart ' . esc_attr( $step_cart_class ) . '"><span class="mk-checkout-step-svg-wrap"><svg width="18" height="18" viewBox="0 0 1792 1792" xmlns="http://www.w3.org/2000/svg"><path d="M1671 566q0 40-28 68l-724 724-136 136q-28 28-68 28t-68-28l-136-136-362-362q-28-28-28-68t28-68l136-136q28-28 68-28t68 28l294 295 656-657q28-28 68-28t68 28l136 136q28 28 28 68z" fill="#d8d8d8"/></svg></span><span class="mk-checkout-step-number">1</span><span class="mk-checkout-step-text">' . esc_html__( 'Cart', 'mk_framework' ) . '</span></span>' .
+			'<span class="mk-checkout-step mk-checkout-step-payment ' . esc_attr( $step_payment_class ) . '"><span class="mk-checkout-step-svg-wrap"><svg width="18" height="18" viewBox="0 0 1792 1792" xmlns="http://www.w3.org/2000/svg"><path d="M1671 566q0 40-28 68l-724 724-136 136q-28 28-68 28t-68-28l-136-136-362-362q-28-28-28-68t28-68l136-136q28-28 68-28t68 28l294 295 656-657q28-28 68-28t68 28l136 136q28 28 28 68z" fill="#d8d8d8"/></svg></span><span class="mk-checkout-step-number">2</span><span class="mk-checkout-step-text">' . esc_html__( 'Delivery & Payment', 'mk_framework' ) . '</span></span>' .
+			'<span class="mk-checkout-step mk-checkout-step-complete ' . esc_attr( $step_complete_class ) . '"><span class="mk-checkout-step-svg-wrap"><svg width="18" height="18" viewBox="0 0 1792 1792" xmlns="http://www.w3.org/2000/svg"><path d="M1671 566q0 40-28 68l-724 724-136 136q-28 28-68 28t-68-28l-136-136-362-362q-28-28-28-68t28-68l136-136q28-28 68-28t68 28l294 295 656-657q28-28 68-28t68 28l136 136q28 28 28 68z" fill="#d8d8d8"/></svg></span><span class="mk-checkout-step-number">3</span><span class="mk-checkout-step-text">' . esc_html__( 'Complete Order', 'mk_framework' ) . '</span></span>' .
 		'</div>';
 	} elseif ( 'icon' === $step_style ) {
 		echo '
@@ -94,7 +101,7 @@ function mk_woo_steps() {
 					s0.9-2,2-2s2,0.9,2,2S45.1,47.4,44,47.4z M24,40.4c-2.8,0-5,2.2-5,5s2.2,5,5,5s5-2.2,5-5S26.7,40.4,24,40.4z M24,47.4
 					c-1.1,0-2-0.9-2-2s0.9-2,2-2s2,0.9,2,2S25.1,47.4,24,47.4z"/></svg>
 				</span>
-				<span class="mk-checkout-step-text">Cart</span>
+				<span class="mk-checkout-step-text">' . esc_html__( 'Cart', 'mk_framework' ) . '</span>
 			</span>' .
 			'<span class="mk-checkout-step-seprator"><svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="25.3px" height="47.6px" viewBox="0 0 25.3 47.6" style="enable-background:new 0 0 25.3 47.6;" xml:space="preserve"><path class="st0" d="M24.9,22.7L2.6,0.4C2-0.1,1-0.1,0.4,0.4s-0.6,1.5,0,2.1l21.2,21.2L0.4,45.1c-0.6,0.6-0.6,1.5,0,2.1c0.3,0.3,0.7,0.4,1.1,0.4s0.8-0.1,1.1-0.4l22.3-22.3c0.3-0.3,0.4-0.7,0.4-1.1S25.1,23,24.9,22.7z"/></svg></span><span class="mk-checkout-step mk-checkout-step-payment ' . esc_attr( $step_payment_class ) . '">
 				<span class="mk-checkout-step-svg-wrap"><svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="63px" height="50.9px" viewBox="0 0 63 50.9" style="enable-background:new 0 0 63 50.9;" xml:space="preserve"><path d="M58.5,17.9H45v-5.2c0-0.4-0.2-0.7-0.4-1L35.9,0.6C35.6,0.2,35.2,0,34.7,0H10.2C9.8,0,9.4,0.2,9.1,0.6L0.4,11.7
@@ -106,7 +113,7 @@ function mk_woo_steps() {
 					c-0.6,0-1,0.4-1,1S29.5,41,30,41z M36,39h-1c-0.6,0-1,0.4-1,1s0.4,1,1,1h1c0.6,0,1-0.4,1-1S36.5,39,36,39z M31,37h7c0.6,0,1-0.4,1-1
 					s-0.4-1-1-1h-7c-0.6,0-1,0.4-1,1S30.5,37,31,37z"/></svg>
 				</span>
-				<span class="mk-checkout-step-text">Delivery & Payment</span>
+				<span class="mk-checkout-step-text">' . esc_html__( 'Delivery & Payment', 'mk_framework' ) . '</span>
 			</span>' .
 			'<span class="mk-checkout-step-seprator"><svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="25.3px" height="47.6px" viewBox="0 0 25.3 47.6" style="enable-background:new 0 0 25.3 47.6;" xml:space="preserve"><path class="st0" d="M24.9,22.7L2.6,0.4C2-0.1,1-0.1,0.4,0.4s-0.6,1.5,0,2.1l21.2,21.2L0.4,45.1c-0.6,0.6-0.6,1.5,0,2.1c0.3,0.3,0.7,0.4,1.1,0.4s0.8-0.1,1.1-0.4l22.3-22.3c0.3-0.3,0.4-0.7,0.4-1.1S25.1,23,24.9,22.7z"/></svg></span><span class="mk-checkout-step mk-checkout-step-complete ' . esc_attr( $step_complete_class ) . '">
 				<span class="mk-checkout-step-svg-wrap"><svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="39px" height="46px" viewBox="0 0 39 46" style="enable-background:new 0 0 39 46;" xml:space="preserve"><path d="M31,23.5v-20C31,1.6,29.4,0,27.5,0h-24C1.6,0,0,1.6,0,3.5v31C0,36.4,1.6,38,3.5,38h13.1c1.5,4.6,5.8,8,11,8
@@ -121,9 +128,26 @@ function mk_woo_steps() {
 					C9,23.5,8.5,23,8,23z M29.5,31.5l-2.9,2.9l-1-1c-0.6-0.6-1.5-0.6-2.1,0s-0.6,1.5,0,2.1l2,2c0.3,0.3,0.7,0.4,1.1,0.4
 					c0.4,0,0.8-0.1,1.1-0.4l4-4c0.6-0.6,0.6-1.5,0-2.1C31,30.9,30,30.9,29.5,31.5z"/></svg>
 				</span>
-				<span class="mk-checkout-step-text">Complete Order</span>
+				<span class="mk-checkout-step-text">' . esc_html__( 'Complete Order', 'mk_framework' ) . '</span>
 			</span>' .
 		'</div>';
 	} // End if().
 
 }
+
+/**
+ * Add column-* class to body.
+ *
+ * @var array
+ * @since 5.9.4
+ */
+add_filter( 'body_class', function( $classes ) {
+
+	if ( is_shop() || is_product_category() || is_product_tag() ) {
+		$classes[] = 'columns-' . mk_cz_get_option( 'sh_pl_set_columns', 4 );
+		$classes[] = 'mk-sh-pl-hover-style-' . mk_cz_get_option( 'sh_pl_set_hover_style', 'none' );
+		return $classes;
+	}
+
+	return $classes;
+}, 10 );

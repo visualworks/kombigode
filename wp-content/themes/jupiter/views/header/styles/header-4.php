@@ -32,12 +32,14 @@ $is_transparent = (isset($view_params['is_transparent'])) ? ($view_params['is_tr
                         <div class="mk-toolbar-resposnive-icon"><?php Mk_SVG_Icons::get_svg_icon_by_class_name(true, 'mk-icon-chevron-down'); ?></div>
                     <?php } ?>
 
+                    <div class="mk-header-content add-header-height">
                     <?php
                         mk_get_header_view('global', 'main-menu-burger-icon', ['header_style' => 4]);                            
                         if ( ! empty( $mk_options['hide_header_logo'] ) && $mk_options['hide_header_logo'] === 'true' ) { 
                             mk_get_header_view( 'master', 'logo' );
                         }
                     ?>
+                    </div>
 
                     <div class="clearboth"></div>
 

@@ -1,6 +1,5 @@
 /* ============================================================================
    TEXTBOX
-   Version: 6.0.0
    ========================================================================= */
 .mkhb-textbox-el {
 	display: block;
@@ -12,7 +11,7 @@
 /* ============================================================================
    TEXTBOX - Default values.
    ========================================================================= */
-.mkhb-textbox-el .mkhb-textbox-el__link {
+.mkhb-textbox-el__link {
 	color: rgba(34, 34, 34, 1);
 	font-family: "Open Sans", sans-serif;
 	font-size: 14px;
@@ -21,6 +20,6 @@
 	line-height: 14px;
 }
 
-.mkhb-textbox-el .mkhb-textbox-el__link[href]:hover {
+.mkhb-textbox-el__link[href]:hover {
 	color: rgba(68, 68, 68, 1);
 }

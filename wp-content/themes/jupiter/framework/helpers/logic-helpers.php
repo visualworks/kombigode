@@ -415,12 +415,23 @@ class Abb_Logic_Helpers {
 	 */
 
 	static function include_wordpress_importer() {
+		// Avoid redeclare WP_Importer class.
+		if ( ! class_exists( 'WP_Importer' ) ) {
+			defined( 'WP_LOAD_IMPORTERS' ) || define( 'WP_LOAD_IMPORTERS', true );
+			include ABSPATH . '/wp-admin/includes/class-wp-importer.php';
+		}
 
-		if ( class_exists( 'WP_Import' ) === true ) {
+		// Avoid redeclare WXR_Importer class and others.
+		if ( class_exists( 'WXR_Importer' ) ) {
 			return true;
 		}
 
-		include THEME_CONTROL_PANEL . '/logic/wordpress-importer.php';
+		// Load all needed class.
+		include THEME_CONTROL_PANEL . '/logic/importer/class-logger.php';
+		include THEME_CONTROL_PANEL . '/logic/importer/class-logger-serversentevents.php';
+		include THEME_CONTROL_PANEL . '/logic/importer/class-wxr-import-info.php';
+		include THEME_CONTROL_PANEL . '/logic/importer/class-wxr-importer.php';
+
 		return true;
 	}
 	/**

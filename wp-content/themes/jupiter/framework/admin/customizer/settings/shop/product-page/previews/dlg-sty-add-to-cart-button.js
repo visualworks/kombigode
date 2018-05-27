@@ -1,32 +1,15 @@
+/**
+ * Add live preview functions for Add to Cart Button section of Product Page > Styles.
+ *
+ * @since 5.9.4
+ * @since 6.0.3 Add full width option.
+ */
 (function ($) {
 
 	var add_to_cart = '.woocommerce-page.single-product div.product .single_add_to_cart_button';
 	var add_to_cart_button = '.woocommerce-page.single-product div.product button.single_add_to_cart_button';
 
-	// Method for Control's event handlers: sh_pp_sty_atc_btn_text.
-	wp.customize('mk_cz[sh_pp_sty_atc_btn_text]', function (value) {
-
-		var icon = '';
-
-		if ( $( add_to_cart_button ).length ) {
-			icon = $( add_to_cart_button ).find( '.mk-button-icon' ).get(0).outerHTML;
-		}
-
-		$( add_to_cart_button ).html( icon + '' + value() );
-
-		value.bind(function (to) {
-
-			if ( 'true' != wp.customize( 'mk_cz[sh_pp_sty_atc_btn_show_icon]' ).get() ) {
-				$( add_to_cart_button ).html( to );
-			} else {
-				$( add_to_cart_button ).html( icon + '' + to );
-			}
-
-		});
-
-	});
-
-	// Method for Control's event handlers: sh_pp_sty_atc_btn_show_icon.
+	// Show icon.
 	wp.customize('mk_cz[sh_pp_sty_atc_btn_show_icon]', function (value) {
 		if ('true' == value()) {
 			$(add_to_cart_button).find('.mk-button-icon').show();
@@ -42,7 +25,20 @@
 		});
 	});
 
-	// Method for Control's event handlers: sh_pp_sty_atc_btn_typography.
+	// Full width.
+	wp.customize('mk_cz[sh_pp_sty_atc_btn_full_width]', function (value) {
+		if ('true' == value()) {
+			$('div.product').addClass('mk-button-full-width');
+		} else {
+			$('div.product').removeClass('mk-button-full-width');
+		}
+
+		value.bind(function (to) {
+			$('div.product').toggleClass('mk-button-full-width');
+		});
+	});
+
+	// Typography.
 	wp.customize('mk_cz[sh_pp_sty_atc_btn_typography]', function (value) {
 		var typography = mkPreviewTypography(value(), true);
 		$(add_to_cart).css(typography);
@@ -50,7 +46,7 @@
 		// It's an exception.
 		$( add_to_cart ).find( 'svg' ).css({
 			width: value()['size'],
-			height: value()['size'] 
+			height: value()['size']
 		});
 
 		value.bind(function (to) {
@@ -62,13 +58,13 @@
 
 			$( add_to_cart ).find( 'svg' ).css({
 				width: typographySize,
-				height: typographySize 
+				height: typographySize
 			});
 		});
-	
+
 	});
 
-	// Method for Control's event handlers: sh_pp_sty_atc_btn_background_color.
+	// Background color.
 	wp.customize( 'mk_cz[sh_pp_sty_atc_btn_background_color]', function( value ) {
 
 		var el = 'sh_pp_sty_atc_btn_background_color';
@@ -76,15 +72,15 @@
 
 		styles[add_to_cart] = 'background-color: ' + value() + ' !important';
 		mkPreviewInternalStyle( styles, el );
-	
+
 		value.bind( function( to ) {
 			styles[add_to_cart] = 'background-color: ' + to + ' !important';
 			mkPreviewInternalStyle( styles, el );
 		} );
-	
+
 	} );
 
-	// Method for Control's event handlers: sh_pp_sty_atc_btn_border_radius.
+	// Border radius.
 	wp.customize('mk_cz[sh_pp_sty_atc_btn_border_radius]', function (value) {
 		$(add_to_cart).css({
 			'border-radius': value() + 'px'
@@ -96,7 +92,7 @@
 		});
 	});
 
-	// Method for Control's event handlers: sh_pp_sty_atc_btn_border.
+	// Border.
 	wp.customize('mk_cz[sh_pp_sty_atc_btn_border]', function (value) {
 		$(add_to_cart).css({
 			'border-width': value() + 'px'
@@ -108,7 +104,7 @@
 		});
 	});
 
-	// Method for Control's event handlers: sh_pp_sty_atc_btn_border_color.
+	// Border color.
 	wp.customize('mk_cz[sh_pp_sty_atc_btn_border_color]', function (value) {
 		$(add_to_cart).css({
 			'border-color': value()
@@ -120,7 +116,7 @@
 		});
 	});
 
-	// Method for Control's event handlers: sh_pp_sty_atc_btn_icon_color.
+	// Icon color.
 	wp.customize('mk_cz[sh_pp_sty_atc_btn_icon_color]', function (value) {
 		$(add_to_cart).find('svg').css({
 			'fill': value()
@@ -132,7 +128,7 @@
 		});
 	});
 
-	// Method for Control's event handlers: sh_pp_sty_atc_btn_color_hover.
+	// Color hover.
 	wp.customize('mk_cz[sh_pp_sty_atc_btn_color_hover]', function (value) {
 		$(add_to_cart).on({
 			mouseenter: function () {
@@ -162,7 +158,7 @@
 		});
 	});
 
-	// Method for Control's event handlers: sh_pp_sty_atc_btn_background_color_hover.
+	// Background color hover.
 	wp.customize('mk_cz[sh_pp_sty_atc_btn_background_color_hover]', function (value) {
 
 		var el = 'sh_pp_sty_atc_btn_background_color_hover';
@@ -170,15 +166,15 @@
 
 		styles[add_to_cart + ':hover'] = 'background-color: ' + value() + ' !important';
 		mkPreviewInternalStyle( styles, el );
-	
+
 		value.bind( function( to ) {
 			styles[add_to_cart + ':hover'] = 'background-color: ' + to + ' !important';
 			mkPreviewInternalStyle( styles, el );
 		} );
-		
+
 	});
 
-	// Method for Control's event handlers: sh_pp_sty_atc_btn_border_color_hover.
+	// Border color hover.
 	wp.customize('mk_cz[sh_pp_sty_atc_btn_border_color_hover]', function (value) {
 		$(add_to_cart).on({
 			mouseenter: function () {
@@ -208,7 +204,7 @@
 		});
 	});
 
-	// Method for Control's event handlers: sh_pp_sty_atc_btn_border_color_hover.
+	// Border color hover.
 	wp.customize('mk_cz[sh_pp_sty_atc_btn_icon_color_hover]', function (value) {
 		$(add_to_cart).on({
 			mouseenter: function () {
@@ -238,7 +234,7 @@
 		});
 	});
 
-	// Method for Control's event handlers: sh_pp_sty_atc_btn_box_model.
+	// Box model.
 	wp.customize('mk_cz[sh_pp_sty_atc_btn_box_model]', function (value) {
 		$(add_to_cart).css(mkPreviewBoxModel(value()));
 		value.bind(function (to) {

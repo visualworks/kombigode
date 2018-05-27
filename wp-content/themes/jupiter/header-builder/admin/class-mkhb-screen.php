@@ -86,6 +86,7 @@ class MKHB_Screen {
 
 		wp_localize_script( 'mkhb', 'ajax_object', array(
 			'ajax_url' => admin_url( 'admin-ajax.php' ),
+			'home_url' => home_url(),
 			'ajax_nonce_mkhb_set' => wp_create_nonce( 'mkhb-set-header' ),
 			'ajax_nonce_mkhb_get' => wp_create_nonce( 'mkhb-get-header' ),
 			'ajax_nonce_mkhb_get_s' => wp_create_nonce( 'mkhb-get-headers' ),

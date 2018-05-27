@@ -2,15 +2,18 @@
 
 global $mk_options;
 
+$min_responsive_nav_width = $mk_options['responsive_nav_width'] + 1;
+$max_responsive_nav_width = $mk_options['responsive_nav_width'];
+
 Mk_Static_Files::addGlobalStyle("
 
 
 @media handheld, only screen and (max-width: {$mk_options['grid_width']}px){
-	
+
 	.mk-grid,
-	.mk-header-nav-container, 
+	.mk-header-nav-container,
 	.mk-classic-menu-wrapper {
-		width: 100%;
+		width: auto;
 	}
 
 	.mk-padding-wrapper {
@@ -45,14 +48,14 @@ Mk_Static_Files::addGlobalStyle("
 	}
 
 
-	.theme-page-wrapper
+	.theme-page-wrapper:not(.full-width-layout)
 	{
 		padding-right:15px !important;
 		padding-left: 15px !important;
 	}
 
 
-	.theme-page-wrapper .theme-content:not(.no-padding)
+	.theme-page-wrapper:not(.full-width-layout) .theme-content:not(.no-padding)
 	{
 		padding:25px 0 !important;
 	}
@@ -263,27 +266,6 @@ Mk_Static_Files::addGlobalStyle("
 			position:relative !important;
 	}
 
-	.vertical-header-enabled.vertical-header-left #theme-page > .mk-main-wrapper-holder,
-	.vertical-header-enabled.vertical-header-center #theme-page > .mk-main-wrapper-holder,
-	.vertical-header-enabled.vertical-header-left #theme-page > .mk-page-section-wrapper .mk-page-section,
-	.vertical-header-enabled.vertical-header-center #theme-page > .mk-page-section-wrapper .mk-page-section,
-	.vertical-header-enabled.vertical-header-left #theme-page > .wpb_row,
-	.vertical-header-enabled.vertical-header-center #theme-page > .wpb_row,
-	.vertical-header-enabled.vertical-header-left #mk-theme-container:not(.trans-header), 
-	.vertical-header-enabled.vertical-header-center #mk-footer,
-	.vertical-header-enabled.vertical-header-left #mk-footer,
-	.vertical-header-enabled.vertical-header-center #mk-theme-container:not(.trans-header) {
-	  padding-left: 0 !important;
-	}
-
-	.vertical-header-enabled.vertical-header-right #theme-page > .mk-main-wrapper-holder,
-	.vertical-header-enabled.vertical-header-right #theme-page > .mk-page-section-wrapper .mk-page-section,
-	.vertical-header-enabled.vertical-header-right #theme-page > .wpb_row,
-	.vertical-header-enabled.vertical-header-right #mk-footer,
-	.vertical-header-enabled.vertical-header-right #mk-theme-container:not(.trans-header) {
-	  padding-right: 0 !important;
-	}
-
 	.header-style-1 .mk-dashboard-trigger,
 	.header-style-2 .mk-dashboard-trigger {
 		display:none;
@@ -296,8 +278,8 @@ Mk_Static_Files::addGlobalStyle("
 }
 
 
-@media handheld, only screen and (min-width: {$mk_options['responsive_nav_width']}px) {
-		  
+@media handheld, only screen and (min-width: {$min_responsive_nav_width}px) {
+
 	  .trans-header .sticky-style-slide .mk-header-holder {
 	    position: absolute;
 	  }
@@ -325,15 +307,15 @@ Mk_Static_Files::addGlobalStyle("
 	  .trans-header .bg-true.light-skin:not(.a-sticky) .menu-hover-style-2 .main-navigation-ul > li.menu-item:hover > a.menu-item-link,
 	  .trans-header .bg-true.light-skin:not(.a-sticky) .menu-hover-style-2 .main-navigation-ul > li.current-menu-item > a.menu-item-link,
 	  .trans-header .bg-true.light-skin:not(.a-sticky) .mk-vm-menuwrapper li a,
-	  .trans-header .bg-true.light-skin:not(.a-sticky) .mk-vm-menuwrapper li > a:after, 
+	  .trans-header .bg-true.light-skin:not(.a-sticky) .mk-vm-menuwrapper li > a:after,
 	  .trans-header .bg-true.light-skin:not(.a-sticky) .mk-vm-menuwrapper li.mk-vm-back:after {
 	    color: #fff !important;
 	  }
 	  .trans-header .bg-true.light-skin:not(.a-sticky) .mk-header-social.header-section a svg,
 	  .trans-header .bg-true.light-skin:not(.a-sticky) .main-navigation-ul li.menu-item a.menu-item-link .mk-svg-icon,
 	  .trans-header .bg-true.light-skin:not(.a-sticky) .mk-search-trigger .mk-svg-icon,
-	  .trans-header .bg-true.light-skin:not(.a-sticky) .mk-shoping-cart-link .mk-svg-icon { 
-	  	fill: #fff !important; 
+	  .trans-header .bg-true.light-skin:not(.a-sticky) .mk-shoping-cart-link .mk-svg-icon {
+	  	fill: #fff !important;
 	  }
 	  .trans-header .bg-true.light-skin:not(.a-sticky) .mk-css-icon-menu div {
 	    background-color: #fff !important;
@@ -388,15 +370,15 @@ Mk_Static_Files::addGlobalStyle("
 	  .trans-header .bg-true.dark-skin:not(.a-sticky) .menu-hover-style-2 .main-navigation-ul li.current-menu-item > a.menu-item-link,
 	  .trans-header .bg-true.dark-skin:not(.a-sticky) .menu-hover-style-2 .main-navigation-ul li.current-menu-ancestor > a.menu-item-link,
 	  .trans-header .bg-true.dark-skin:not(.a-sticky) .mk-vm-menuwrapper li a,
-	  .trans-header .bg-true.dark-skin:not(.a-sticky) .mk-vm-menuwrapper li > a:after, 
+	  .trans-header .bg-true.dark-skin:not(.a-sticky) .mk-vm-menuwrapper li > a:after,
 	  .trans-header .bg-true.dark-skin:not(.a-sticky) .mk-vm-menuwrapper li.mk-vm-back:after {
 	    color: #222 !important;
 	  }
 	  .trans-header .bg-true.dark-skin:not(.a-sticky) .mk-header-social.header-section a svg,
 	  .trans-header .bg-true.dark-skin:not(.a-sticky) .main-navigation-ul li.menu-item a.menu-item-link .mk-svg-icon,
 	  .trans-header .bg-true.dark-skin:not(.a-sticky) .mk-search-trigger .mk-svg-icon,
-	  .trans-header .bg-true.dark-skin:not(.a-sticky) .mk-shoping-cart-link .mk-svg-icon { 
-	  	fill: #222 !important; 
+	  .trans-header .bg-true.dark-skin:not(.a-sticky) .mk-shoping-cart-link .mk-svg-icon {
+	  	fill: #222 !important;
 	  }
 	  .trans-header .bg-true.dark-skin:not(.a-sticky) .menu-hover-style-1 .main-navigation-ul > li.dropdownOpen > a.menu-item-link,
 	  .trans-header .bg-true.dark-skin:not(.a-sticky) .menu-hover-style-1 .main-navigation-ul > li.active > a.menu-item-link,
@@ -427,18 +409,85 @@ Mk_Static_Files::addGlobalStyle("
 	  .trans-header .bg-true.dark-skin:not(.a-sticky) .menu-hover-style-4 .main-navigation-ul li.menu-item:hover > a.menu-item-link,
 	  .trans-header .bg-true.dark-skin:not(.a-sticky) .menu-hover-style-4 .main-navigation-ul li.current-menu-item > a.menu-item-link,
 	  .trans-header .bg-true.dark-skin:not(.a-sticky) .menu-hover-style-4 .main-navigation-ul li.current-menu-ancestor > a.menu-item-link,
-	  .trans-header .bg-true.dark-skin:not(.a-sticky) .menu-hover-style-5 .main-navigation-ul > li.menu-item > a.menu-item-link:after {
+	  .trans-header .bg-true.dark-skin:not(.a-sticky) .menu-hover-style-5 .main-navigation-ul > li.menu-item a.menu-item-link:after {
 	    background-color: #222;
 	    color: #fff !important;
 	  }
+
+	/* Vertical header left
+	 * ---------------------------------------- */
+	.vertical-header-left .trans-header #theme-page > .mk-main-wrapper-holder,
+	.vertical-header-left .trans-header .theme-content > .wpb_row.mk-fullwidth-true,
+	.vertical-header-left .trans-header .theme-content > .mk-page-section-wrapper > .mk-page-section:not(.half_boxed):not(.half_fluid),
+	.vertical-header-left .trans-header #mk-footer {
+		padding-left: 270px;
+	}
+
+	.vertical-header-left #mk-theme-container:not(.trans-header) {
+		padding-left: 270px;
+	}
+
+	.vertical-header-left:not(.mk-boxed-enabled) #mk-theme-container:not(.trans-header) .theme-page-wrapper:not(.full-width-layout) .theme-content > .wpb_row.mk-fullwidth-true,
+	.vertical-header-left:not(.mk-boxed-enabled) #mk-theme-container:not(.trans-header) .theme-page-wrapper:not(.full-width-layout) .theme-content > .mk-page-section-wrapper > .mk-page-section:not(.half_boxed):not(.half_fluid) {
+		padding-left: 270px;
+	}
+
+	.vertical-header-left:not(.mk-boxed-enabled) #mk-theme-container.trans-header .header-style-4.a-sticky ~ .master-holder .theme-page-wrapper:not(.full-width-layout) .theme-content > .mk-page-section-wrapper > div[class*='half_'],
+	.vertical-header-left:not(.mk-boxed-enabled) #mk-theme-container:not(.trans-header) .theme-page-wrapper:not(.full-width-layout) .theme-content > .mk-page-section-wrapper > div[class*='half_'] {
+		margin-left: 270px;
+	}
+
+	/* Full width layout. */
+	.vertical-header-left #mk-theme-container.trans-header .full-width-layout .theme-content > .mk-fullwidth-true,
+	.vertical-header-left #mk-theme-container.trans-header .full-width-layout .theme-content > .mk-page-section-wrapper {
+		margin-left: -285px;
+	}
+
+	.vertical-header-left #mk-theme-container.trans-header .full-width-layout .theme-content > .mk-page-section-wrapper > div[class*='half_'] {
+		margin-left: 270px;
+	}
+
+	/* Vertical header right
+	 * ---------------------------------------- */
+	.vertical-header-right .trans-header #theme-page > .mk-main-wrapper-holder,
+	.vertical-header-right .trans-header .theme-content > .wpb_row.mk-fullwidth-true,
+	.vertical-header-right .trans-header .theme-content > .mk-page-section-wrapper > .mk-page-section:not(.half_boxed):not(.half_fluid),
+	.vertical-header-right .trans-header #mk-footer {
+		padding-right: 270px;
+	}
+
+	.vertical-header-right #mk-theme-container:not(.trans-header) {
+		padding-right: 270px;
+	}
+
+	.vertical-header-right:not(.mk-boxed-enabled) #mk-theme-container:not(.trans-header) .theme-page-wrapper:not(.full-width-layout) .theme-content > .wpb_row.mk-fullwidth-true,
+	.vertical-header-right:not(.mk-boxed-enabled) #mk-theme-container:not(.trans-header) .theme-page-wrapper:not(.full-width-layout) .theme-content > .mk-page-section-wrapper > .mk-page-section:not(.half_boxed):not(.half_fluid) {
+		padding-right: 270px !important;
+	}
+
+	.vertical-header-right:not(.mk-boxed-enabled) #mk-theme-container.trans-header .header-style-4.a-sticky ~ .master-holder .theme-page-wrapper:not(.full-width-layout) .theme-content > .mk-page-section-wrapper > div[class*='half_'],
+	.vertical-header-right:not(.mk-boxed-enabled) #mk-theme-container:not(.trans-header) .theme-page-wrapper:not(.full-width-layout) .theme-content > .mk-page-section-wrapper > div[class*='half_'] {
+		margin-right: 270px;
+	}
+
+	/* Full width layout. */
+	.vertical-header-right #mk-theme-container.trans-header .full-width-layout .theme-content > .mk-fullwidth-true,
+	.vertical-header-right #mk-theme-container.trans-header .full-width-layout .theme-content > .mk-page-section-wrapper {
+		margin-right: -285px;
+	}
+
+	.vertical-header-right #mk-theme-container.trans-header .full-width-layout .theme-content > .mk-page-section-wrapper > div[class*='half_'] {
+		margin-right: 270px;
+	}
+
 }
 
 ");
 
 /*
- * Change Go to top and Quick contact form buttons based on 
+ * Change Go to top and Quick contact form buttons based on
  * Main Navigation Threshold Width option:
- * 
+ *
  * 1. Bring them higher if Responsive shopping cart is ON.
  * 2. Convert them to vertical icons.
  */
@@ -461,12 +510,12 @@ Mk_Static_Files::addGlobalStyle("
 			right: 22px;
 			{$buttons_bottom_property}
 		}
-		
+
 		.mk-go-top.is-active {
 			right: 22px;
 			{$go_top_button_bottom_property}
 		}
-		
+
 		.mk-quick-contact-wrapper.is-active {
 		    right: 22px;
 		}

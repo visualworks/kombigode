@@ -26,7 +26,7 @@
 	            "type" => "icon_selector",
 	            "heading" => __("Add Icon", "mk_framework") ,
 	            "param_name" => "style",
-	            "value" => "f00c",
+	            "value" => "mk-icon-check",
 	        ) ,
 	        array(
 	            "type" => "alpha_colorpicker",

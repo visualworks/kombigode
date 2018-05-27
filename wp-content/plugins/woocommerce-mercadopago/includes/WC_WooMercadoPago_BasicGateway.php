@@ -308,10 +308,15 @@ class WC_WooMercadoPago_BasicGateway extends WC_Payment_Gateway {
 				'default' => ''
 			),
 			'gateway_discount' => array(
-				'title' => __( 'Discount by Gateway', 'woocommerce-mercadopago' ),
+				'title' => __( 'Discount/Fee by Gateway', 'woocommerce-mercadopago' ),
 				'type' => 'number',
-				'description' => __( 'Give a percentual (0 to 100) discount for your customers if they use this payment gateway.', 'woocommerce-mercadopago' ),
-				'default' => '0'
+				'description' => __( 'Give a percentual (-99 to 99) discount or fee for your customers if they use this payment gateway. Use negative for fees, positive for discounts.', 'woocommerce-mercadopago' ),
+				'default' => '0',
+				'custom_attributes' => array(
+					'step' 	=> '0.01',
+					'min'	=> '-99',
+					'max' => '99'
+				) 
 			),
 			'two_cards_mode' => array(
 				'title' => __( 'Two Cards Mode', 'woocommerce-mercadopago' ),
@@ -356,7 +361,7 @@ class WC_WooMercadoPago_BasicGateway extends WC_Payment_Gateway {
 					if ( ! is_numeric( $value ) || empty ( $value ) ) {
 						$this->settings[$key] = 0;
 					} else {
-						if ( $value < 0 || $value >= 100 || empty ( $value ) ) {
+						if ( $value < -99 || $value > 99 || empty ( $value ) ) {
 							$this->settings[$key] = 0;
 						} else {
 							$this->settings[$key] = $value;
@@ -570,15 +575,17 @@ class WC_WooMercadoPago_BasicGateway extends WC_Payment_Gateway {
 			?>
 			<script src="https://secure.mlstatic.com/modules/javascript/analytics.js"></script>
 			<script type="text/javascript">
-				var MA = ModuleAnalytics;
-				MA.setToken( '<?php echo $client_id; ?>' );
-				MA.setPlatform( 'WooCommerce' );
-				MA.setPlatformVersion( '<?php echo $w->version; ?>' );
-				MA.setModuleVersion( '<?php echo WC_Woo_Mercado_Pago_Module::VERSION; ?>' );
-				MA.setPayerEmail( '<?php echo ( $logged_user_email != null ? $logged_user_email : "" ); ?>' );
-				MA.setUserLogged( <?php echo ( empty( $logged_user_email ) ? 0 : 1 ); ?> );
-				MA.setInstalledModules( '<?php echo $available_payments; ?>' );
-				MA.post();
+				try {
+					var MA = ModuleAnalytics;
+					MA.setToken( '<?php echo $client_id; ?>' );
+					MA.setPlatform( 'WooCommerce' );
+					MA.setPlatformVersion( '<?php echo $w->version; ?>' );
+					MA.setModuleVersion( '<?php echo WC_Woo_Mercado_Pago_Module::VERSION; ?>' );
+					MA.setPayerEmail( '<?php echo ( $logged_user_email != null ? $logged_user_email : "" ); ?>' );
+					MA.setUserLogged( <?php echo ( empty( $logged_user_email ) ? 0 : 1 ); ?> );
+					MA.setInstalledModules( '<?php echo $available_payments; ?>' );
+					MA.post();
+				} catch(err) {}
 			</script>
 			<?php
 
@@ -596,11 +603,13 @@ class WC_WooMercadoPago_BasicGateway extends WC_Payment_Gateway {
 			$this->write_log( __FUNCTION__, 'updating order of ID ' . $order_id );
 			echo '<script src="https://secure.mlstatic.com/modules/javascript/analytics.js"></script>
 			<script type="text/javascript">
-				var MA = ModuleAnalytics;
-				MA.setToken( ' . $client_id . ' );
-				MA.setPaymentType("basic");
-				MA.setCheckoutType("basic");
-				MA.put();
+				try {
+					var MA = ModuleAnalytics;
+					MA.setToken( ' . $client_id . ' );
+					MA.setPaymentType("basic");
+					MA.setCheckoutType("basic");
+					MA.put();
+				} catch(err) {}
 			</script>';
 		}
 	}
@@ -648,6 +657,11 @@ class WC_WooMercadoPago_BasicGateway extends WC_Payment_Gateway {
 
 		$order = wc_get_order( $order_id );
 		$url = $this->create_url( $order );
+		
+		$banner_url = get_option( '_mp_custom_banner' );
+		if ( ! isset( $banner_url ) || empty( $banner_url ) ) {
+			$banner_url = $this->site_data['checkout_banner'];
+		}
 
 		if ( 'modal' == $this->method && $url ) {
 
@@ -657,12 +671,12 @@ class WC_WooMercadoPago_BasicGateway extends WC_Payment_Gateway {
 			$html = '<style type="text/css">
 						#MP-Checkout-dialog #MP-Checkout-IFrame { bottom: -28px !important; height: 590px !important; }
 					</style>';
-			$html = '<script type="text/javascript" src="https://secure.mlstatic.com/mptools/render.js"></script>
+			$html .= '<script type="text/javascript" src="https://secure.mlstatic.com/mptools/render.js"></script>
 					<script type="text/javascript">
 						(function() { $MPC.openCheckout({ url: "' . esc_url( $url ) . '", mode: "modal" }); })();
 					</script>';
-			$html = '<img width="468" height="60" src="' . $this->site_data['checkout_banner'] . '">';
-			$html = '<p></p><p>' . wordwrap(
+			$html .= '<img width="468" height="60" src="' . $banner_url . '">';
+			$html .= '<p></p><p>' . wordwrap(
 						__( 'Thank you for your order. Please, proceed with your payment clicking in the bellow button.', 'woocommerce-mercadopago' ),
 						60, '<br>'
 					) . '</p>
@@ -679,8 +693,8 @@ class WC_WooMercadoPago_BasicGateway extends WC_Payment_Gateway {
 			$this->write_log( __FUNCTION__, 'embedding Mercado Pago iframe.' );
 
 			// ===== The checkout is made by rendering Mercado Pago form within a iframe =====
-			$html = '<img width="468" height="60" src="' . $this->site_data['checkout_banner'] . '">';
-			$html = '<p></p><p>' . wordwrap(
+			$html = '<img width="468" height="60" src="' . $banner_url . '">';
+			$html .= '<p></p><p>' . wordwrap(
 						__( 'Thank you for your order. Proceed with your payment completing the following information.', 'woocommerce-mercadopago' ),
 						60, '<br>'
 					) . '</p>
@@ -752,10 +766,9 @@ class WC_WooMercadoPago_BasicGateway extends WC_Payment_Gateway {
 							substr( $product_content, 0, 230 ) . '...' :
 							$product_content
 						) ),
-						'picture_url' => sizeof( $order->get_items() > 1 ) ?
+						'picture_url' => sizeof( $order->get_items() ) > 1 ?
 							plugins_url( 'assets/images/cart.png', plugin_dir_path( __FILE__ ) ) :
-							wp_get_attachment_url( $product->get_image_id()
-						),
+							wp_get_attachment_url( $product->get_image_id() ),
 						'category_id' => get_option( '_mp_category_name', 'others' ),
 						'quantity' => 1,
 						'unit_price' => ( $this->site_data['currency'] == 'COP' || $this->site_data['currency'] == 'CLP' ) ?
@@ -845,17 +858,17 @@ class WC_WooMercadoPago_BasicGateway extends WC_Payment_Gateway {
 			),
 			'back_urls' => array(
 				'success' => empty( $this->success_url ) ?
-					WC_Woo_Mercado_Pago_Module::workaround_ampersand_bug(
+					WC_Woo_Mercado_Pago_Module::fix_url_ampersand(
 						esc_url( $this->get_return_url( $order ) )
 					) :
 					$this->success_url,
 				'failure' => empty( $this->failure_url ) ?
-					WC_Woo_Mercado_Pago_Module::workaround_ampersand_bug(
+					WC_Woo_Mercado_Pago_Module::fix_url_ampersand(
 						esc_url( $order->get_cancel_order_url() )
 					) :
 					$this->failure_url,
 				'pending' => empty( $this->pending_url ) ?
-					WC_Woo_Mercado_Pago_Module::workaround_ampersand_bug(
+					WC_Woo_Mercado_Pago_Module::fix_url_ampersand(
 						esc_url( $this->get_return_url( $order) )
 					) : $this->pending_url
 			),
@@ -928,7 +941,15 @@ class WC_WooMercadoPago_BasicGateway extends WC_Payment_Gateway {
 
 		// Do not set IPN url if it is a localhost.
 		if ( ! strrpos( get_site_url(), 'localhost' ) ) {
-			$preferences['notification_url'] = WC()->api_request_url( 'WC_WooMercadoPago_BasicGateway' );
+			$notification_url = get_option( '_mp_custom_domain', '' );
+			// Check if we have a custom URL.
+			if ( empty( $notification_url ) || filter_var( $notification_url, FILTER_VALIDATE_URL ) === FALSE ) {
+				$preferences['notification_url'] = WC()->api_request_url( 'WC_WooMercadoPago_BasicGateway' );
+			} else {
+				$preferences['notification_url'] = WC_Woo_Mercado_Pago_Module::fix_url_ampersand( esc_url(
+					$notification_url . '/wc-api/WC_WooMercadoPago_BasicGateway/'
+				) );
+			}
 		}
 
 		// Set sponsor ID.
@@ -1047,7 +1068,10 @@ class WC_WooMercadoPago_BasicGateway extends WC_Payment_Gateway {
 		if ( $title != $this->title || $this->gateway_discount == 0 ) {
 			return $title;
 		}
-		if ( WC()->session->chosen_payment_method == 'woo-mercado-pago-subscription' ) {
+		if ( WC()->session->chosen_payment_method === 'woo-mercado-pago-subscription' ) {
+			return $title;
+		}
+		if ( ! is_numeric( $this->gateway_discount ) || $this->gateway_discount < -99 || $this->gateway_discount > 99 ) {
 			return $title;
 		}
 		$total = (float) WC()->cart->subtotal;
@@ -1055,6 +1079,9 @@ class WC_WooMercadoPago_BasicGateway extends WC_Payment_Gateway {
 		if ( $price_percent > 0 ) {
 			$title .= ' (' . __( 'Discount of', 'woocommerce-mercadopago' ) . ' ' .
 				strip_tags( wc_price( $total * $price_percent ) ) . ')';
+		} elseif ( $price_percent < 0 ) {
+			$title .= ' (' . __( 'Fee of', 'woocommerce-mercadopago' ) . ' ' .
+				strip_tags( wc_price( -$total * $price_percent ) ) . ')';
 		}
 		return $title;
 	}
@@ -1376,7 +1403,7 @@ class WC_WooMercadoPago_BasicGateway extends WC_Payment_Gateway {
 							'total' => wc_format_decimal( $shipment_cost ),
 						) );
 						$shipping_item->save();
-						$this->calculate_shipping();
+						$order->calculate_shipping();
 					} else {
 						// Update shipping cost and method title.
 						$r = $order->update_shipping( $order_item_shipping_id, array(

@@ -57,7 +57,7 @@ if ( ! function_exists( 'mk_google_analytics' ) ) {
 	function mk_google_analytics() {
 		global $mk_options;
 
-		if ( $mk_options['analytics'] ) { ?>
+		if ( isset( $mk_options['analytics'] ) && ! empty( $mk_options['analytics'] ) ) { ?>
 		<script type="text/javascript">
 		var ga_fired = false;
 		window.addEventListener("scroll", function(){
@@ -86,9 +86,7 @@ if ( ! function_exists( 'mk_custom_js' ) ) {
 	function mk_custom_js() {
 		global $mk_options;
 
-		if ( $mk_options['custom_js'] ) {
-			;
-		}
+		if ( isset( $mk_options['custom_js'] ) && ! empty( $mk_options['custom_js'] ) ) {
 ?>
 		<script type="text/javascript">
 		<?php
@@ -96,6 +94,7 @@ if ( ! function_exists( 'mk_custom_js' ) ) {
 		?>
 		</script>
 	<?php
+		}
 	}
 	add_action( 'wp_footer', 'mk_custom_js', 120 );
 }

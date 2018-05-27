@@ -153,6 +153,19 @@ vc_map(array(
             "description" => __("", "mk_framework")
         ) ,
         array(
+            "type"        => "toggle",
+            "heading"     => __( "Image Hover Overlay", "mk_framework" ) ,
+            "param_name"  => "hover_image_overlay",
+            "value"       => "true",
+            "description" => __( "", "mk_framework" ),
+            "dependency" => array(
+                'element' => "lightbox",
+                'value' => array(
+                    'true'
+                )
+            )
+        ) ,
+        array(
             "type" => "dropdown",
             "heading" => __("Align", "mk_framework") ,
             "param_name" => "align",

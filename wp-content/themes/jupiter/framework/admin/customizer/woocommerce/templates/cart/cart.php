@@ -14,7 +14,7 @@
  * @see     https://docs.woocommerce.com/document/template-structure/
  * @author  WooThemes
  * @package WooCommerce/Templates
- * @version 3.1.0
+ * @version 3.3.0
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -31,11 +31,11 @@ do_action( 'woocommerce_before_cart' ); ?>
 	<table class="shop_table shop_table_responsive cart woocommerce-cart-form__contents" cellspacing="0">
 		<thead>
 			<tr>
-				<th class="product-name"><?php _e( 'Product', 'woocommerce' ); ?></th>
-				<th class="product-price"><?php _e( 'Price', 'woocommerce' ); ?></th>
-				<th class="product-quantity"><?php _e( 'Quantity', 'woocommerce' ); ?></th>
-				<th class="product-subtotal"><?php _e( 'Total', 'woocommerce' ); ?></th>
-				<th class="product-remove"><?php _e( 'Remove', 'mk_framework' ); ?></th>
+				<th class="product-name"><?php esc_html_e( 'Product', 'woocommerce' ); ?></th>
+				<th class="product-price"><?php esc_html_e( 'Price', 'woocommerce' ); ?></th>
+				<th class="product-quantity"><?php esc_html_e( 'Quantity', 'woocommerce' ); ?></th>
+				<th class="product-subtotal"><?php esc_html_e( 'Total', 'woocommerce' ); ?></th>
+				<th class="product-remove"><?php esc_html_e( 'Remove', 'mk_framework' ); ?></th>
 			</tr>
 		</thead>
 		<tbody>
@@ -65,7 +65,13 @@ do_action( 'woocommerce_before_cart' ); ?>
 								}
 
 								// Meta data
-								// echo WC()->cart->get_item_data( $cart_item );
+							
+								if(function_exists('wc_get_formatted_cart_item_data')) {
+									echo wc_get_formatted_cart_item_data( $cart_item );	
+								} else {
+									echo WC()->cart->get_item_data( $cart_item );
+								}
+
 
 								// Backorder notification
 								if ( $_product->backorders_require_notification() && $_product->is_on_backorder( $cart_item['quantity'] ) ) {
@@ -90,6 +96,7 @@ do_action( 'woocommerce_before_cart' ); ?>
 										'input_value' => $cart_item['quantity'],
 										'max_value'   => $_product->get_max_purchase_quantity(),
 										'min_value'   => '0',
+										'product_name'  => $_product->get_name(),
 									), $_product, false );
 								}
 
@@ -105,9 +112,15 @@ do_action( 'woocommerce_before_cart' ); ?>
 
 						<td class="product-remove">
 							<?php
+								// @codingStandardsIgnoreLine
+								if(function_exists('wc_get_formatted_cart_item_data')) {
+									$get_cart_item_url = wc_get_formatted_cart_item_data( $cart_item );	
+								} else {
+									$get_cart_item_url = WC()->cart->get_remove_url( $cart_item_key );
+								}
 								echo apply_filters( 'woocommerce_cart_item_remove_link', sprintf(
 									'<a href="%s" class="remove" aria-label="%s" data-product_id="%s" data-product_sku="%s">&times;</a>',
-									esc_url( WC()->cart->get_remove_url( $cart_item_key ) ),
+									esc_url( $get_cart_item_url ),
 									__( 'Remove this item', 'woocommerce' ),
 									esc_attr( $product_id ),
 									esc_attr( $_product->get_sku() )
@@ -130,7 +143,7 @@ do_action( 'woocommerce_before_cart' ); ?>
 
 					<?php if ( wc_coupons_enabled() ) { ?>
 						<div class="coupon">
-							<label for="coupon_code"><?php _e( 'Coupon:', 'woocommerce' ); ?></label> <input type="text" name="coupon_code" class="input-text" id="coupon_code" value="" placeholder="<?php esc_attr_e( 'Coupon code', 'woocommerce' ); ?>" /> <input type="submit" class="button" name="apply_coupon" value="<?php esc_attr_e( 'Apply coupon', 'woocommerce' ); ?>" />
+							<label for="coupon_code"><?php esc_html_e( 'Coupon:', 'woocommerce' ); ?></label> <input type="text" name="coupon_code" class="input-text" id="coupon_code" value="" placeholder="<?php esc_attr_e( 'Coupon code', 'woocommerce' ); ?>" /> <input type="submit" class="button" name="apply_coupon" value="<?php esc_attr_e( 'Apply coupon', 'woocommerce' ); ?>" />
 							<?php do_action( 'woocommerce_cart_coupon' ); ?>
 						</div>
 					<?php } ?>

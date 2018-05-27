@@ -78,43 +78,72 @@
 }
 
 /* Check out steps - ICON */
-.mk-checkout-steps-icon .mk-checkout-step {
-	display: inline-block;
-	margin: 0 30px;
-}
 .mk-checkout-steps-icon {
+	display: flex;
+
+	.mk-checkout-step {
+		display: inline-block;
+		margin: 0 3%;
+		max-width: 20%;
+		flex: auto;
+	}
+
 	.mk-checkout-step-svg-wrap {
 		display: block;
 		text-align: center;
+
 		svg {
 			width: auto;
+
+			@media only screen and (max-width: 768px) {
+				& {
+					width: 35px;
+				}
+			}
 		}
+
 		path {
 			fill: #cccccc;
 		}
 	}
+
 	.mk-checkout-step-seprator {
 		display: inline-block;
-	    vertical-align: top;
-	    margin: 15px 30px 0;
-	    path {
+		vertical-align: top;
+		margin: 15px 3% 0;
+
+		path {
 			fill: #e6e6e6;
 		}
+
+		@media only screen and (max-width: 768px) {
+			svg {
+				width: 15px;
+			}
+		}
 	}
-}
-.mk-checkout-steps-icon .mk-checkout-step-text {
-	display: block;
-	margin-top: 5px;
-	font-size: 14px;
-	color: #d8d8d8;
-	font-weight: bold;
-	text-transform: uppercase;
-}
-.mk-checkout-steps-icon .mk-checkout-step-active {
-	.mk-checkout-step-svg-wrap path {
-		fill: #157cf2;
-	}
+
 	.mk-checkout-step-text {
-		color: #888888;
+		display: block;
+		margin-top: 5px;
+		font-size: 14px;
+		color: #d8d8d8;
+		font-weight: bold;
+		text-transform: uppercase;
+
+		@media only screen and (max-width: 768px) {
+			font-size: 12px;
+			line-height: 14px;
+		}
+	}
+
+	.mk-checkout-step-active {
+		.mk-checkout-step-svg-wrap path {
+			fill: #157cf2;
+		}
+
+		.mk-checkout-step-text {
+			color: #888888;
+		}
 	}
 }

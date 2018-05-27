@@ -10,6 +10,8 @@
  * HB Column element shortcode.
  *
  * @since 6.0.0
+ * @since 6.0.3 Print column style only if it's needed. Separate style and markup
+ *              logic to other functions.
  *
  * @param  array  $atts    All parameter will be used in the shortcode.
  * @param  string $content Content inside Column shortcode.
@@ -37,43 +39,46 @@ function mkhb_column_shortcode( $atts, $content ) {
 	);
 
 	// If the column widht is 0, don't render it.
-	if ( 0 === $options['width'] ) {
+	if ( '0' === $options['width'] ) {
 		return '';
 	}
 
-	// If the content is not empty, run do_shortcode.
-	$content_rendered = '';
-	if ( ! empty( $content ) ) {
-		$content_rendered = do_shortcode( $content );
-	}
+	// Set Column internal style.
+	$style = mkhb_column_style( $options );
 
+	// Set Column markup.
+	$markup = mkhb_column_markup( $options, $content );
+
+	// MKHB Hooks as temporary storage.
+	$hooks = mkhb_hooks();
+
+	// Enqueue internal style.
+	$hooks::concat_hook( 'styles', $style );
+
+	return $markup;
+}
+add_shortcode( 'mkhb_col', 'mkhb_column_shortcode' );
+
+/**
+ * Generate markup for HB Column.
+ *
+ * @since 6.0.3
+ *
+ * @param  array $options All options will be used in the shortcode.
+ * @param  array $content Column content e.g: shortcodes.
+ * @return string         Column markup.
+ */
+function mkhb_column_markup( $options, $content ) {
 	// Column ID.
 	$column_id = $options['id'];
 
-	$style = "#$column_id {";
-
-	// Column Margin and Padding Style.
-	$style .= mkhb_column_layout( $options );
-
-	// Column Border Style.
-	$style .= mkhb_column_border( $options );
-
-	// Column Background Style.
-	$style .= mkhb_column_background( $options );
-
-	// Additional Class.
+	// Column Vertical Alignment class.
 	$column_class = '';
-
 	if ( ! empty( $options['vertical-alignment'] ) ) {
-		$style .= "vertical-align: {$options['vertical-alignment']};";
 		$column_class .= 'mkhb-col--align-' . $options['vertical-alignment'];
 	}
 
-	$style .= '}';
-
-	// Column Width Offset.
-	$style .= mkhb_column_offset( $options );
-
+	// Column BG Image class.
 	if ( ! empty( $options['background-image'] ) ) {
 		$column_class .= ' mkhb-col--bg-image';
 	}
@@ -91,6 +96,12 @@ function mkhb_column_shortcode( $atts, $content ) {
 		$suffix_class = '-inline';
 	}
 
+	// If the content is not empty, run do_shortcode.
+	$content_rendered = '';
+	if ( ! empty( $content ) ) {
+		$content_rendered = do_shortcode( $content );
+	}
+
 	$markup = sprintf( '
 		<div id="%s" class="mkhb-col mkhb-col-%s %s">
 			<div class="mkhb-col__container%s">%s</div>
@@ -102,17 +113,54 @@ function mkhb_column_shortcode( $atts, $content ) {
 		$content_rendered
 	);
 
-	// @todo: wp_add_inline_style can't be used for shortcode. Temporary fix.
-	wp_register_style( 'mkhb', false, array( 'mkhb-grid' ) );
-	wp_enqueue_style( 'mkhb' );
-	wp_add_inline_style( 'mkhb', $style );
-
 	return $markup;
 }
-add_shortcode( 'mkhb_col', 'mkhb_column_shortcode' );
+
+/**
+ * Generate internal style for HB Column.
+ *
+ * @since 6.0.3
+ *
+ * @param  array $options All options will be used in the shortcode.
+ * @return string         Column internal CSS.
+ */
+function mkhb_column_style( $options ) {
+	$column_style = '';
+	$style = '';
+
+	// Column Margin and Padding Style.
+	$column_style .= mkhb_column_layout( $options );
+
+	// Column Border Style.
+	$column_style .= mkhb_column_border( $options );
+
+	// Column Background Style.
+	$column_style .= mkhb_column_background( $options );
+
+	// Column Vertical Alignment.
+	if ( ! empty( $options['vertical-alignment'] ) ) {
+		$column_style .= "vertical-align: {$options['vertical-alignment']};";
+	}
+
+	// Column ID.
+	$column_id = $options['id'];
+
+	// Set column style.
+	if ( ! empty( $column_style ) ) {
+		$style .= "#$column_id { $column_style }";
+	}
+
+	// Column Width Offset.
+	$style .= mkhb_column_offset( $options );
+
+	return $style;
+}
 
 /**
  * Generate internal style for HB Column Background.
+ *
+ * @since 6.0.0
+ * @since 6.0.3 Set default bg color if it's active.
  *
  * @param  array $options All options will be used in the shortcode.
  * @return string         Column internal CSS background.
@@ -121,8 +169,14 @@ function mkhb_column_background( $options ) {
 	$style = '';
 
 	// Column Background Color.
-	if ( ! empty( $options['background-color'] ) && mkhb_column_sequence( $options ) ) {
-		$style .= "background-color: {$options['background-color']};";
+	$bg_color = '#ffffff';
+	if ( ! empty( $options['background-color'] ) ) {
+		$bg_color = $options['background-color'];
+	}
+
+	// Column Background Color Status.
+	if ( mkhb_column_sequence( $options ) ) {
+		$style .= "background-color: {$bg_color};";
 	}
 
 	// Column Background Image.
@@ -180,23 +234,23 @@ function mkhb_column_layout( $options ) {
 /**
  * Generate internal style for HB Column Border.
  *
+ * @since 6.0.0
+ * @since 6.0.3 Update border CSS property.
+ *
  * @param  array $options  All options will be used in the shortcode.
  * @return string          Column internal CSS border.
  */
 function mkhb_column_border( $options ) {
 	$style = '';
 
-	// Border Width, Style, and Color.
-	if ( ! empty( $options['border-width'] ) && ! empty( $options['border-color'] ) ) {
-		$border_widths = explode( ' ', $options['border-width'] );
-		$border_colors = explode( ' ', $options['border-color'] );
+	// Border Width.
+	if ( ! empty( $options['border-width'] ) ) {
+		$style .= "border-width: {$options['border-width']};";
+	}
 
-		$style .= "
-			border-top: {$border_widths[0]} solid {$border_colors[0]};
-			border-right: {$border_widths[1]} solid {$border_colors[1]};
-			border-bottom: {$border_widths[2]} solid {$border_colors[2]};
-			border-left: {$border_widths[3]} solid {$border_colors[3]};
-		";
+	// Border Color.
+	if ( ! empty( $options['border-color'] ) ) {
+		$style .= "border-color: {$options['border-color']};";
 	}
 
 	return $style;
@@ -204,6 +258,8 @@ function mkhb_column_border( $options ) {
 
 /**
  * Generate internal style for HB Column Width Offset.
+ *
+ * @since 6.0.0
  *
  * @param  array $options All options will be used in the shortcode.
  * @return string         Column internal CSS width offset.
@@ -222,7 +278,7 @@ function mkhb_column_offset( $options ) {
 	$column_margins = explode( ' ', $options['margin'] );
 
 	// Column Offset.
-	$column_offset = $column_margins[1] + $column_margins[3];
+	$column_offset = intval( $column_margins[1] ) + intval( $column_margins[3] );
 
 	if ( 0 < $column_offset ) {
 		$column_offset .= 'px';

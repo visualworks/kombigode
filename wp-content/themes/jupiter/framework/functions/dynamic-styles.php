@@ -23,6 +23,7 @@ if ( ! defined( 'THEME_FRAMEWORK' ) ) {
  * @since       1.0.0
  * @since       5.9.3
  * @package     artbees
+ * @SuppressWarnings(PHPMD.StaticAccess)
  */
 class Mk_Static_Files {
 
@@ -68,7 +69,7 @@ class Mk_Static_Files {
 			add_action( 'wp_head', array( &$this, 'critical_path_css' ), 1 );
 			add_action( 'wp_enqueue_scripts', array( &$this, 'process_global_styles' ) );
 			add_action( 'wp_enqueue_scripts', array( &$this, 'enqueue_default_stylesheet' ), 30 );
-			if ( ! ARTBEES_VC_FRONTEND ) {
+			if ( ! Mk_Static_Files::is_vc_editing() ) {
 				add_action( 'wp_footer', array( &$this, 'move_short_styles_footer' ), 99999 );
 			}
 			// if the theme options file isn't exists in order to access global variable we need to use different priority level
@@ -147,6 +148,11 @@ class Mk_Static_Files {
 	 * @return mixed
 	 */
 	public static function shortcode_id() {
+
+		if ( Mk_Static_Files::is_vc_editing() ) {
+			return uniqid();
+		}
+
 		global $mk_shortcode_order;
 		$mk_shortcode_order++;
 		return $mk_shortcode_order;
@@ -180,7 +186,7 @@ class Mk_Static_Files {
 	 * @param    int    $css_id
 	 */
 	public static function addCSS( $app_styles, $css_id ) {
-		if ( ARTBEES_VC_FRONTEND ) {
+		if ( Mk_Static_Files::is_vc_editing() ) {
 			$minifier = new SimpleCssMinifier();
 			$output = $minifier->minify( $app_styles );
 			echo '<style id="mk-shortcode-style-' . $css_id . '" type="text/css">' . $output . '</style>';
@@ -207,7 +213,7 @@ class Mk_Static_Files {
 	 * @since       Version 5.9.3
 	 */
 	public function move_short_styles_footer() {
-		if ( ARTBEES_VC_FRONTEND ) {
+		if ( Mk_Static_Files::is_vc_editing() ) {
 			return;
 		}
 		global $mk_dynamic_styles;
@@ -278,6 +284,8 @@ class Mk_Static_Files {
 	/**
 	 * Stores the glob_dynamic_styles into the mk_assets/theme_options.css file
 	 *
+	 * @since 5.0.0
+	 * @since 6.0.1 Add current time to filename.
 	 * @param bool|true $minify
 	 */
 	public static function StoreThemeOptionStyles( $minify ) {
@@ -288,7 +296,7 @@ class Mk_Static_Files {
 		global $mk_lang;
 
 		$extension = 'css';
-		$time      = 'production';
+		$time      = 'production-' . time();
 
 		if ( $mk_dev ) {
 			$time = 'dev';
@@ -318,17 +326,22 @@ class Mk_Static_Files {
 	 *
 	 * @since 5.0.0
 	 * @since 5.9.6 Update timestamp when clearing cache.
+	 * @since 6.0.1
+	 *        Fix wrong option name for filename.
+	 *        Remove old .*_sha1 row from DB. Keep the latest only.
 	 * @return bool
 	 */
 	public function DeleteThemeOptionStyles( $remove_cache_plugins ) {
 		global $mk_lang;
 
-		$filename = get_option( 'theme_options' );
+		$filename = get_option( 'mk_theme_options_css_file' . $mk_lang );
 		$folder   = $this->get_global_asset_upload_folder( 'directory' );
 
 		if ( $remove_cache_plugins ) {
 			mk_purge_cache_actions();
 		}
+
+		delete_option( $filename . '_sha1' );
 
 		if ( $this->deleteFile( $folder . $filename ) != true and $filename != '' ) {
 			wp_die( 'A problem occurred while trying to delete theme-options css file' );
@@ -719,6 +732,20 @@ class Mk_Static_Files {
 		}
 
 		return $mkfs->delete( $filename );
+	}
+
+	/**
+	 * Check if current page is in VC frontend editor.
+	 *
+	 * @since 6.0.3
+	 * @return boolean
+	 */
+	private static function is_vc_editing() {
+		if ( function_exists( 'vc_is_page_editable' ) && vc_is_page_editable() ) {
+			return true;
+		}
+
+		return false;
 	}
 
 }

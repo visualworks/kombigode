@@ -7,10 +7,15 @@
 	var bodySel = $( 'body' );
 	var fixedSel = $( '.mkhb-fixed' );
 	var stickySel = $( '.mkhb-sticky' );
+
+	// Used to check if responsive burger menu is active on normal header or not.
+	var normalRespNav = $( '.mkhb-navigation-resp__normal' );
 	// Used to check if responsive burger menu is active on sticky header or not.
 	var stickyRespNav = $( '.mkhb-navigation-resp__sticky' );
 
 	var windowHeight = windowSel.height();
+	// adminBarHeight value will be updated after window load, check initialAction().
+	var adminBarHeight = 0;
 
 	/**
 	 * HELPERS LIST
@@ -19,6 +24,7 @@
 	// FH - Get Header offset.
 	function mkhbGetOffset( offset, device ) {
 		var deviceEl = $( '.mkhb-' + device );
+		var $deviceHeight = deviceEl.height();
 		var $offset = 0;
 		if ( typeof offset === 'string' && offset !== 'header' ) {
 			$offset = Math.round( ( parseInt( offset ) / 100 ) * windowHeight );
@@ -28,13 +34,24 @@
 
 		// Check if it's NaN or undefined.
 		if ( 0 == $offset || isNaN( $offset ) ) {
-			$offset = deviceEl.height();
+			$offset = $deviceHeight;
 			if ( deviceEl.hasClass( 'mkhb-overlap' ) ) {
 				$offset = deviceEl.children( '.mkhb-device-container' ).height();
 			}
 		}
 
+		// If current main header height is bigger than offset, use it.
+		if ( $deviceHeight > $offset ) {
+			$offset = $deviceHeight;
+		}
+
 		return $offset;
+	}
+
+	// SH - Update admin bar height for Sticky header top position.
+	function mkhbUpdateTop() {
+		adminBarHeight = $( '#wpadminbar' ).height();
+		adminBarHeight = ( adminBarHeight == null ) ? 0 : adminBarHeight;
 	}
 
 	/**
@@ -53,16 +70,16 @@
 	}
 
 	// SH - 1. Slide Down.
-	function mkhbSlideDown( current, offset, device, top, curHeight ) {
+	function mkhbSlideDown( current, offset, device, curHeight ) {
 		var onScroll = function onScroll() {
-			if ( windowSel.scrollTop() > offset ) {
-			    current.css({ 'top': top });
+			var addOffset = mkhbAddRespNormal( offset, device );
+			if ( windowSel.scrollTop() > addOffset ) {
+			    current.css({ 'top': adminBarHeight });
 			    current.addClass( 'mkhb-sticky--active' );
-			    mkhbHideRespBurger( false );
 			} else {
 				current.css({ 'top': -curHeight });
 			    current.removeClass( 'mkhb-sticky--active' );
-			    mkhbHideRespBurger( true );
+			    mkhbHideRespBurger();
 			}
 		};
 
@@ -71,18 +88,18 @@
 	}
 
 	// SH - 2. Lazy.
-	function mkhbLazy( current, offset, device, top, curHeight ) {
+	function mkhbLazy( current, offset, device, curHeight ) {
 		var lastScrollPos = 0;
 		var onScroll = function onScroll() {
+			var addOffset = mkhbAddRespNormal( offset, device );
 			var scrollPos = windowSel.scrollTop();
-			if ( scrollPos > offset && scrollPos < lastScrollPos ) {
-			    current.css({ 'top': top });
+			if ( scrollPos > addOffset && scrollPos < lastScrollPos ) {
+			    current.css({ 'top': adminBarHeight });
 			    current.addClass( 'mkhb-sticky--active' );
-			    mkhbHideRespBurger( false );
 			} else {
 				current.css({ 'top': -curHeight });
 			    current.removeClass( 'mkhb-sticky--active' );
-			    mkhbHideRespBurger( true );
+			    mkhbHideRespBurger();
 			}
 			lastScrollPos = scrollPos;
 		};
@@ -92,30 +109,64 @@
 	}
 
 	// SH - Hide/show responsive burger menu.
-	function mkhbHideRespBurger( hide_status ) {
-		if ( stickyRespNav.length > 0 ) {
-			stickyRespNav.each( function(){
-				var current = $( this );
-				var id = current.attr( 'id' ).replace( '-wrap', '' );
-
-				// Check if current responsive burger menu is opened.
-				var current_nav_opened = false;
-				if ( bodySel.hasClass( 'mkhb-navigation-resp--opened-' + id ) ) {
-					current_nav_opened = true;
-				}
-
-				// Hide/show only if current responsive burger menu is opened.
-				if ( ! current_nav_opened ) {
-					return;
-				}
-
-				if ( hide_status ) {
-					current.hide();
-				} else {
-					current.show();
-				}
-			} );
+	function mkhbHideRespBurger() {
+		// Skip if there is no responsive burger nav exist.
+		if ( stickyRespNav.length <= 0 ) {
+			return;
 		}
+
+		// Skip if there is no responsive burger nav active.
+		if ( $( 'body[class*="mkhb-navigation-resp--opened"]' ) <= 0 ) {
+			return;
+		}
+
+		stickyRespNav.each( function(){
+			// Find the navigation wrapper and navigation burger button.
+			var wrap = $( this );
+			var id = wrap.attr( 'id' ).replace( '-wrap', '' );
+			var current = $( '#' + id ).find( '.mkhb-navigation-resp' );
+
+			// Check if current responsive burger menu is opened. Then close it.
+			if ( bodySel.hasClass( 'mkhb-navigation-resp--opened-' + id ) ) {
+				current.removeClass('is-active').find('.mkhb-navigation-resp__container').removeClass('fullscreen-active');
+				bodySel.removeClass('mkhb-navigation-resp--opened-' + id).addClass('mkhb-navigation-resp--closed-' + id).trigger('mkhb-navigation-resp--closed-' + id);
+				wrap.hide();
+			}
+		} );
+	}
+
+	// NH - Get additional height of responsive burger nav container on normal header.
+	function mkhbAddRespNormal( offset, device ) {
+		// Skip if there is responsive burger nav exist.
+		if ( normalRespNav.length <= 0 ) {
+			return offset;
+		}
+
+		// Skip if there is responsive burger nav is not active.
+		if ( $( 'body[class*="mkhb-navigation-resp--opened"]' ) <= 0 ) {
+			return offset;
+		}
+
+		// Get device real height.
+		var deviceEl = $( '.mkhb-' + device );
+		var deviceHeight = deviceEl.height();
+
+		normalRespNav.each( function(){
+			var current = $( this );
+			var height = current.height();
+			var id = current.attr( 'id' ).replace( '-wrap', '' );
+
+			// Check if current responsive burger menu is opened.
+			if ( bodySel.hasClass( 'mkhb-navigation-resp--opened-' + id ) ) {
+				var newOffset = deviceHeight + parseInt( height );
+				if ( newOffset > offset ) {
+					offset = newOffset;
+				}
+				return offset;
+			}
+		} );
+
+		return offset;
 	}
 
 	/**
@@ -147,22 +198,25 @@
 				var device = current.data( 'device' );
 				offset = mkhbGetOffset( offset, device );
 
+				// Update adminBarHeight value.
+				mkhbUpdateTop();
+
 				// Set the initial position of the sticky menu.
-				var top = $( '#wpadminbar' ).height();
-				top = ( top == null ) ? 0 : top;
 				var curHeight = current.height();
 				current.css({ 'top': -curHeight });
 
 				var effect = current.data( 'effect' );
 				if ( effect == 'slide-down' ) {
-					mkhbSlideDown( current, offset, device, top, curHeight );
+					mkhbSlideDown( current, offset, device, curHeight );
 				} else if ( effect == 'lazy' ) {
-					mkhbLazy( current, offset, device, top, curHeight );
+					mkhbLazy( current, offset, device, curHeight );
 				}
 			});
 		}
 	}
 
 	windowSel.on( 'load', initialAction );
+
+	windowSel.on( 'resize', mkhbUpdateTop );
 
 })( jQuery );

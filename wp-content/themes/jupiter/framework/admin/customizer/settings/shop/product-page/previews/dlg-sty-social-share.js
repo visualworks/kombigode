@@ -7,13 +7,13 @@
 		$(selector + ' .share-by').hide();
 		var networks = typeof value.get() === 'object' ? value.get() : value.get().split(',');
 		for (var i = 0, len = networks.length; i < len; i++) {
-			$(selector + ' .share-by-' + networks[i]).show();
+			$(selector + ' .share-by-' + networks[i]).css('display', 'inline-block');
 		}
 		value.bind(function (to) {
 			$(selector + ' .share-by').hide();
 			var networks = typeof to === 'object' ? to : to.split(',');
 			for (var i = 0, len = networks.length; i < len; i++) {
-				$(selector + ' .share-by-' + networks[i]).show();
+				$(selector + ' .share-by-' + networks[i]).css('display', 'inline-block');
 			}
 		});
 	});

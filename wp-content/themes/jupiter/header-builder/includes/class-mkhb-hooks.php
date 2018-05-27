@@ -76,6 +76,38 @@ class MKHB_Hooks {
 	}
 
 	/**
+	 * Enqueue hooks with concated value.
+	 *
+	 * @since 6.0.3
+	 *
+	 * @param string $key   Hooks name.
+	 * @param string $value Hooks value.
+	 */
+	public static function concat_hook( $key, $value = '' ) {
+		// Concat only allow string value.
+		if ( ! is_string( $value ) || empty( $value ) ) {
+			return false;
+		}
+
+		$hooks = self::$hooks;
+
+		// If hooks empty.
+		if ( ! is_array( $hooks ) || empty( $hooks ) ) {
+			$hooks = array();
+		}
+
+		// Check key exist or not. Default is empty string.
+		if ( ! isset( $hooks[ $key ] ) ) {
+			$hooks[ $key ] = '';
+		}
+
+		// Concat the value into existing value on the key.
+		$hooks[ $key ] .= $value;
+
+		self::$hooks = $hooks;
+	}
+
+	/**
 	 * Return all saved hooks.
 	 *
 	 * @since 6.0.0

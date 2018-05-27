@@ -415,6 +415,8 @@ function mk_products_posts_autocomplete_suggester( $query) {
 
 add_filter( 'vc_autocomplete_mk_products_posts_callback', 'mk_products_posts_autocomplete_suggester', 10, 1 );
 add_filter( 'vc_autocomplete_mk_woocommerce_recent_carousel_posts_callback', 'mk_products_posts_autocomplete_suggester', 10, 1 );
+add_filter( 'vc_autocomplete_mk_button_product_id_callback', 'mk_products_posts_autocomplete_suggester', 10, 1 );
+add_filter( 'vc_autocomplete_mk_button_gradient_product_id_callback', 'mk_products_posts_autocomplete_suggester', 10, 1 );
 
 
 /**
@@ -1190,5 +1192,3 @@ function mk_term_testimonial_category_autocomplete_suggester_render( $query ) {
 }
 
 add_filter( 'vc_autocomplete_mk_testimonials_categories_render', 'mk_term_testimonial_category_autocomplete_suggester_render', 10, 1 );
-
-

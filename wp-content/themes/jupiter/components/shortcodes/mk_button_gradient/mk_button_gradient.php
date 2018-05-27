@@ -8,8 +8,12 @@ include( $path . '/config.php' );
 $html = file_get_contents( $path . '/template.php' );
 $html = phpQuery::newDocument( $html );
 
-$id = uniqid();
+$id = Mk_Static_Files::shortcode_id();
+$product_id = ! empty( $product_id ) ? $product_id : false;
 
+if ( $product_id ) {
+	$url = '?add-to-cart=' . $product_id;
+}
 
 $button_container = pq( '.mk-gradient-button' );
 
@@ -47,6 +51,11 @@ if ($dimension == 'flat' || $dimension == 'two') {
 $button_container->find( 'a' )
 			     ->addClass($text_color.'-skin');
 
+if ( $product_id ) {
+	$button_container->find( 'a' )
+					 ->addClass( 'add_to_cart_button ajax_add_to_cart' );
+}
+
 if($dimension == 'double-outline') {
 	$double_outline_border = '<span class="double-outline-inside"></span>';
 }else {
@@ -69,6 +78,13 @@ if( $id_second == '' ) {
 
 $button_container->find( 'a' )
 				 ->attr('target', $target);
+
+if ( $product_id ) {
+	$button_container->find( 'a' )
+					 ->attr( 'data-quantity', 1 )
+					 ->attr( 'data-product_id', $product_id );
+}
+
 
 if ( ! empty( $visibility ) ) {
 	$button_content = $button_container->html();
@@ -150,7 +166,7 @@ if($dimension != 'flat' && $dimension != 'two') {
 			#mk-gradient-button-'.$id.' a{
 				background: transparent;
 	        }
-		} 
+		}
 	', $id);
 }
 

@@ -36,5 +36,5 @@ $dialogs = glob( dirname( __FILE__ ) . '/dlg-*.php' );
 
 // Load all the dialogs.
 foreach ( $dialogs as $dialog ) {
-	require_once( $dialog );
+	require_once $dialog;
 }

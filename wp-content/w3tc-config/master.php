@@ -1,5 +1,5 @@
 <?php exit; ?>{
-    "version": "0.9.5.4",
+    "version": "0.9.7",
     "cluster.messagebus.debug": false,
     "cluster.messagebus.enabled": false,
     "cluster.messagebus.sns.region": "",
@@ -26,6 +26,7 @@
     ],
     "dbcache.redis.password": "",
     "dbcache.redis.dbid": 0,
+    "dbcache.use_filters": false,
     "dbcache.reject.constants": [
         "APP_REQUEST",
         "DOING_CRON",
@@ -156,13 +157,25 @@
     ],
     "pgcache.reject.front_page": "0",
     "pgcache.reject.logged": "0",
-    "pgcache.reject.logged_roles": "1",
+    "pgcache.reject.logged_roles": "0",
     "pgcache.reject.roles": [
-        "administrator"
+        ""
     ],
     "pgcache.reject.uri": [
         "wp-.*\\.php",
         "index\\.php"
+    ],
+    "pgcache.reject.categories": [
+        ""
+    ],
+    "pgcache.reject.tags": [
+        ""
+    ],
+    "pgcache.reject.authors": [
+        ""
+    ],
+    "pgcache.reject.custom": [
+        ""
     ],
     "pgcache.reject.ua": [
         ""
@@ -197,6 +210,33 @@
     "pgcache.prime.limit": "10",
     "pgcache.prime.sitemap": "",
     "pgcache.prime.post.enabled": "0",
+    "pgcache.rest": "",
+    "pgcache.cookiegroups.enabled": false,
+    "pgcache.cookiegroups.groups": {
+        "mobile": {
+            "enabled": false,
+            "cache": true,
+            "cookies": [
+                "wptouch-pro-view=mobile",
+                "wptouch-pro-cache-state=mobile"
+            ]
+        },
+        "loggedin": {
+            "enabled": false,
+            "cache": true,
+            "cookies": [
+                "wordpress_logged_in_.*"
+            ]
+        },
+        "subscribers": {
+            "enabled": false,
+            "cache": true,
+            "cookies": [
+                "role=subscriber",
+                "role=member"
+            ]
+        }
+    },
     "stats.enabled": "0",
     "minify.configuration_overloaded": false,
     "minify.enabled": "0",
@@ -307,7 +347,7 @@
     ],
     "minify.cache.files_regexp": "0",
     "cdn.configuration_overloaded": false,
-    "cdn.enabled": "0",
+    "cdn.enabled": "1",
     "cdn.debug": "0",
     "cdn.engine": "cf",
     "cdn.uploads.enable": "1",
@@ -359,6 +399,8 @@
     "cdn.autoupload.enabled": "1",
     "cdn.autoupload.interval": "3600",
     "cdn.canonical_header": "0",
+    "cdn.admin.media_library": "0",
+    "cdn.cors_header": "1",
     "cdn.ftp.host": "",
     "cdn.ftp.type": "",
     "cdn.ftp.user": "",
@@ -380,12 +422,14 @@
     "cdn.s3.key": "",
     "cdn.s3.secret": "",
     "cdn.s3.bucket": "",
+    "cdn.s3.bucket.location": "us-east-1",
     "cdn.s3.cname": [],
     "cdn.s3.ssl": "auto",
     "cdn.s3_compatible.api_host": "auto",
     "cdn.cf.key": "AKIAJAHPLGFD63EDAIMQ",
     "cdn.cf.secret": "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",
     "cdn.cf.bucket": "www.kombigode.com.br",
+    "cdn.cf.bucket.location": "sa-east-1",
     "cdn.cf.id": "d7sg4t89l5kl",
     "cdn.cf.cname": [
         "www.kombigode.com.br"
@@ -419,13 +463,11 @@
     "cdn.azure.ssl": "auto",
     "cdn.mirror.domain": [],
     "cdn.mirror.ssl": "auto",
-    "cdn.netdna.alias": "",
-    "cdn.netdna.consumerkey": "",
-    "cdn.netdna.consumersecret": "",
-    "cdn.netdna.authorization_key": "",
-    "cdn.netdna.domain": [],
-    "cdn.netdna.ssl": "auto",
-    "cdn.netdna.zone_id": 0,
+    "cdn.limelight.short_name": "",
+    "cdn.limelight.username": "",
+    "cdn.limelight.api_key": "",
+    "cdn.limelight.host.domains": [],
+    "cdn.limelight.ssl": "auto",
     "cdn.maxcdn.authorization_key": "",
     "cdn.maxcdn.domain": [],
     "cdn.maxcdn.ssl": "auto",
@@ -450,6 +492,10 @@
     "cdn.att.token": "",
     "cdn.att.domain": [],
     "cdn.att.ssl": "auto",
+    "cdn.stackpath.authorization_key": "",
+    "cdn.stackpath.domain": [],
+    "cdn.stackpath.ssl": "auto",
+    "cdn.stackpath.zone_id": 0,
     "cdn.reject.admins": false,
     "cdn.reject.logged_roles": "0",
     "cdn.reject.roles": [
@@ -467,6 +513,19 @@
         "{plugins_dir}\/wp-fb-autoconnect\/facebook-platform\/channel.html"
     ],
     "cdn.reject.ssl": "0",
+    "cdnfsd.enabled": "0",
+    "cdnfsd.engine": "",
+    "cdnfsd.debug": false,
+    "cdnfsd.cloudfront.access_key": "",
+    "cdnfsd.cloudfront.secret_key": "",
+    "cdnfsd.cloudfront.distribution_id": "",
+    "cdnfsd.limelight.short_name": "",
+    "cdnfsd.limelight.username": "",
+    "cdnfsd.limelight.api_key": "",
+    "cdnfsd.maxcdn.api_key": "",
+    "cdnfsd.maxcdn.zone_id": 0,
+    "cdnfsd.stackpath.api_key": "",
+    "cdnfsd.stackpath.zone_id": 0,
     "varnish.configuration_overloaded": false,
     "varnish.enabled": "0",
     "varnish.debug": false,
@@ -476,7 +535,6 @@
     "browsercache.configuration_overloaded": false,
     "browsercache.enabled": "1",
     "browsercache.rewrite": "0",
-    "browsercache.hsts": "1",
     "browsercache.no404wp": "0",
     "browsercache.no404wp.exceptions": [
         "robots\\.txt",
@@ -516,6 +574,40 @@
     "browsercache.replace.exceptions": [
         ""
     ],
+    "browsercache.security.session.cookie_httponly": "",
+    "browsercache.security.session.cookie_secure": "",
+    "browsercache.security.session.use_only_cookies": "",
+    "browsercache.hsts": "1",
+    "browsercache.security.hsts.directive": "maxage",
+    "browsercache.security.xfo": false,
+    "browsercache.security.xfo.directive": "same",
+    "browsercache.security.xfo.allow": "",
+    "browsercache.security.xss": false,
+    "browsercache.security.xss.directive": "block",
+    "browsercache.security.xcto": false,
+    "browsercache.security.pkp": false,
+    "browsercache.security.pkp.pin": "",
+    "browsercache.security.pkp.pin.backup": "",
+    "browsercache.security.pkp.extra": "maxage",
+    "browsercache.security.pkp.report.url": "",
+    "browsercache.security.pkp.report.only": "0",
+    "browsercache.security.referrer.policy": "false",
+    "browsercache.security.referrer.policy.directive": "0",
+    "browsercache.security.csp": false,
+    "browsercache.security.csp.base": "",
+    "browsercache.security.csp.frame": "",
+    "browsercache.security.csp.connect": "",
+    "browsercache.security.csp.font": "",
+    "browsercache.security.csp.script": "",
+    "browsercache.security.csp.style": "",
+    "browsercache.security.csp.img": "",
+    "browsercache.security.csp.media": "",
+    "browsercache.security.csp.object": "",
+    "browsercache.security.csp.plugin": "",
+    "browsercache.security.csp.form": "",
+    "browsercache.security.csp.frame.ancestors": "",
+    "browsercache.security.csp.sandbox": "",
+    "browsercache.security.csp.default": "",
     "mobile.configuration_overloaded": false,
     "mobile.enabled": false,
     "mobile.rgroups": {
@@ -672,7 +764,6 @@
             ]
         }
     },
-    "common.edge": false,
     "common.support": "",
     "common.track_usage": "1",
     "common.tweeted": false,
@@ -682,6 +773,7 @@
     "widget.latest_news.items": 5,
     "widget.pagespeed.enabled": "1",
     "widget.pagespeed.key": "",
+    "widget.pagespeed.key.restrict.referrer": "",
     "widget.pagespeed.show_in_admin_bar": "0",
     "timelimit.email_send": 180,
     "timelimit.varnish_purge": 300,
@@ -705,7 +797,19 @@
     "extensions.active_frontend": [],
     "plugin.license_key": "",
     "plugin.type": "",
+    "cdn.netdna.alias": "",
+    "cdn.netdna.consumerkey": "",
+    "cdn.netdna.consumersecret": "",
+    "cdn.netdna.authorization_key": "",
+    "cdn.netdna.domain": [],
+    "cdn.netdna.ssl": "auto",
+    "cdn.netdna.zone_id": 0,
+    "common.edge": false,
     "fragmentcache": {
         "engine": "memcached"
+    },
+    "pgcache.bad_behavior_path": "",
+    "newrelic": {
+        "monitoring_type": "apm"
     }
 }

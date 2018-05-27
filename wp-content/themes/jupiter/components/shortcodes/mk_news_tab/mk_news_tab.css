@@ -150,9 +150,16 @@
   padding: 0;
   display: none;
 }
+@media handheld, only screen and (max-width: 767px) {
+	.mobile-true .mk-tabs-pane {
+		display: block;
+	}
+}
 .mk-tabs-pane.is-active {
   display: block;
 }
-.mk-news-tab .mk-tabs-pane.is-active {
-  padding: 20px;
+@media handheld, only screen and (min-width: 768px) {
+	.mk-news-tab .mk-tabs-pane.is-active {
+	  padding: 20px;
+	}
 }
