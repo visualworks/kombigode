@@ -44,8 +44,34 @@ $wp_customize->add_control(
 			'section' => 'mk_s_pl_settings',
 			'column'  => 'mk-col-6',
 			'choices' => array(
-				'full' => __( 'No Sidebar', 'mk_framework' ),
-				'left' => __( 'Left Sidebar', 'mk_framework' ),
+				'full'  => __( 'No Sidebar', 'mk_framework' ),
+				'left'  => __( 'Left Sidebar', 'mk_framework' ),
+				'right' => __( 'Right Sidebar', 'mk_framework' ),
+			),
+		)
+	)
+);
+
+// Archive sidebar.
+$wp_customize->add_setting(
+	'mk_cz[sh_pl_set_archive_sidebar]', array(
+		'type'      => 'option',
+		'default'   => 'full',
+		'transport' => 'refresh',
+	)
+);
+
+$wp_customize->add_control(
+	new MK_Select_Control(
+		$wp_customize,
+		'mk_cz[sh_pl_set_archive_sidebar]',
+		array(
+			'label'   => __( 'Archive Sidebar', 'mk_framework' ),
+			'section' => 'mk_s_pl_settings',
+			'column'  => 'mk-col-6',
+			'choices' => array(
+				'full'  => __( 'No Sidebar', 'mk_framework' ),
+				'left'  => __( 'Left Sidebar', 'mk_framework' ),
 				'right' => __( 'Right Sidebar', 'mk_framework' ),
 			),
 		)
@@ -55,8 +81,8 @@ $wp_customize->add_control(
 // Stretch to Full Width.
 $wp_customize->add_setting(
 	'mk_cz[sh_pl_set_full_width]', array(
-		'type' => 'option',
-		'default' => 'false',
+		'type'      => 'option',
+		'default'   => 'false',
 		'transport' => 'postMessage',
 	)
 );

@@ -142,6 +142,9 @@
   line-height: 20px !important;
 }
 .blog-showcase-more {
-  text-decoration: underline;
   font-size: 12px;
+}
+.blog-showcase-more svg{
+  vertical-align: middle;
+  margin-left: 5px;
 }

@@ -56,8 +56,9 @@ if ( ! function_exists( 'mk_dynamic_styles' ) ) {
 if ( ! function_exists( 'mk_google_analytics' ) ) {
 	function mk_google_analytics() {
 		global $mk_options;
-
-		if ( isset( $mk_options['analytics'] ) && ! empty( $mk_options['analytics'] ) ) { ?>
+		if ( isset( $mk_options['analytics'] ) && ! empty( $mk_options['analytics'] ) ) {
+			$gdpr_code = ( 'true' == $mk_options['third_party_gdpr']) ? "ga('set', 'anonymizeIp', true);" : '';
+			?>
 		<script type="text/javascript">
 		var ga_fired = false;
 		window.addEventListener("scroll", function(){
@@ -67,8 +68,9 @@ if ( ! function_exists( 'mk_google_analytics' ) ) {
 				m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
 				})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
 
-				ga('create', '<?php echo stripslashes( $mk_options['analytics'] ); ?>', 'auto');
+				ga('create', '<?php echo esc_js( stripslashes( $mk_options['analytics'] ) ); ?>', 'auto');
 				ga('send', 'pageview');
+				<?php echo $gdpr_code; ?>
 				ga_fired = true;
 			}
 		}, true);

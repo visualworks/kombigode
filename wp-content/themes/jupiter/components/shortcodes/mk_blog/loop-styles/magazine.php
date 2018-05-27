@@ -60,7 +60,6 @@ if ($view_params['i'] == 1) {
         if ($view_params['comments_share'] != 'false') {
             $output.= mk_get_shortcode_view('mk_blog', 'components/comments', true);
         }
-        $output.= mk_get_shortcode_view('mk_blog', 'components/love-this', true);
         $output.= '</div>';
     
 }

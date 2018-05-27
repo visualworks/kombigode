@@ -71,12 +71,7 @@
 .mk-blog-magazine-item.magazine-featured-post .blog-magazine-social-section span {
   font-size: 11px;
 }
-.mk-blog-magazine-item.magazine-featured-post .blog-magazine-social-section .mk-love-holder {
-  display: inline-block;
-  margin-left: 10px;
-}
-.mk-blog-magazine-item.magazine-featured-post .blog-magazine-social-section .blog-loop-comments svg,
-.mk-blog-magazine-item.magazine-featured-post .blog-magazine-social-section .mk-love-holder svg {
+.mk-blog-magazine-item.magazine-featured-post .blog-magazine-social-section .blog-loop-comments svg{
   height: 16px;
   margin-right: 3px;
   vertical-align: middle;

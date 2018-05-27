@@ -2,71 +2,75 @@
 
 wp_enqueue_script( 'wpb_composer_front_js' );
 
-extract(shortcode_atts(array(
-	'el_class'              => '',
-	'layout_structure'      => 'full',
-	'bg_color'              => '',
-	'border_color'          => '',
-	'bg_image'              => '',
-	'bg_image_portrait'     => '',
-	'blend_mode'            => 'none',
-	'bg_repeat'             => 'repeat',
-	'bg_gradient'           => 'false',
-	'gr_start'              => '#fff',
-	'gr_end'                => '',
-	'section_layout'        => 'full',
-	'section_id'            => '',
-	'sidebar'               => '',
-	'bg_stretch'            => '',
-	'attachment'            => 'scroll',
-	'top_shadow'            => 'false',
-	'bg_position'           => 'left top',
-	'enable_3d'             => 'false',
-	'speed_factor'          => '0.3',
-	'adaptive_height'       => 'false',
-	'overflow'              => 'false',
-	'max_height'            => 600,
-	'min_height'            => 100,
-	'margin_bottom'         => 0,
-	'padding_top'           => '10',
-	'padding_bottom'        => '10',
-	'skip_arrow'            => 'false',
-	'skip_arrow_skin'       => 'light',
-	'video_opacity'         => '0.6',
-	'bg_video'              => 'no',
-	'video_source'          => 'self',
-	'mp4'                   => '',
-	'webm'                  => '',
-	'ogv'                   => '',
-	'poster_image'          => '',
-	'stream_host_website'   => 'youtube',
-	'stream_video_id'       => '',
-	'stream_sound'          => 'false',
-	'full_width'            => 'false',
-	'vertical_align'        => '',
-	'video_mask'            => 'false',
-	'video_loop'            => 'true',
-	'visibility'            => '',
-	'video_color_mask'      => '',
-	'intro_effect'          => 'false',
-	'animation'             => '',
-	'full_height'           => '',
-	'js_vertical_centered'  => 'false',
-	'has_top_shape_divider' => 'false',
-	'top_shape_style'       => 'diagonal-top',
-	'top_shape_size'        => 'big',
-	'top_shape_color'       => '#fff',
-	'top_shape_bg_color'    => '',
-	'top_shape_el_class'    => '',
-	'has_bottom_shape_divider' => 'false',
-	'bottom_shape_style'    => 'diagonal-bottom',
-	'bottom_shape_size'     => 'big',
-	'bottom_shape_color'    => '#fff',
-	'bottom_shape_bg_color' => '',
-	'bottom_shape_el_class' => '',
-	'lazyload'              => 'false',
+extract(
+	shortcode_atts(
+		array(
+			'el_class'              => '',
+			'layout_structure'      => 'full',
+			'bg_color'              => '',
+			'border_color'          => '',
+			'bg_image'              => '',
+			'bg_image_portrait'     => '',
+			'blend_mode'            => 'none',
+			'bg_repeat'             => 'repeat',
+			'bg_gradient'           => 'false',
+			'gr_start'              => '#fff',
+			'gr_end'                => '',
+			'section_layout'        => 'full',
+			'section_id'            => '',
+			'sidebar'               => '',
+			'bg_stretch'            => '',
+			'attachment'            => 'scroll',
+			'top_shadow'            => 'false',
+			'bg_position'           => 'left top',
+			'enable_3d'             => 'false',
+			'speed_factor'          => '0.3',
+			'adaptive_height'       => 'false',
+			'overflow'              => 'false',
+			'max_height'            => 600,
+			'min_height'            => 100,
+			'margin_bottom'         => 0,
+			'padding_top'           => '10',
+			'padding_bottom'        => '10',
+			'skip_arrow'            => 'false',
+			'skip_arrow_skin'       => 'light',
+			'video_opacity'         => '0.6',
+			'bg_video'              => 'no',
+			'video_source'          => 'self',
+			'mp4'                   => '',
+			'webm'                  => '',
+			'ogv'                   => '',
+			'poster_image'          => '',
+			'stream_host_website'   => 'youtube',
+			'stream_video_id'       => '',
+			'stream_sound'          => 'false',
+			'full_width'            => 'false',
+			'vertical_align'        => '',
+			'video_mask'            => 'false',
+			'video_loop'            => 'true',
+			'visibility'            => '',
+			'video_color_mask'      => '',
+			'intro_effect'          => 'false',
+			'animation'             => '',
+			'full_height'           => '',
+			'js_vertical_centered'  => 'false',
+			'has_top_shape_divider' => 'false',
+			'top_shape_style'       => 'diagonal-top',
+			'top_shape_size'        => 'big',
+			'top_shape_color'       => '#fff',
+			'top_shape_bg_color'    => '',
+			'top_shape_el_class'    => '',
+			'has_bottom_shape_divider' => 'false',
+			'bottom_shape_style'    => 'diagonal-bottom',
+			'bottom_shape_size'     => 'big',
+			'bottom_shape_color'    => '#fff',
+			'bottom_shape_bg_color' => '',
+			'bottom_shape_el_class' => '',
+			'lazyload'              => 'false',
 
-), $atts));
+		), $atts
+	)
+);
 
 $output = $gradient_output = $bg_stretch_class = $top_shadow_css = $backgroud_image = $video_color_mask_css = $video_output = $page_intro_class = $overlay_opacity_ie = $bgAttachment = $wrapper_attributes = '';
 
@@ -130,16 +134,14 @@ $overlay_atts = array(
 
 
 /*
-Smooth scroll script must be loaded for intro effect option
+Smooth scroll script must be loaded for intro effect option.
 */
 if ( $intro_effect == 'true' ) {
 	wp_dequeue_script( 'SmoothScroll' );
 }
 
 
-/*
-@bart : what this condition for?
-*/
+
 if ( $intro_effect != 'false' ) {
 	$visibility = '';
 }
@@ -149,9 +151,9 @@ if ( $intro_effect != 'false' ) {
 Page section must have an ID for scripts tp funtion, if left blank by user we will add by default.
 */
 if ( ! empty( $section_id ) ) {
-	$section_id = 'id="' . $section_id . '"';
+	$section_id = 'id="' . esc_attr( $section_id ) . '"';
 } else {
-	$section_id = 'id="page-section-' . $id . '"';
+	$section_id = 'id="page-section-' . esc_attr( $id ) . '"';
 }
 
 
@@ -184,7 +186,7 @@ $layout_structure_full_atts = array(
 	'content' => $content,
 	'section_layout' => $section_layout,
 	'sidebar' => $sidebar,
-	);
+);
 
 
 
@@ -209,5 +211,3 @@ $layout_structure_half_atts = array(
 	'bg_image'              => $bg_image,
 	'bg_image_portrait'     => $bg_image_portrait,
 );
-
-Mk_Static_Files::addAssets( 'mk_page_section' );

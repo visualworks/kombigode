@@ -61,6 +61,17 @@ if (class_exists('woocommerce')) {
 				'description' => __( '', 'mk_framework' ),
             ) ,
             array(
+                "type" => "range",
+                'heading'     => __( 'How many Products?', 'mk_framework' ),
+                "param_name" => "per_page",
+                "value" => "-1",
+                "min" => "-1",
+                "max" => "50",
+                "step" => "1",
+                "unit" => 'posts',
+                'description' => __( 'How many Products you would like to show? ( -1 means unlimited, please note that unlimited will be overridden by the limit you defined at : Wordpress Sidebar > Settings > Reading > Blog pages show at most.)', 'mk_framework' ),
+            ) ,
+            array(
                 'type'        => 'autocomplete',
                 'heading'     => __( 'Select specific Categories', 'mk_framework' ),
                 'param_name'  => 'category',
@@ -101,17 +112,6 @@ if (class_exists('woocommerce')) {
 				),
             ),
             array(
-                "type" => "range",
-				'heading'     => __( 'How many Products?', 'mk_framework' ),
-                "param_name" => "per_page",
-                "value" => "-1",
-                "min" => "-1",
-                "max" => "50",
-                "step" => "1",
-                "unit" => 'posts',
-				'description' => __( 'How many Products you would like to show? ( -1 means unlimited, please note that unlimited will be overridden by the limit you defined at : Wordpress Sidebar > Settings > Reading > Blog pages show at most.)', 'mk_framework' ),
-            ) ,
-            array(
                 "heading" => __("Order", 'mk_framework') ,
                 "description" => __("Designates the ascending or descending order of the 'orderby' parameter.", 'mk_framework') ,
                 "param_name" => "order",
@@ -146,7 +146,7 @@ if (class_exists('woocommerce')) {
 				'dependency'       => array(
 					'element' => 'style',
 					'value'   => array(
-						'modern',
+						'classic',
 					),
 				),
 				'group'            => 'Colors',
@@ -161,7 +161,7 @@ if (class_exists('woocommerce')) {
 				'dependency'       => array(
 					'element' => 'style',
 					'value'   => array(
-						'modern',
+						'classic',
 					),
 				),
 				'group'            => 'Colors',
@@ -176,7 +176,7 @@ if (class_exists('woocommerce')) {
 				'dependency'       => array(
 					'element' => 'style',
 					'value'   => array(
-						'modern',
+						'classic',
 					),
 				),
 				'group'            => 'Colors',
@@ -191,7 +191,7 @@ if (class_exists('woocommerce')) {
 				'dependency'       => array(
 					'element' => 'style',
 					'value'   => array(
-						'modern',
+						'classic',
 					),
 				),
 				'group'            => 'Colors',

@@ -1,7 +1,7 @@
 <div class="slick-slider-wrapper">
 
 	<div class="slick-header">
-		<span class="slick-title"> Album Title </span>
+		<span class="slick-title"> <?php _e( 'Album Title', 'mk_framework' ); ?> </span>
 
 		<a href="#" class="slick-close-icon">
 			<svg width="33px" height="33px" >
@@ -72,9 +72,9 @@
 			</a>
 
 			<div class="slick-icon slick-social-share is-hidden">
-				<a href="#" class="slick-pinterest slick-social" data-network="pinterest"> <?php Mk_SVG_Icons::get_svg_icon_by_class_name(true, 'mk-icon-pinterest-square', 16); ?> </a>
-				<a href="#" class="slick-twitter slick-social" data-network="twitter"> <?php Mk_SVG_Icons::get_svg_icon_by_class_name(true, 'mk-icon-twitter-square', 16); ?> </a>
-				<a href="#" class="slick-facebook slick-social" data-network="facebook"> <?php Mk_SVG_Icons::get_svg_icon_by_class_name(true, 'mk-icon-facebook-square', 16); ?> </a>
+				<a href="#" class="slick-pinterest slick-social" data-network="pinterest"> <?php Mk_SVG_Icons::get_svg_icon_by_class_name( true, 'mk-icon-pinterest-square', 16 ); ?> </a>
+				<a href="#" class="slick-twitter slick-social" data-network="twitter"> <?php Mk_SVG_Icons::get_svg_icon_by_class_name( true, 'mk-icon-twitter-square', 16 ); ?> </a>
+				<a href="#" class="slick-facebook slick-social" data-network="facebook"> <?php Mk_SVG_Icons::get_svg_icon_by_class_name( true, 'mk-icon-facebook-square', 16 ); ?> </a>
 			</div>
 		</div>
 

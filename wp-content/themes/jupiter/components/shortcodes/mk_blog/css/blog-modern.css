@@ -31,8 +31,7 @@
   min-height: 160px !important;
 }
 .mk-blog-modern-item .blog-loop-comments,
-.mk-blog-modern-item .mk-blog-share,
-.mk-blog-modern-item .mk-love-holder {
+.mk-blog-modern-item .mk-blog-share{
   display: block;
   padding: 12px 0;
   color: #898989;
@@ -40,13 +39,11 @@
   line-height: 15px;
 }
 .mk-blog-modern-item .blog-loop-comments svg,
-.mk-blog-modern-item .mk-blog-share svg,
-.mk-blog-modern-item .mk-love-holder svg {
+.mk-blog-modern-item .mk-blog-share svg{
   height: 16px;
 }
 .mk-blog-modern-item .blog-loop-comments span,
-.mk-blog-modern-item .mk-blog-share span,
-.mk-blog-modern-item .mk-love-holder span {
+.mk-blog-modern-item .mk-blog-share span{
   margin-top: 2px;
 }
 .mk-blog-modern-item .blog-share-container {
@@ -56,7 +53,6 @@
 }
 .mk-blog-modern-item .blog-loop-comments {
   line-height: 16px;
-  border-bottom: 1px solid #efefef;
 }
 .mk-blog-modern-item .blog-loop-comments span {
   display: block;
@@ -66,17 +62,11 @@
   cursor: pointer;
   padding: 20px 0;
 }
-.mk-blog-modern-item .mk-love-holder i span {
-  position: absolute;
-}
-.mk-blog-modern-item .mk-love-holder .mk-love-count {
-  display: block;
-}
 .mk-blog-modern-item .blog-social-share {
   position: absolute;
   left: -6px;
   top: -52px;
-  width: 216px;
+  width: 220px;
   background-color: #252525;
   margin: 0;
   list-style: none;
@@ -263,7 +253,7 @@
 .blog-modern-social-section {
   float: left;
   width: 50px;
-  min-height: 150px;
+  min-height: 120px;
   border-right: 1px solid #efefef;
   text-transform: center;
   margin-left: 20px;

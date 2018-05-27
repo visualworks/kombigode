@@ -41,9 +41,9 @@
 	height: 100%;
 }
 
-div.vc_row[data-mk-full-width] {
+div.vc_row.mk-fullwidth-true {
 	transition: opacity .5s ease;
-	overflow: hidden !important;
+	overflow: hidden;
 }
 
 .compose-mode .vc_vc_row > [data-mk-full-width=true] {

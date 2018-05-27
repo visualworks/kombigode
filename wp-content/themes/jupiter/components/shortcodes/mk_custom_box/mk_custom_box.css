@@ -18,6 +18,9 @@
   position: relative;
 
 }
+.mk-custom-box .box-holder:hover::after {
+  transition: background-image .2s ease-in-out;
+}
 .mk-custom-box .box-holder.clearfix {
   /*overflow: auto;*/
 }

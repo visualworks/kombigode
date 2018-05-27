@@ -18,13 +18,11 @@
             data.options.mapTypeId = google.maps.MapTypeId[data.options.mapTypeId];
             data.options.styles = data.style;
 
-
             bounds = new google.maps.LatLngBounds();
             map = new google.maps.Map(el, data.options);
             infoWindow = new google.maps.InfoWindow();
-            
 
-             map.setOptions({
+            map.setOptions({
                 panControl : data.options.panControl,
                 draggable:  data.options.draggable,
                 zoomControl:  data.options.zoomControl,
@@ -62,7 +60,23 @@
                         };
                     })(marker, i));
 
-                    map.fitBounds(bounds);
+                    /**
+                     * If there is only one marker, map.fitBounds will zoom-in too much.
+                     * Only run map.fitBounds if the markers are more than 1. Use setCenter
+                     * instead if the the marker is only 1.
+                     */
+                    if ( i > 0 ) {
+                        map.fitBounds( bounds );
+                    } else {
+                        // Set latitude and longtitude as float.
+                        var latLang = {
+                            lat: parseFloat( data.places[i].latitude ),
+                            lng: parseFloat( data.places[i].longitude )
+                        };
+                        map.setCenter( latLang );
+                        // Need to setZoom here as we didn't trigger bounds_changed event.
+                        map.setZoom( data.options.zoom );
+                    }
                 }
             }
 

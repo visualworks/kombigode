@@ -26,9 +26,9 @@
 .ajax-controls svg {
   height: 16px;
   fill: #bbbbbb;
-  -webkit-transform:translateY(10px);
-          -ms-transform:translateY(10px);
-      transform:translateY(10px);
+  -webkit-transform:translateY(8px);
+          -ms-transform:translateY(8px);
+      transform:translateY(8px);
 }
 .ajax-controls a:hover svg{
   fill: #222222;
@@ -37,7 +37,6 @@
   .ajax-portfolio-share.portfolio-social-share {
     text-align: center;
   }
-  .ajax-portfolio-share.portfolio-social-share .mk-love-holder,
   .ajax-portfolio-share.portfolio-social-share .blog-share-container {
     float: none !important;
   }

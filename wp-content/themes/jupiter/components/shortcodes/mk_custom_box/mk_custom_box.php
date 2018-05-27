@@ -177,11 +177,16 @@ if ( 'image' === $background_hov_color_style && ! empty( $bg_hov_color ) ) {
 	', $id);
 }else if($background_hov_color_style == 'gradient_color') {
 	$gradients_hover = mk_gradient_option_parser($bg_gradient_hov_color_style, $bg_gradient_hov_color_angle);
+	$main_bg_image = '';
+	if ( ! empty( $bg_image ) ) {
+		$main_bg_image = ', url(' . $bg_image . ')';
+	}
+
 	Mk_Static_Files::addCSS('
-		#box-'.$id.' .box-holder::after {
+		#box-'.$id.' .box-holder:hover::after {
 	    	background: '.$bg_grandient_hov_color_fallback.';
-			background: -webkit-'.$gradients_hover['type'].'-gradient('.$gradients_hover['angle_1'].''.$bg_grandient_hov_color_from.' 0%, '.$bg_grandient_hov_color_to.' 100%);
-			background: '.$gradients_hover['type'].'-gradient('.$gradients_hover['angle_2'].''.$bg_grandient_hov_color_from.' 0%, '.$bg_grandient_hov_color_to.' 100%);
+			background-image: -webkit-'.$gradients_hover['type'].'-gradient('.$gradients_hover['angle_1'].''.$bg_grandient_hov_color_from.' 0%, '.$bg_grandient_hov_color_to.' 100%)' . $main_bg_image . ';
+			background-image: '.$gradients_hover['type'].'-gradient('.$gradients_hover['angle_2'].''.$bg_grandient_hov_color_from.' 0%, '.$bg_grandient_hov_color_to.' 100%)' . $main_bg_image . ';
 	    }
 	', $id);
 }
@@ -221,6 +226,32 @@ if ( $drop_shadow == 'true' && $elevation_effect == 'false' ) {
 
 }
 
-
+/**
+ * Fix AM-2993
+ *
+ * Fancy title gradient color doesn't work in Custom Box. This issue is caused by
+ * phpQuery that move tag <i> ... </i> to the top and unwrap the Fancy Title tag <p>
+ * as the main content.
+ *
+ * Syntax Problem:              It should be:
+ * <span>                       <span>
+ *     <i></i>                      <i>
+ *     <p>Testing Text</p>              <p>Testing Text</p>
+ * </span>                          </i>
+ *                              </span>
+ *
+ * To fix this, we need to:
+ * - Ensure .mk-fancy-title + .color-gradient is exist
+ * - If it's exist, remove empty tag i
+ * - Repopulate tag i and reassign it to wrap the Fancy Title content
+ *
+ * ATTENTION: This code only runs in Custom Box when Fancy Title is exist and it uses
+ *            gradient color.
+ */
+$fancy_title_exist = $html->find( '.mk-fancy-title.color-gradient' )->html();
+if ( ! empty( $fancy_title_exist ) ) {
+	$html->find( '.mk-fancy-title.color-gradient span i' )->remove();
+	$html->find( '.mk-fancy-title.color-gradient span p' )->wrapAll( '<i></i>' );
+}
 
 print $html;

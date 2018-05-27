@@ -1204,6 +1204,23 @@ if ( ! function_exists( 'mk_cz_get_option' ) ) {
 
 		return apply_filters( "mk_cz_option_{$name}", $default );
 	}
+} // End if().
+
+if ( ! function_exists( 'mk_shop_customizer_enabled' ) ) {
+	/**
+	 * If shop customizer is enabled.
+	 *
+	 * @since 6.1.3
+	 */
+	function mk_shop_customizer_enabled() {
+		global $mk_options;
+
+		if ( ! empty( $mk_options['shop_customizer'] ) && 'true' === $mk_options['shop_customizer'] ) {
+			return true;
+		}
+
+		return false;
+	}
 }
 
 if ( ! function_exists( 'mk_vc_parallax_scroll' ) ) {

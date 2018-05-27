@@ -2,8 +2,16 @@
 $path = pathinfo(__FILE__) ['dirname'];
 include ($path . '/config.php');
 
+// Add 'mk-sc-active' class if SC is active.
+$sc_class = '';
+if ( function_exists( 'mk_is_shop_customizer_active' ) ) {
+	if ( mk_is_shop_customizer_active() ) {
+		$sc_class = 'mk-sc-active';
+	}
+}
+
 ?>
-<div class="mk-woocommerce-carousel <?php echo $style; ?>-style <?php echo $el_class . ' ' . $visibility; ?>">
+<div class="mk-woocommerce-carousel <?php echo $style; ?>-style <?php echo $el_class . ' ' . $visibility . ' ' . $sc_class; ?>">
 
 
 <?php 

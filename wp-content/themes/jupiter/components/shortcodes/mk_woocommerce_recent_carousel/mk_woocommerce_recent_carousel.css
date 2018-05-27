@@ -54,12 +54,14 @@
     white-space: nowrap;
 }
 
+.mk-woocommerce-carousel.classic-style .mk-swiper-wrapper,
 .mk-woocommerce-carousel.modern-style .mk-swiper-wrapper {
     height: 100%;
     position: relative;
 }
 
-.mk-woocommerce-carousel.modern-style .mk-swiper-container {
+/*.mk-woocommerce-carousel.modern-style .mk-swiper-container,*/
+.mk-woocommerce-carousel.classic-style .mk-swiper-container {
     padding: 0 60px;
 }
 
@@ -77,6 +79,8 @@
 .mk-woocommerce-carousel.classic-style .products .product {
     margin: 0;
     float: left;
+    padding-left: 15px;
+    padding-right: 15px;
 }
 
 .mk-woocommerce-carousel.classic-style .mk-fancy-title {
@@ -173,10 +177,12 @@
     border: none;
 } 
 
+.mk-woocommerce-carousel.classic-style .mk-swipe-slideshow:hover .swiper-arrows,
 .mk-woocommerce-carousel.modern-style .mk-swipe-slideshow:hover .swiper-arrows {
     opacity: 0.8;
 }
 
+.mk-woocommerce-carousel.classic-style .swiper-arrows,
 .mk-woocommerce-carousel.modern-style .swiper-arrows {
     top: calc(50% - 10px) !important;
     width: 40px;
@@ -187,21 +193,28 @@
     opacity: 1;
     color: #222222;
 }
+.mk-woocommerce-carousel.modern-style .swiper-arrows {
+    border: 2px solid #222222;
+}
 
+.mk-woocommerce-carousel.classic-style .swiper-arrows svg,
 .mk-woocommerce-carousel.modern-style .swiper-arrows svg {
     vertical-align: middle;
 }
 
+.mk-woocommerce-carousel.classic-style .swiper-arrows:hover,
 .mk-woocommerce-carousel.modern-style .swiper-arrows:hover {
     background-color: #222222;
     opacity: 1 !important;
     color: #ffffff;
 }
 
+.mk-woocommerce-carousel.classic-style .mk-swiper-prev,
 .mk-woocommerce-carousel.modern-style .mk-swiper-prev {
     left: 0px;
 }
 
+.mk-woocommerce-carousel.classic-style .mk-swiper-next,
 .mk-woocommerce-carousel.modern-style .mk-swiper-next {
     right: 0px;
 }
@@ -209,4 +222,14 @@
 .mk-woocommerce-carousel.modern-style .mk-button {
     font-size: 12px !important;
     margin: 0 auto !important;
+}
+
+/* Fix issue with WooCommerce Recent Carousel when SC is active */
+.mk-woocommerce-carousel.classic-style.mk-sc-active .products .product {
+    float: none !important;
+    position: absolute !important;
+    display: inline-block;
+    top: 0;
+    left: 0;
+    box-sizing: border-box;
 }

@@ -55,7 +55,7 @@
 					<span class="mka-tip-ripple"></span>
 				</a>
 				<div class="mka-tip-content">
-					<?php esc_html_e( "Import your website data selectively. This only accepts an exported Zip file from above section. Site Content and Widgets are merged in current data. Theme Options's and Customizer's data are replaced.", 'mk_framework' ); ?>
+					<?php esc_html_e( "Import your website data selectively. This only accepts an exported Zip file from above section. Site Content and Widgets are merged in current data. Theme Options's and Customizer's data are replaced. For installing templates please go to Control Panel -> Templates.", 'mk_framework' ); ?>
 				</div>
 			</div>
 		</div>
@@ -72,4 +72,3 @@
 		</div>
 	</div>
 </div>
-<!-- End of Pane -->

@@ -48,6 +48,33 @@ function mkhb_is_to_active() {
 }
 
 /**
+ * Check if header is active from template setting of Page Options.
+ *
+ * @since 6.1.2
+ *
+ * @return boolean True if active. Default is true.
+ */
+function mkhb_is_po_active() {
+	global $post;
+
+	// Ensure $post is not empty.
+	if ( ! empty( $post->ID ) ) {
+		// Disallowed templates to display header.
+		$disallowed = array( 'no-header', 'no-header-title', 'no-header-footer', 'no-header-title-footer' );
+
+		// Get page template option.
+		$template = get_post_meta( $post->ID, '_template', true );
+
+		// If current template is disallowed, return false.
+		if ( in_array( $template, $disallowed ) ) {
+			return false;
+		}
+	}
+
+	return true;
+}
+
+/**
  * Add current-menu-item class in preview navigation.
  *
  * @since 5.9.1

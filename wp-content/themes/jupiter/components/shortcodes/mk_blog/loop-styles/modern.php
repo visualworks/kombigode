@@ -32,7 +32,6 @@ $post_type = !empty($post_type) ? $post_type : 'image';
             <?php
             echo mk_get_shortcode_view('mk_blog', 'components/social-share', true);   
             echo mk_get_shortcode_view('mk_blog', 'components/comments', true, ['post_type' => $post_type]);
-            echo mk_get_shortcode_view('mk_blog', 'components/love-this', true);
             ?>
         </div>
     <?php } ?>

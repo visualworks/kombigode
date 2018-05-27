@@ -183,14 +183,3 @@
 .mk-process-steps.process-steps-5 .mk-process-icon svg {
   height: 60px;
 }
-/* ======= */
-
-.mk-process-steps[max-width~="950px"] ul::before {
-  display: none !important;
-}
-
-.mk-process-steps[max-width~="950px"] li {
-  margin-bottom: 30px !important;
-  width: 100% !important;
-  text-align: center;
-}

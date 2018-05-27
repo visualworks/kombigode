@@ -183,7 +183,20 @@
 				if (size > 0) {
 					$col.removeAttr("style");
 					$col.children('div').each(function() {
-						$(this).removeAttr("style");
+						var $this = $( this );
+						/**
+						 * Fix Advanced Google Maps (AGM) issue on page section.
+						 *
+						 * Problem: AGM set the height as inline CSS property (style attribute).
+						 * In this case, the style attribute will be removed before checking the
+						 * elements height in each of the column. That's why AGM container will
+						 * loose the height and the map can't be displayed properly (only 1px)
+						 * because it overlap other row in the page. We need to check if current
+						 * element is AGM or not before removing style attribute of the element.
+						 */
+						if ( ! $this.hasClass( 'mk-advanced-gmaps' ) ) {
+							$this.removeAttr( 'style' );
+						}
 					});
 				}
 			});
@@ -226,7 +239,12 @@
 						if ($colWrapper.hasClass('vertical-align-center')) {
 							$col.children('div').each(function() {
 								var elHeight = ($(window).width() < maxWidth) ? 'initial' : (colHeight/size);
-								$(this).css("height", elHeight);
+								/**
+								 * Fix Advanced Google Maps (AGM) issue on page section.
+								 */
+								if ( ! $(this).hasClass( 'mk-advanced-gmaps' ) ) {
+									$(this).css("height", elHeight);
+								}
 							});
 						}
 					}

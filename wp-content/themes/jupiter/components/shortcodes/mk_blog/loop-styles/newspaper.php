@@ -55,7 +55,7 @@ $output.= '</div>';
 
 $output.= '<div class="newspaper-item-footer"><div class="newspaper-item-footer-holder">';
 $output.= mk_get_shortcode_view('mk_blog', 'components/read-more', true);
-$output.= mk_get_shortcode_view('mk_blog', 'components/love-this', true);
+$output.= '<span>&nbsp;</span>';
 if ($view_params['comments_share'] != 'false'):
     $output.= mk_get_shortcode_view('mk_blog', 'components/comments', true, ['post_type' => $post_type]);
     $output.= '<span class="newspaper-item-share">'.Mk_SVG_Icons::get_svg_icon_by_class_name(false, 'mk-moon-share-2', 16).'</span>';

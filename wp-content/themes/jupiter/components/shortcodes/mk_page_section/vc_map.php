@@ -3,7 +3,6 @@ vc_map(array(
     "name" => __("Page Section", "mk_framework") ,
     "base" => "mk_page_section",
 	'html_template' => dirname( __FILE__ ) . '/mk_page_section.php',
-	'admin_enqueue_js' => THEME_COMPONENTS . "/shortcodes/mk_page_section/vc_admin.js",
 	'front_enqueue_js' => THEME_COMPONENTS . "/shortcodes/mk_page_section/vc_front.js",
     "category" => __('General', 'mk_framework') ,
     "as_parent" => array(

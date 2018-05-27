@@ -53,6 +53,11 @@
     }
 }
 
+/* Nested rows inside page section creates overflows in full width layout. */
+body:not(.compose-mode) .mk-page-section.full_layout {
+  overflow: hidden;
+}
+
 .mk-page-section.drop-top-shadow {
   box-shadow: inset 0 1px 10px rgba(0, 0, 0, 0.3);
 }

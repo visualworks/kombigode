@@ -98,9 +98,11 @@
 
 		}
 		
-		$( '.mk-swiper-container' ).each( function() {
-			new MK.component.SwipeSlideshow( this ).init();
-		} );
+        /* Why we need to reinitialize it? it causes double sliding effect
+    		$( '.mk-swiper-container' ).each( function() {
+    			new MK.component.SwipeSlideshow( this ).init();
+    		} );
+        */
 	}
 
 	init();

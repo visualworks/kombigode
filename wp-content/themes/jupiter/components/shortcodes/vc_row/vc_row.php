@@ -10,10 +10,10 @@ $fullwidth_start = $output = $fullwidth_end = '';
 
 $wrapper_attributes = array();
 
-$id = ! empty( $id ) ? (' id="' . $id . '"') : '';
+$row_id = ! empty( $id ) ? (' id="' . esc_attr( $id ) . '"') : '';
 
-global $post;
-$page_layout = get_post_meta( $post->ID, '_layout', true );
+$post_id = global_get_post_id();
+$page_layout = get_post_meta( $post_id, '_layout', true );
 
 if ( isset( $_REQUEST['layout'] ) && ! empty( $_REQUEST['layout'] ) ) {
 	$page_layout = esc_html( $_REQUEST['layout'] );
@@ -23,13 +23,12 @@ $padding = ! empty( $padding ) ? $padding : $column_padding;
 
 $row_classes[] = $visibility;
 $row_classes[] = 'mk-fullwidth-' . $fullwidth;
-$row_classes[] = ($attached == 'true') ? 'add-padding-' . $padding : '';
+$row_classes[] = ('true' == $attached) ? 'add-padding-' . $padding : '';
 $row_classes[] = 'attched-' . $attached;
 $row_classes[] = $el_class;
 $row_classes[] = get_viewport_animation_class( $animation );
 $row_classes[] = vc_shortcode_custom_css_class( $css, ' ' );
-// $row_classes[] = get_row_css_class();
-$row_classes[] = $equal_columns == 'true' ? ' equal-columns' : '';
+$row_classes[] = 'true' == $equal_columns ? ' equal-columns' : '';
 $row_classes[] = 'js-master-row';
 $row_classes[] = ( 'yes' === $disable_element ) ? 'vc_hidden-lg vc_hidden-xs vc_hidden-sm vc_hidden-md' : '';
 
@@ -37,7 +36,7 @@ if ( 'true' === $fullwidth && 'true' === $fullwidth_content ) {
 	$row_classes[] = 'mk-full-content-true';
 }
 
-// Prallax video & image
+// Prallax video & image.
 $has_video_bg = ( ! empty( $video_bg ) && ! empty( $video_bg_url ) && vc_extract_youtube_id( $video_bg_url ) );
 
 $parallax_speed = $parallax_speed_bg;
@@ -51,7 +50,7 @@ if ( $has_video_bg ) {
 
 if ( ! empty( $parallax ) ) {
 	wp_enqueue_script( 'vc_jquery_skrollr_js' );
-	$wrapper_attributes[] = 'data-vc-parallax="' . esc_attr( $parallax_speed ) . '"'; // parallax speed
+	$wrapper_attributes[] = 'data-vc-parallax="' . esc_attr( $parallax_speed ) . '"'; // parallax speed.
 	$row_classes[] = 'vc_general vc_parallax vc_parallax-' . $parallax;
 	if ( false !== strpos( $parallax, 'fade' ) ) {
 		$row_classes[] = 'js-vc_parallax-o-fade';
@@ -79,12 +78,12 @@ if ( ! $parallax && $has_video_bg ) {
 
 $after_output = '';
 if ( 'full-width' !== $page_layout ) {
-	if ( $fullwidth == 'true' ) {
+	if ( 'true' == $fullwidth ) {
 		$wrapper_attributes[] = 'data-mk-full-width="true"';
 		$wrapper_attributes[] = 'data-mk-full-width-init="false"';
 		$after_output .= '<div class="vc_row-full-width vc_clearfix"></div>';
 	}
-	if ( $fullwidth_content == 'true' ) {
+	if ( 'true' == $fullwidth_content ) {
 		$wrapper_attributes[] = 'data-mk-stretch-content="true"';
 	}
 }
@@ -95,17 +94,17 @@ if ( 'true' !== $fullwidth ) {
 
 ?>
 
-<div <?php echo $id; ?> <?php echo implode( ' ', $wrapper_attributes ) ?> class="wpb_row vc_row vc_row-fluid <?php echo implode( ' ', $row_classes ); ?>">
-	<?php if ( $fullwidth == 'true' && $fullwidth_content == 'false' ) { ?>
+<div <?php echo $row_id; ?> <?php echo implode( ' ', $wrapper_attributes ); ?> class="wpb_row vc_row vc_row-fluid <?php echo esc_attr( implode( ' ', $row_classes ) ); ?>">
+	<?php if ( 'true' == $fullwidth && 'false' == $fullwidth_content ) { ?>
 		<div class="mk-grid">
 	<?php } ?>
 			<?php echo wpb_js_remove_wpautop( $content ); ?>
-	<?php if ( $fullwidth == 'true' && $fullwidth_content == 'false' ) { ?>
+	<?php if ( 'true' == $fullwidth && 'false' == $fullwidth_content ) { ?>
 		</div>
 	<?php } ?>
 </div>
 <?php
-if ( $fullwidth == 'true' ) {
+if ( 'true' == $fullwidth ) {
 	 echo $after_output;
 }
 ?>

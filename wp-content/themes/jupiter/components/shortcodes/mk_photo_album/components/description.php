@@ -1,1 +1,1 @@
-<p class="description"><?php echo get_post_meta(get_the_ID() , '_desc', true); ?></p>
+<span class="description"><?php echo get_post_meta(get_the_ID() , '_desc', true); ?></span>

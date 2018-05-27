@@ -14,12 +14,11 @@
  * @see     https://docs.woocommerce.com/document/template-structure/
  * @author  WooThemes
  * @package WooCommerce/Templates
- * @version 3.3.0
+ * @version 3.4.0
  */
 
-if ( ! defined( 'ABSPATH' ) ) {
-	exit;
-}
+defined( 'ABSPATH' ) || exit;
+
 
 wc_print_notices();
 
@@ -57,11 +56,12 @@ do_action( 'woocommerce_before_cart' ); ?>
 								$thumbnail = apply_filters( 'woocommerce_cart_item_thumbnail', $_product->get_image(), $cart_item, $cart_item_key );
 
 								if ( ! $product_permalink ) {
-									echo $thumbnail;
-									echo apply_filters( 'woocommerce_cart_item_name', $_product->get_name(), $cart_item, $cart_item_key ) . '&nbsp;';
+									echo wp_kses_post( $thumbnail );
+									echo wp_kses_post( apply_filters( 'woocommerce_cart_item_name', $_product->get_name(), $cart_item, $cart_item_key ) . '&nbsp;' );
 								} else {
-									printf( '<a class="mk-cart-product-image" href="%s">%s</a>', esc_url( $product_permalink ), $thumbnail );
-									echo apply_filters( 'woocommerce_cart_item_name', sprintf( '<a href="%s">%s</a>', esc_url( $product_permalink ), $_product->get_name() ), $cart_item, $cart_item_key );
+									printf( '<a class="mk-cart-product-image" href="%s">%s</a>', esc_url( $product_permalink ), wp_kses_post( $thumbnail ) );
+									echo wp_kses_post( apply_filters( 'woocommerce_cart_item_name', sprintf( '<a href="%s">%s</a>', esc_url( $product_permalink ), $_product->get_name() ), $cart_item, $cart_item_key ) );
+
 								}
 
 								// Meta data
@@ -75,7 +75,8 @@ do_action( 'woocommerce_before_cart' ); ?>
 
 								// Backorder notification
 								if ( $_product->backorders_require_notification() && $_product->is_on_backorder( $cart_item['quantity'] ) ) {
-									echo '<p class="backorder_notification">' . esc_html__( 'Available on backorder', 'woocommerce' ) . '</p>';
+									echo wp_kses_post( apply_filters( 'woocommerce_cart_item_backorder_notification', '<p class="backorder_notification">' . esc_html__( 'Available on backorder', 'woocommerce' ) . '</p>' ) );
+
 								}
 							?>
 						</td>
@@ -112,12 +113,22 @@ do_action( 'woocommerce_before_cart' ); ?>
 
 						<td class="product-remove">
 							<?php
-								// @codingStandardsIgnoreLine
-								if(function_exists('wc_get_formatted_cart_item_data')) {
-									$get_cart_item_url = wc_get_formatted_cart_item_data( $cart_item );	
-								} else {
+								$get_cart_item_url = '';
+
+								// Since WC 3.3, use wc_get_cart_remove_url to get remove URL.
+								if ( function_exists( 'wc_get_cart_remove_url' ) ) {
+									$get_cart_item_url = wc_get_cart_remove_url( $cart_item_key );
+								}
+
+								/**
+								 * Since WC 3.3, get_remove_url is deprecated. Keep it in here
+								 * just in case if our users use the latest version of Jupiter
+								 * but the WooCommerce version 3.2.6 below.
+								 */
+								if ( empty( $get_cart_item_url ) ) {
 									$get_cart_item_url = WC()->cart->get_remove_url( $cart_item_key );
 								}
+
 								echo apply_filters( 'woocommerce_cart_item_remove_link', sprintf(
 									'<a href="%s" class="remove" aria-label="%s" data-product_id="%s" data-product_sku="%s">&times;</a>',
 									esc_url( $get_cart_item_url ),
@@ -143,7 +154,7 @@ do_action( 'woocommerce_before_cart' ); ?>
 
 					<?php if ( wc_coupons_enabled() ) { ?>
 						<div class="coupon">
-							<label for="coupon_code"><?php esc_html_e( 'Coupon:', 'woocommerce' ); ?></label> <input type="text" name="coupon_code" class="input-text" id="coupon_code" value="" placeholder="<?php esc_attr_e( 'Coupon code', 'woocommerce' ); ?>" /> <input type="submit" class="button" name="apply_coupon" value="<?php esc_attr_e( 'Apply coupon', 'woocommerce' ); ?>" />
+							<label for="coupon_code"><?php esc_html_e( 'Coupon:', 'woocommerce' ); ?></label> <input type="text" name="coupon_code" class="input-text" id="coupon_code" value="" placeholder="<?php esc_attr_e( 'Coupon code', 'woocommerce' ); ?>" /> <button type="submit" class="button" name="apply_coupon" value="<?php esc_attr_e( 'Apply coupon', 'woocommerce' ); ?>"><?php esc_attr_e( 'Apply coupon', 'woocommerce' ); ?></button>
 							<?php do_action( 'woocommerce_cart_coupon' ); ?>
 						</div>
 					<?php } ?>
@@ -152,7 +163,8 @@ do_action( 'woocommerce_before_cart' ); ?>
 
 					<?php do_action( 'woocommerce_cart_actions' ); ?>
 
-					<?php wp_nonce_field( 'woocommerce-cart' ); ?>
+					<?php wp_nonce_field( 'woocommerce-cart', 'woocommerce-cart-nonce' ); ?>
+
 				</td>
 			</tr>
 

@@ -97,7 +97,6 @@ Blog Teaser Style
   right: 25px;
   bottom: 25px;
 }
-.mk-blog-teaser .blog-slider-item .blog-slideshow-entry .mk-love-holder,
 .mk-blog-teaser .blog-slider-item .blog-slideshow-entry .blog-teaser-comment {
   color: #ffffff;
   display: inline-block;
@@ -107,13 +106,11 @@ Blog Teaser Style
   font-style: italic;
   font-size: 12px;
 }
-.mk-blog-teaser .blog-slider-item .blog-slideshow-entry .mk-love-holder svg,
 .mk-blog-teaser .blog-slider-item .blog-slideshow-entry .blog-teaser-comment svg {
   height: 16px;
   vertical-align: middle;
   fill: #ffffff;
 }
-.mk-blog-teaser .blog-slider-item .blog-slideshow-entry .mk-love-holder span,
 .mk-blog-teaser .blog-slider-item .blog-slideshow-entry .blog-teaser-comment span {
   color: #ffffff;
   padding-left: 3px;

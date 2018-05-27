@@ -34,9 +34,6 @@ if($mk_options['blog_single_title'] == 'true') : ?>
 
 
 <div class="single-social-section">
-
-	<div class="mk-love-holder"><?php echo Mk_Love_Post::send_love(); ?></div>
-
 	<?php
 	if($mk_options['blog_single_comments'] == 'true') :
 			if ( get_post_meta( $post->ID, '_disable_comments', true ) != 'false' ) { ?>

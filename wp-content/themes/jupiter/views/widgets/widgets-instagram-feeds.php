@@ -93,12 +93,12 @@ class Artbees_Widget_Instagram_Feeds extends WP_Widget {
 
 		<p><label for="<?php echo $this->get_field_id( 'instagram_id' ); ?>">Instagram UserId</label>
 		<input class="widefat" id="<?php echo $this->get_field_id( 'instagram_id' ); ?>" name="<?php echo $this->get_field_name( 'instagram_id' ); ?>" type="text" value="<?php echo $instagram_id; ?>" />
-		<em>UserId is not your instagram username! Don't know your user id? <a target="_blank" href="https://instagram.com/oauth/authorize/?client_id=12087cfb5d6b4a639e77bb8438c8e47c&redirect_uri=https://www.artbees.net/instagram-api/&response_type=token">Click here</a> to get your userId.</em>
+		<em>UserId is not your instagram username! Don't know your user id? <a target="_blank" href="https://instagram.com/oauth/authorize/?client_id=12087cfb5d6b4a639e77bb8438c8e47c&redirect_uri=https://artbees.net/instagram-api/&response_type=token">Click here</a> to get your userId.</em>
 		</p>
 
 		<p><label for="<?php echo $this->get_field_id( 'accessToken' ); ?>">Access Token</label>
 		<input class="widefat" id="<?php echo $this->get_field_id( 'accessToken' ); ?>" name="<?php echo $this->get_field_name( 'accessToken' ); ?>" type="text" value="<?php echo $accessToken; ?>" />
-		<em>Don't know your token? <a target="_blank" href="https://instagram.com/oauth/authorize/?client_id=12087cfb5d6b4a639e77bb8438c8e47c&redirect_uri=https://www.artbees.net/instagram-api/&response_type=token">Click here</a> to get one.</em>
+		<em>Don't know your token? <a target="_blank" href="https://instagram.com/oauth/authorize/?client_id=12087cfb5d6b4a639e77bb8438c8e47c&redirect_uri=https://artbees.net/instagram-api/&response_type=token">Click here</a> to get one.</em>
 		</p>
 
 

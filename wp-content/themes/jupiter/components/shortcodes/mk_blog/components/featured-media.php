@@ -10,6 +10,8 @@ $image_src_array = wp_get_attachment_image_src(get_post_thumbnail_id() , 'full')
 
 $image_permalink = isset($view_params['single_post']) ? $image_src_array[0] : esc_url( get_permalink() );
 $image_permalink_class = isset($view_params['single_post']) ? 'mk-lightbox' : '';
+$disable_lazyload = !isset($view_params['single_post']) ? 'disable_lazyload="' . $view_params['disable_lazyload'] . '"' : false;
+$lazyload = !isset($view_params['single_post']) ? 'lazyload="' . $view_params['lazyload'] . '"' : false;
 
 // Do not output random placeholder images in single post if the post does not have a featured image!
 $dummy = isset($view_params['single_post']) ? false : true;
@@ -40,7 +42,7 @@ switch ($view_params['post_type']) {
             }
             
             echo '<div class="blog-gallery-type">';
-            echo do_shortcode('[mk_swipe_slideshow lazyload="' . $view_params['lazyload'] . '" disable_lazyload="' . $view_params['disable_lazyload'] . '"  images="' . $attachment_ids . '" image_size="'.$view_params['image_size'].'" image_width="' . $image_size_atts['width'] . '" image_height="' .$image_size_atts['height'] . '"]');
+            echo do_shortcode('[mk_swipe_slideshow '.$disable_lazyload.' '.$lazyload.' images="' . $attachment_ids . '" image_size="'.$view_params['image_size'].'" image_width="' . $image_size_atts['width'] . '" image_height="' .$image_size_atts['height'] . '"]');
             echo '</div>';
         } 
         else {

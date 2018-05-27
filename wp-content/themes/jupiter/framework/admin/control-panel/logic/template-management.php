@@ -259,13 +259,10 @@ class mk_template_managememnt {
 		$this->setSystemTestEnv( $system_test_env );
 		$this->setAjaxMode( $ajax_mode );
 
-		// Init logger to system.
 		$this->logger = new Devbees\BeesLog\logger();
 
-		// Set API Server URL.
 		$this->setApiURL( V2ARTBEESAPI );
 
-		// Set API Calls template.
 		$template = \Httpful\Request::init()
 		->method( \Httpful\Http::GET )
 		->withoutStrictSsl()
@@ -278,12 +275,10 @@ class mk_template_managememnt {
 		);
 		\Httpful\Request::ini( $template );
 
-		// Set Addresses.
 		$this->setUploadDir( wp_upload_dir() );
 		$this->setBasePath( $this->getUploadDir()['basedir'] . '/mk_templates/' );
 		$this->setBaseUrl( $this->getUploadDir()['baseurl'] . '/mk_templates/' );
 
-		// Set File Names.
 		$this->setTemplateContentFileName( 'theme_content.xml' );
 		$this->setWidgetFileName( 'widget_data.wie' );
 		$this->setOptionsFileName( 'options.txt' );
@@ -291,14 +286,12 @@ class mk_template_managememnt {
 		$this->set_header_builder_file_name( 'header-builder.json' );
 		$this->setJsonFileName( 'package.json' );
 
-		// Include WP_Importer.
 		global $wpdb;
 
 		if ( ! defined( 'MK_LOAD_IMPORTERS' ) ) {
 			define( 'MK_LOAD_IMPORTERS', true );
 		}
 
-		// Add Actions.
 		if ( $this->getAjaxMode() == true ) {
 			add_action( 'wp_ajax_abb_template_lazy_load', array( &$this, 'loadTemplatesFromApi' ) );
 			add_action( 'wp_ajax_abb_install_template_procedure', array( &$this, 'installTemplateProcedure' ) );
@@ -317,7 +310,6 @@ class mk_template_managememnt {
 			add_action( 'wp_ajax_abb_get_template_psd_link', array( &$this, 'get_template_psd_link' ) );
 		}
 	}
-	// Begin Install Template Procedure.
 	public function installTemplateProcedure() {
 		$template_id = (isset( $_POST['template_id'] ) ? intval( $_POST['template_id'] ) : 0);
 		$this->setTemplateID( $template_id );
@@ -381,7 +373,7 @@ class mk_template_managememnt {
 			case 'finalize':
 				$this->finalizeImporting( $template_name );
 				break;
-		}// End switch().
+		}
 	}
 	public function reinitializeData( $template_name ) {
 		try {
@@ -390,9 +382,9 @@ class mk_template_managememnt {
 			}
 			$this->setTemplateName( $template_name );
 			if (
-				file_exists( $this->getAssetsAddress( 'template_content_path', $this->getTemplateName() ) ) == false or
-				file_exists( $this->getAssetsAddress( 'widget_path', $this->getTemplateName() ) ) == false or
-				file_exists( $this->getAssetsAddress( 'options_path', $this->getTemplateName() ) ) == false or
+				file_exists( $this->getAssetsAddress( 'template_content_path', $this->getTemplateName() ) ) == false ||
+				file_exists( $this->getAssetsAddress( 'widget_path', $this->getTemplateName() ) ) == false ||
+				file_exists( $this->getAssetsAddress( 'options_path', $this->getTemplateName() ) ) == false ||
 				file_exists( $this->getAssetsAddress( 'json_path', $this->getTemplateName() ) ) == false
 			) {
 				throw new Exception( 'Template assets are not completely exist - p1, Contact support.' );
@@ -441,12 +433,12 @@ class mk_template_managememnt {
 	}
 
 	/**
-	 * method that is resposible to pass plugin list to UI base on lazy load condition.
+	 * Method that is resposible to pass plugin list to UI base on lazy load condition.
 	 *
 	 * @author Reza Marandi <ross@artbees.net>
 	 *
-	 * @param str $_POST[from]  from number
-	 * @param str $_POST[count] how many ?
+	 * @param str $_POST[from]  from number.
+	 * @param str $_POST[count] how many.
 	 *
 	 * @return bool will return boolean status of action , all message is setted to $this->message()
 	 */
@@ -491,8 +483,6 @@ class mk_template_managememnt {
 	}
 	public function preparation( $template_name ) {
 		try {
-
-			// @todo: Write function here for preparion such as cheking the backup_folder is writable, etc
 			$this->message( 'All is ready.', true );
 			return true;
 		} catch ( Exception $e ) {
@@ -504,7 +494,7 @@ class mk_template_managememnt {
 		try {
 			$mk_db_management = new mk_db_management();
 			$dm_response = $mk_db_management->backup_db();
-			if ( $dm_response == false ) {
+			if ( false == $dm_response ) {
 				throw new Exception( $mk_db_management->get_error_message() );
 			}
 
@@ -522,7 +512,7 @@ class mk_template_managememnt {
 
 			$dm_response = $mk_db_management->backup_media_records();
 
-			if ( $dm_response == false ) {
+			if ( false == $dm_response ) {
 				throw new Exception( $mk_db_management->get_error_message() );
 			}
 			$this->message( 'Media records backup created.', true );
@@ -539,7 +529,7 @@ class mk_template_managememnt {
 
 			$dm_response = $mk_db_management->restore_media_records();
 
-			if ( $dm_response == false ) {
+			if ( false == $dm_response ) {
 				throw new Exception( $mk_db_management->get_error_message() );
 			}
 			$this->message( 'Media records restored successfully', true );
@@ -569,7 +559,7 @@ class mk_template_managememnt {
 		try {
 			$mk_db_management = new mk_db_management();
 			$return = $mk_db_management->restore_latest_db();
-			if ( $return == false ) {
+			if ( false == $return ) {
 				throw new Exception( $mk_db_management->get_error_message() );
 			}
 			mk_purge_cache_actions();
@@ -671,7 +661,7 @@ class mk_template_managememnt {
 			$this->message( $e->getMessage(), false );
 
 			return false;
-		}// End try().
+		}
 	}
 	public function validateTemplateFiles( $template_name ) {
 		try {
@@ -721,7 +711,7 @@ class mk_template_managememnt {
 			}
 			$mk_plugin_management = new mk_plugin_management( false, false );
 			$pm_response = $mk_plugin_management->install_batch( $plugins['required_plugins'] );
-			if ( $pm_response == false ) {
+			if ( false == $pm_response ) {
 				$pm_response = $mk_plugin_management->get_response_message();
 				throw new Exception( $pm_response );
 			}
@@ -838,6 +828,21 @@ class mk_template_managememnt {
 	}
 
 	/**
+	 * Get package.json data.
+	 *
+	 * @since 6.1.2
+	 */
+	public function getPackageJsonData( $template_name ) {
+
+		$this->setTemplateName( $template_name );
+		$json_url  = $this->getAssetsAddress( 'json_url', $this->getTemplateName() );
+		$json_path = $this->getAssetsAddress( 'json_path', $this->getTemplateName() );
+		$response  = Abb_Logic_Helpers::getFileBody( $json_url, $json_path );
+
+		return json_decode( $response, true );
+	}
+
+	/**
 	 * Send a Server-Sent Events message.
 	 *
 	 * @since 6.0.3
@@ -908,11 +913,8 @@ class mk_template_managememnt {
 	}
 	function importMenuLocations( $template_name ) {
 		try {
-			$this->setTemplateName( $template_name );
-			$json_url  = $this->getAssetsAddress( 'json_url', $this->getTemplateName() );
-			$json_path = $this->getAssetsAddress( 'json_path', $this->getTemplateName() );
-			$response  = Abb_Logic_Helpers::getFileBody( $json_url, $json_path );
-			$set_menus = json_decode( $response, true );
+
+			$set_menus = $this->getPackageJsonData( $template_name );
 
 			if ( ! empty( $set_menus['menu_locations'] ) && is_array( $set_menus['menu_locations'] ) && count( $set_menus['menu_locations'] ) > 0 ) {
 
@@ -935,12 +937,12 @@ class mk_template_managememnt {
 				if ( $menus ) {
 					foreach ( $menus as $menu ) {
 						if (
-							$menu->name == 'Main Navigation' ||
-							$menu->name == 'main navigation' ||
-							$menu->name == 'Main' ||
-							$menu->name == 'Main Menu' ||
-							$menu->name == 'main menu' ||
-							$menu->name == 'main'
+							'Main Navigation' == $menu->name ||
+							'main navigation' == $menu->name ||
+							'Main' == $menu->name ||
+							'Main Menu' == $menu->name ||
+							'main menu' == $menu->name ||
+							'main' == $menu->name
 						) {
 							$locations['primary-menu'] = $menu->term_id;
 						}
@@ -963,9 +965,15 @@ class mk_template_managememnt {
 
 	public function setUpPages( $template_name ) {
 		try {
-			$homepage = get_page_by_title( 'Homepage' );
-			if ( empty( $homepage->ID ) ) {
-				$homepage = get_page_by_title( 'home' );
+			$package_data = $this->getPackageJsonData( $template_name );
+
+			if ( ! empty( $package_data['homepage_title'] ) ) {
+				$homepage = get_page_by_title( $package_data['homepage_title'] );
+			} else {
+				$homepage = get_page_by_title( 'Homepage' );
+				if ( empty( $homepage->ID ) ) {
+					$homepage = get_page_by_title( 'home' );
+				}
 			}
 
 			if ( ! empty( $homepage->ID ) ) {
@@ -974,17 +982,34 @@ class mk_template_managememnt {
 				$home_page_response = true;
 			}
 
-			$shop_page = get_page_by_title( 'Shop' );
+			if ( ! empty( $package_data['shop_title'] ) ) {
+				$shop_page = get_page_by_title( $package_data['shop_title'] );
+			} else {
+				$shop_page = get_page_by_title( 'Shop' );
+			}
 			if ( ! empty( $shop_page->ID ) ) {
 				update_option( 'woocommerce_shop_page_id', $shop_page->ID );
 				$shop_page_response = true;
 			}
+
+			// Set Cart page.
+			$cart_page = get_page_by_title( 'Cart' );
+			if ( ! empty( $cart_page->ID ) ) {
+				update_option( 'woocommerce_cart_page_id', $cart_page->ID );
+			}
+
+			// Set Checkout page.
+			$checkout_page = get_page_by_title( 'Checkout' );
+			if ( ! empty( $checkout_page->ID ) ) {
+				update_option( 'woocommerce_checkout_page_id', $checkout_page->ID );
+			}
+
 			// 'Default homepage is configured.'; 'Shop Page is configured.';
-			if ( isset( $home_page_response ) and isset( $shop_page_response ) ) {
+			if ( isset( $home_page_response ) && isset( $shop_page_response ) ) {
 				$response = 'Default homepage and Shop Page is configured.';
-			} elseif ( ! isset( $home_page_response ) and isset( $shop_page_response ) ) {
+			} elseif ( ! isset( $home_page_response ) && isset( $shop_page_response ) ) {
 				$response = 'Shop Page is configured.';
-			} elseif ( isset( $home_page_response ) and ! isset( $shop_page_response ) ) {
+			} elseif ( isset( $home_page_response ) && ! isset( $shop_page_response ) ) {
 				$response = 'Default homepage is configured.';
 			} else {
 				$response = 'Setup pages completed.';
@@ -1110,7 +1135,7 @@ class mk_template_managememnt {
 	public function finalizeImporting( $template_name ) {
 		$this->reinitializeData( $template_name );
 		$template_name = sanitize_title( $template_name );
-		// Check if it had something to import
+		// Check if it had something to import.
 		try {
 			$json_url = $this->getAssetsAddress( 'json_url', $this->getTemplateName() );
 			$json_path = $this->getAssetsAddress( 'json_path', $this->getTemplateName() );
@@ -1171,7 +1196,7 @@ class mk_template_managememnt {
 			return false;
 		}
 
-		// Deleting Template Source Zip file
+		// Deleting Template Source Zip file.
 		$template_zip = $template_path . '.zip';
 		if ( $mkfs->exists( $template_zip ) && $mkfs->is_file( $template_zip ) && ! $mkfs->delete( $template_zip ) ) {
 			return false;
@@ -1208,7 +1233,6 @@ class mk_template_managememnt {
 			return false;
 		}
 	}
-	// End    Install Template Procedure
 	public function availableWidgets() {
 		global $wp_registered_widget_controls;
 		$widget_controls = $wp_registered_widget_controls;
@@ -1371,7 +1395,7 @@ class mk_template_managememnt {
 				$session_tokens = get_user_meta( $user->ID, 'session_tokens', true );
 			}
 
-			// Check if we need all the tables or specific table
+			// Check if we need all the tables or specific table.
 			if ( is_array( $tables ) && count( $tables ) > 0 ) {
 				array_walk(
 					$tables, function ( &$value, $key ) use ( $wpdb ) {
@@ -1383,7 +1407,7 @@ class mk_template_managememnt {
 				$tables = $wpdb->get_col( "SHOW TABLES LIKE '{$prefix}%'" );
 			}
 
-			// exclude table if its valued
+			// exclude table if its valued.
 			if ( is_array( $exclude_tables ) && count( $exclude_tables ) > 0 ) {
 				array_walk(
 					$exclude_tables, function ( &$ex_value, $key ) use ( $wpdb ) {
@@ -1451,7 +1475,7 @@ class mk_template_managememnt {
 
 			if ( $jupiter_temp_installed ) {
 
-				// Delete plugins
+				// Delete plugins.
 				$json_url = $this->getAssetsAddress( 'json_url', $jupiter_temp_installed );
 				$json_path = $this->getAssetsAddress( 'json_path', $jupiter_temp_installed );
 				$response = Abb_Logic_Helpers::getFileBody( $json_url, $json_path );
@@ -1466,17 +1490,17 @@ class mk_template_managememnt {
 					}
 				}
 
-				// Delete option data for page_on_front
+				// Delete option data for page_on_front.
 				if ( get_option( 'page_on_front' ) ) {
 					delete_option( 'page_on_front' );
 				}
 
-				// Delete option data for show_on_front
+				// Delete option data for show_on_front.
 				if ( get_option( 'show_on_front' ) ) {
 					delete_option( 'show_on_front' );
 				}
 
-				// Delete option data for woocommerce_shop_page_id
+				// Delete option data for woocommerce_shop_page_id.
 				if ( get_option( 'woocommerce_shop_page_id' ) ) {
 					delete_option( 'woocommerce_shop_page_id' );
 				}
@@ -1486,7 +1510,7 @@ class mk_template_managememnt {
 
 			}// End if().
 
-			// truncate tables
+			// truncate tables.
 			foreach ( $tables as $table ) {
 				$wpdb->query( "TRUNCATE TABLE {$wpdb->prefix}{$table}" );
 			}
@@ -1560,7 +1584,7 @@ class mk_template_managememnt {
 			)
 		)
 		->send();
-		if ( isset( $response->body->bool ) == false || $response->body->bool == false ) {
+		if (  false == isset( $response->body->bool ) || false == $response->body->bool ) {
 			throw new Exception( $response->body->message );
 		}
 
@@ -1576,7 +1600,6 @@ class mk_template_managememnt {
 	/**
 	 * Gets psd file download link.
 	 *
-	 * @param $template_name
 	 * @return mixed
 	 * @since 5.7.0
 	 * @author Ugur Mirza Zeyrek
@@ -1602,16 +1625,16 @@ class mk_template_managememnt {
 	 *
 	 * @author Reza Marandi <ross@artbees.net>
 	 *
-	 * @param str $template_name if template name is valued it will return array of information about the this template
-	 *                           but if template is valued as false it will return all templates information
+	 * @param str $template_name if template name is valued it will return array of information about the this template.
+	 * but if template is valued as false it will return all templates information.
 	 *
-	 * @return array will return array of plugins
+	 * @return array will return array of plugins.
 	 */
 	public function getTemplateCategoryListFromApi() {
 		try {
 			$url = $this->getApiURL() . 'theme/template-categories';
 			$response = \Httpful\Request::get( $url )->send();
-			if ( isset( $response->body->bool ) == false || $response->body->bool == false ) {
+			if ( false == isset( $response->body->bool ) || false == $response->body->bool ) {
 				throw new Exception( $response->body->message );
 			}
 			$this->message( 'Successfull', true, $response->body->data );
@@ -1622,20 +1645,20 @@ class mk_template_managememnt {
 		}
 	}
 	/**
-	 * we need to make assets addresses dynamic and fully proccess
+	 * We need to make assets addresses dynamic and fully proccess.
 	 * in one method for future development
 	 * it will get the type of address and will return full address in string
 	 * example :
 	 * for (options_url) type , it will return something like this
 	 * (http://localhost/jupiter/wp-content/uploads/mk_templates/dia/options.txt).
 	 *
-	 * for (options_path) type , it will return something like this
+	 * For (options_path) type , it will return something like this.
 	 * (/usr/apache/www/wp-content/uploads/mk_templates/dia/options.txt)
 	 *
 	 * @author Reza Marandi <ross@artbees.net>
 	 *
-	 * @param str $which_one     Which address do you need ?
-	 * @param str $template_name such as :
+	 * @param str $which_one     Which address do you need.
+	 * @param str $template_name such as.
 	 */
 	public function getAssetsAddress( $which_one, $template_name ) {
 		$template_name = sanitize_title( $template_name );
@@ -1696,7 +1719,7 @@ class mk_template_managememnt {
 			throw new Exception( 'LayerSlider is installed but not activated , activate it first' );
 			return false;
 		}
-		// Empty layerslider table first
+		// Empty layerslider table first.
 		$table = $wpdb->prefix . 'layerslider';
 		$wpdb->query( "TRUNCATE TABLE $table" );
 
@@ -1782,7 +1805,7 @@ class mk_template_managememnt {
 
 			$config_file = $context . 'index.php';
 
-			// Delete existing config file
+			// Delete existing config file.
 			if ( $mkfs->exists( $config_file ) ) {
 				$mkfs->delete( $config_file );
 			}
@@ -1796,7 +1819,7 @@ class mk_template_managememnt {
 				'connection_type',
 			);
 
-			// Create existing config file
+			// Create existing config file.
 			$creds_data = [];
 			foreach ( $_POST as $key => $value ) {
 				if ( in_array( $key, $includes ) ) {
@@ -1820,13 +1843,13 @@ class mk_template_managememnt {
 
 	/*====================== Helpers ============================*/
 	/**
-	 * this method is resposible to manage all the classes messages and act different on ajax mode or test mode.
+	 * This method is resposible to manage all the classes messages and act different on ajax mode or test mode.
 	 *
 	 * @author Reza Marandi <ross@artbees.net>
 	 *
-	 * @param str   $message for example ("Successfull")
-	 * @param bool  $status  true or false
-	 * @param mixed $data    its for when ever you want to result back an array of data or anything else
+	 * @param str   $message for example ("Successfull").
+	 * @param bool  $status  true or false.
+	 * @param mixed $data    its for when ever you want to result back an array of data or anything else.
 	 */
 	public function message( $message, $status, $data = null ) {
 		$response = array(
@@ -1865,7 +1888,7 @@ class mk_template_managememnt {
 				$ret *= 1024;
 			case 'M':
 				$ret *= 1024;
-			case 'K':
+			case 'K': 
 				$ret *= 1024;
 		}
 
@@ -1874,6 +1897,12 @@ class mk_template_managememnt {
 }
 /* Disable woocommerce redirection */
 add_action( 'admin_init', 'disable_woocommerce', 5 );
+/**
+ * Disable Woocommerce redirect for template install
+ *
+ * @since 5.6
+ * @version 5.6
+ */
 function disable_woocommerce() {
 	delete_transient( '_wc_activation_redirect' );
 	add_filter(

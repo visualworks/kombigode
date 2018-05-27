@@ -58,18 +58,14 @@ class Theme {
 		);
 
 		add_action(
-			'after_setup_theme', array(
-				&$this,
-				'mk_theme_setup',
-			)
-		);
-
-		add_action(
 			'widgets_init', array(
 				&$this,
 				'widgets',
 			)
 		);
+
+		// Load RTL when Jupiter child theme is active.
+		add_action( 'wp_print_styles', array( &$this, 'load_rtl_in_child' ) );
 
 		add_filter(
 			'http_request_timeout', function ( $timeout ) {
@@ -218,7 +214,9 @@ class Theme {
 			include_once THEME_INCLUDES . '/phpquery/phpQuery.php';
 		}
 
-		include_once THEME_INCLUDES . '/otf-regen-thumbs/otf-regen-thumbs.php';
+		if ( ! is_plugin_active( 'wp-smush-pro/wp-smush.php' ) && ! is_plugin_active( 'wp-smushit/wp-smush.php' ) ) {
+			include_once THEME_INCLUDES . '/otf-regen-thumbs/otf-regen-thumbs.php';
+		}
 
 		include_once THEME_FUNCTIONS . '/general-functions.php';
 		include_once THEME_FUNCTIONS . '/ajax-search.php';
@@ -272,7 +270,7 @@ class Theme {
 	}
 
 	public function theme_activated() {
-		if ( 'themes.php' == basename( $_SERVER['PHP_SELF'] ) && isset( $_GET['activated'] ) && $_GET['activated'] == 'true' ) {
+		if ( 'themes.php' == basename( $_SERVER['PHP_SELF'] ) && isset( $_GET['activated'] ) && 'true' == $_GET['activated'] ) {
 			flush_rewrite_rules();
 			update_option( THEME_OPTIONS_BUILD, uniqid() );
 			wp_redirect( admin_url( 'admin.php?page=' . THEME_NAME ) );
@@ -310,10 +308,7 @@ class Theme {
 			include_once THEME_ADMIN . '/theme-options/class-mk-theme-options-misc.php';
 			include_once THEME_INCLUDES . '/tgm-plugin-activation/request-plugins.php';
 
-
 		}
-		include_once THEME_CONTROL_PANEL . '/logic/tracking.php';
-		include_once THEME_CONTROL_PANEL . '/logic/tracking-control-panel.php';
 	}
 	public function language() {
 
@@ -365,30 +360,6 @@ class Theme {
 		include_once THEME_CONTROL_PANEL . '/v2/layout/master.php';
 	}
 
-
-	/**
-	 * Stop creating new table and delete the table for sites using older version of
-	 * Jupiter. The function will be removed from 5.9.4
-	 *
-	 * @author    Ugur Mirza ZEYREK & Bob Ulusoy & Reza Ardestani
-	 * @copyright Artbees LTD (c)
-	 * @link      http://artbees.net
-	 * @since     Version 5.0.0
-	 * @since     Version 5.9.3
-	 */
-	public function mk_theme_setup() {
-		$wp_get_theme          = wp_get_theme();
-		$current_theme_version = $wp_get_theme->get( 'Version' );
-
-		if ( $current_theme_version < '5.9.3' ) {
-			global $wpdb;
-			global $jupiter_table_name;
-
-						$jupiter_table_name = $wpdb->prefix . 'mk_components';
-
-						$wpdb->query( "DROP TABLE IF EXISTS $jupiter_table_name" );
-		}
-	}
 
 	/**
 	 * Compatibility check for hosting php version.
@@ -446,6 +417,42 @@ class Theme {
 	}
 
 	/**
+	 * Load rtl.css from Jupiter parent theme.
+	 *
+	 * ATTENTION: This action only runs when user doesn't have any rtl.css file in his
+	 * Jupiter child theme.
+	 *
+	 * @since 6.1.2
+	 */
+	public function load_rtl_in_child() {
+		// Check weather current site is RTL or not.
+		if ( ! is_rtl() ) {
+			return;
+		}
+
+		// Make sure current theme used is Jupiter child theme.
+		if ( ! is_child_theme() ) {
+			return;
+		}
+
+		// Set parent and child theme path directory.
+		$parent_dir = get_template_directory();
+		$child_dir  = get_stylesheet_directory();
+
+		// Set parent theme URI.
+		$parent_dir_uri = get_template_directory_uri();
+
+		/**
+		 * Make sure child theme doesn't contain rtl.css file and the file is exist in
+		 * Jupiter parent theme.
+		 */
+		if ( ! file_exists( $child_dir . '/rtl.css' ) && file_exists( $parent_dir . '/rtl.css' ) ) {
+			wp_register_style( 'parent-theme-rtl', $parent_dir_uri . '/rtl.css' );
+			wp_enqueue_style( 'parent-theme-rtl' );
+		}
+	}
+
+	/**
 	 * Include main customizer class.
 	 *
 	 * @since 5.9.4
@@ -462,15 +469,17 @@ class Theme {
 	private function tour() {
 
 		// Add tour list. Choose short, one-word id.
-		add_filter( 'mk_tour_list', function( $tour_list ) {
-			$tour_list = array(
-				'intro' => array(
-					'state' => true,
-				),
-			);
+		add_filter(
+			'mk_tour_list', function( $tour_list ) {
+				$tour_list = array(
+					'intro' => array(
+						'state' => true,
+					),
+				);
 
-			return $tour_list;
-		} );
+				return $tour_list;
+			}
+		);
 
 		include_once THEME_ADMIN . '/tour/class-mk-tour.php';
 	}

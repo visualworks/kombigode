@@ -243,9 +243,11 @@ class MKHB_Main {
 	 *              frontend page or user open Preview page.
 	 * @since 6.0.0 Run additonal hooks for HB Shopping Icon. Add HB_Render initialize to render all
 	 *              shortcodes based on the devices and workspaces.
+	 * @since 6.1.2 Add mkhb_is_po_active in conditional statement based on template
+	 *              setting of Page Options.
 	 */
 	public function hb_grid() {
-		if ( ! is_admin() && ( mkhb_is_to_active() || (bool) get_query_var( 'header-builder-preview' ) ) ) {
+		if ( ! is_admin() && ( mkhb_is_to_active() || (bool) get_query_var( 'header-builder-preview' ) ) && mkhb_is_po_active() ) {
 			new MKHB_Render();
 		}
 

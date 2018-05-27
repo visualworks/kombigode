@@ -26,23 +26,23 @@ if ( ! function_exists( 'mk_wp_query' ) ) {
 			'suppress_filters' => 0,
 		);
 
-		if ( $post_type == 'attachment' ) {
+		if ( 'attachment' == $post_type ) {
 			$query['post_mime_type'] = 'image';
 			$query['post_status'] = 'inherit';
 		}
 
-		if ( isset( $post_status ) && ! empty( $post_status ) && $post_type != 'attachment' ) {
+		if ( isset( $post_status ) && ! empty( $post_status ) && 'attachment' != $post_type ) {
 			$query['post_status'] = $post_status;
 		}
 
-		if ( isset( $cat ) && ! empty( $cat ) && $post_type == 'post' ) {
+		if ( isset( $cat ) && ! empty( $cat ) && 'post' == $post_type ) {
 			$query['cat'] = $cat;
 		}
-		if ( isset( $category_name ) && ! empty( $category_name ) && $post_type == 'post' ) {
+		if ( isset( $category_name ) && ! empty( $category_name ) && 'post' == $post_type ) {
 			$query['category_name'] = $category_name;
 		}
 
-		if ( isset( $categories ) && ! empty( $categories ) && $post_type != 'post' ) {
+		if ( isset( $categories ) && ! empty( $categories ) && 'post' != $post_type ) {
 			$query['tax_query'] = array(
 				array(
 					'taxonomy' => $post_type . '_category',
@@ -62,7 +62,7 @@ if ( ! function_exists( 'mk_wp_query' ) ) {
 			);
 		}
 
-		// Adds exclude option for blog loops post format
+		// Adds exclude option for blog loops post format.
 		if ( ! empty( $exclude_post_format ) ) {
 			$query['meta_query'] = array(
 				array(
@@ -132,7 +132,7 @@ if ( ! function_exists( 'mk_wp_query' ) ) {
 			$query['paged'] = $paged;
 		}
 
-		if ( $paged == 1 ) {
+		if ( 1 == $paged ) {
 			if ( isset( $offset ) && ! empty( $offset ) ) {
 				$query['offset'] = $offset;
 			}
@@ -146,8 +146,8 @@ if ( ! function_exists( 'mk_wp_query' ) ) {
 			}
 		}
 
-				// When specific posts are selected from the shortcode settings,
-		// It's not possible to set post__not_in
+		// When specific posts are selected from the shortcode settings,
+		// It's not possible to set post__not_in.
 		if ( empty( $posts ) ) {
 			if ( isset( $post__not_in ) && ! empty( $post__not_in ) ) {
 

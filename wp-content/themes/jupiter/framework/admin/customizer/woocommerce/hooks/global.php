@@ -145,9 +145,16 @@ add_filter( 'body_class', function( $classes ) {
 
 	if ( is_shop() || is_product_category() || is_product_tag() ) {
 		$classes[] = 'columns-' . mk_cz_get_option( 'sh_pl_set_columns', 4 );
-		$classes[] = 'mk-sh-pl-hover-style-' . mk_cz_get_option( 'sh_pl_set_hover_style', 'none' );
-		return $classes;
 	}
+
+	/**
+	 * Since other products loops are using SC styles in Jupiter, it's better to declare
+	 * mk-sh-pl-hover-style-{hover-style} in all pages. So, hover effect will be affected
+	 * by all product loops. Check task AM-2982.
+	 *
+	 * @since 6.1.2
+	 */
+	$classes[] = 'mk-sh-pl-hover-style-' . mk_cz_get_option( 'sh_pl_set_hover_style', 'none' );
 
 	return $classes;
 }, 10 );

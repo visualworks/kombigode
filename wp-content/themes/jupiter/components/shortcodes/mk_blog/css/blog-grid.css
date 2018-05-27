@@ -107,11 +107,7 @@
   padding: 15px 20px;
   border-top: 1px solid #e3e3e3;
 }
-.mk-blog-grid-item .mk-love-holder {
-  position: absolute;
-  right: 20px;
-  top: 15px;
-}
+
 .mk-blog-grid-item.instagram-post-type .blog-grid-holder {
   position: relative;
 }
@@ -169,9 +165,6 @@
 .mk-blog-grid-item.instagram-post-type .blog-grid-holder .blog-grid-footer .mk-readmore {
   display: none;
 }
-.mk-blog-grid-item.instagram-post-type .blog-grid-holder .mk-love-holder {
-  top: 12px;
-}
 .mk-blog-grid-item.blockquote-post-type .blog-grid-holder {
   position: relative;
 }
@@ -213,9 +206,6 @@
 }
 .mk-blog-grid-item.blockquote-post-type .blog-grid-holder .blog-grid-footer .mk-readmore {
   display: none;
-}
-.mk-blog-grid-item.blockquote-post-type .blog-grid-holder .mk-love-holder {
-  top: 12px;
 }
 .mk-blog-grid-item.twitter-post-type .blog-grid-holder {
   position: relative;
@@ -277,9 +267,6 @@
 }
 .mk-blog-grid-item.twitter-post-type .blog-grid-holder .blog-grid-footer .mk-readmore {
   display: none;
-}
-.mk-blog-grid-item.twitter-post-type .blog-grid-holder .mk-love-holder {
-  top: 12px;
 }
 .mk-blog-container.no-border .mk-blog-grid-item .blog-grid-holder {
   border: transparent;

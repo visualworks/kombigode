@@ -916,7 +916,7 @@
 		            '<a class="mka-button mka-button--green mka-button--small mka-cp-template-item-btn js__cp_template_install" data-name="' + data.name + '" data-slug="' + data.slug + '" data-id="' + data.id + '">' +
 		            mk_cp_textdomain.install +
 		            '</a>' +
-		            '<a class="mka-button mka-button--gray mka-button--small mka-cp-template-item-btn" href="http://demos.artbees.net/jupiter5/' + slug + '" target="_blank">' +
+		            '<a class="mka-button mka-button--gray mka-button--small mka-cp-template-item-btn" href="http://demos.artbees.net/jupiter/' + slug + '" target="_blank">' +
 		            mk_cp_textdomain.preview +
 		            '</a>';
 		    } else {
@@ -924,7 +924,7 @@
 		            '<a id="js__cp_template_uninstall" class="mka-button mka-button--red mka-button--small mka-cp-template-item-btn" data-name="' + data.name + '" data-slug="' + data.slug + '" data-id="' + data.id + '">' +
 		            mk_cp_textdomain.uninstall +
 		            '</a>' +
-		            '<a class="mka-button mka-button--gray mka-button--small mka-cp-template-item-btn" href="http://demos.artbees.net/jupiter5/' + slug +'" target="_blank">' +
+		            '<a class="mka-button mka-button--gray mka-button--small mka-cp-template-item-btn" href="http://demos.artbees.net/jupiter/' + slug +'" target="_blank">' +
 		            mk_cp_textdomain.preview +
 		            '</a>';
 		    }

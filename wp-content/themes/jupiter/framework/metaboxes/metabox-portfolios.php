@@ -229,7 +229,7 @@ $options = array(
 
 	array(
 		'name' => __( 'Social Share', 'mk_framework' ),
-		'desc' => __( 'If you do not want to show Social share & love post feature int this post disable this option.', 'mk_framework' ),
+		'desc' => __( 'If you do not want to show Social share feature int this post disable this option.', 'mk_framework' ),
 		'id' => '_portfolio_social',
 		'default' => 'true',
 		'type' => 'toggle',

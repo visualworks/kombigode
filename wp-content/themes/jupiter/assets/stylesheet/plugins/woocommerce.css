@@ -649,19 +649,6 @@ p.demo_store {
   background-color: #333333;
   color: #ffffff;
 }
-.mk-product-loop.compact-layout .mk-love-holder {
-  position: absolute;
-  right: 15px;
-  top: 15px;
-  text-align: center;
-}
-.mk-product-loop.compact-layout .mk-love-holder svg {
-  vertical-align: middle;
-  fill: #5b5b5b;
-}
-.mk-product-loop.compact-layout .mk-love-count {
-  font-size: 14px;
-}
 .mk-product-loop.compact-layout .product-title {
   font-size: 14px !important;
   line-height: 18px;
@@ -669,8 +656,7 @@ p.demo_store {
   margin-bottom: 5px;
   letter-spacing: 1px;
 }
-.mk-product-loop.compact-layout .product-title a,
-.mk-product-loop.compact-layout .mk-love-holder a span {
+.mk-product-loop.compact-layout .product-title a {
   color: #5b5b5b;
 }
 .mk-product-loop.compact-layout .price {
@@ -812,36 +798,6 @@ p.demo_store {
 }
 .mk-product-loop.open-layout .mk-shop-item-detail {
   text-align: center;
-}
-.mk-product-loop.open-layout .mk-love-holder {
-  position: absolute;
-  left: 20px;
-  top: 20px;
-}
-.mk-product-loop.open-layout .mk-love-this {
-  border-radius: 50%;
-  text-align: center;
-  width: 30px;
-  height: 30px;
-  display: block;
-  transition: border-color 0.2s, background-color 0.2s;
-}
-.mk-product-loop.open-layout .mk-love-this:hover,
-.mk-product-loop.open-layout .mk-love-this.item-loved {
-  border-color: #ffffff !important;
-  background-color: #ffffff;
-}
-.mk-product-loop.open-layout .mk-love-this:hover .mk-icon-heart,
-.mk-product-loop.open-layout .mk-love-this.item-loved .mk-icon-heart {
-  color: #da4c26;
-}
-.mk-product-loop.open-layout .mk-icon-heart {
-  height: 30px;
-  line-height: 30px;
-  color: #c3c3c3;
-}
-.mk-product-loop.open-layout .mk-love-count {
-  display: none;
 }
 .mk-product-loop.open-layout .product-title {
   text-transform: capitalize !important;
