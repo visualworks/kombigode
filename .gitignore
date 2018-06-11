@@ -1,3 +1,9 @@
+wp-content/w3tc-config/
+wp-content/object-cache.php
+wp-content/db.php
+wp-content/object-cache.php 
+wp-content/cache
+
 *.log
 wp-config.php
 wp-content/advanced-cache.php

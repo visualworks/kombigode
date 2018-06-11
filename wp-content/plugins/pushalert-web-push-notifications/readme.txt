@@ -3,8 +3,8 @@ Contributors: PushAlert
 Donate link: https://pushalert.co/
 Tags: push notifications, pushalert, chrome, firefox, browser notification, mobile push notification, web push notification, chrome push, safari push, firefox push, mobile notifications, desktop notification, android push, android notifications, woocommerce, abandoned cart recovery, in-stock notifications, price drop alerts, shipment notifications, recover woocommerce cart, abandon cart, increase sales with woocommerce
 Requires at least: 2.7
-Tested up to: 4.9.5
-Stable tag: 2.1.1
+Tested up to: 4.9.6
+Stable tag: 2.2.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -78,6 +78,10 @@ Yes, you can jump over to the <a href="https://pushalert.co/demo">demo</a> page 
 7. WooCommerce Price Drop and In-Stock Notifications
 
 == Changelog ==
+
+= 2.2.0 =
+* Added option for featured image to be used as large image in notifications.
+* Performance Improvement
 
 = 2.1.0 =
 * All settings and options have been centralized under one menu "PushAlert".

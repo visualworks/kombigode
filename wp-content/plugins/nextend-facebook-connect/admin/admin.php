@@ -649,7 +649,7 @@ class NextendSocialLoginAdmin {
         <?php
     }
 
-    public function display_post_states($post_states, $post) {
+    public static function display_post_states($post_states, $post) {
         if (NextendSocialLogin::getProxyPage() === $post->ID) {
             $post_states['nsl_proxy_page'] = __('OAuth proxy page') . ' — NSL';
         }

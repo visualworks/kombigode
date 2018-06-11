@@ -5,7 +5,7 @@
  * Description: PushAlert is a user-engagement and retention platform to increase reach and sales on your WordPress Website and WooCommerce Store, allowing you to push real-time notifications to your website users on both mobile and desktop.
  * Author: PushAlert
  * Author URI: https://pushalert.co
- * Version: 2.1.1
+ * Version: 2.2.0
  */
 
 add_action('admin_init', 'pushalert_admin_init');
@@ -23,9 +23,9 @@ add_action('auto-draft_to_publish', 'pushalert_send_notification');
 //add_action('future_to_publish', 'pushalert_send_notification_future');
 add_action( 'publish_future_post', 'future_post_pushalert_send_notification' );
 register_activation_hook( __FILE__, 'pushalert_init_options' );
-add_filter('plugin_action_links_' . plugin_basename(__FILE__), 'plugin_settings_link');
+add_filter('plugin_action_links_' . plugin_basename(__FILE__), 'pushalert_plugin_settings_link');
 
-if (isWooCommerceEnable()) {
+if (isPAWooCommerceEnable()) {
 
     if(get_option('_pushalert_abandoned_cart', 0)){
         add_action('woocommerce_add_to_cart', 'pa_custom_updated_cart');
@@ -36,7 +36,7 @@ if (isWooCommerceEnable()) {
         add_action('woocommerce_order_status_changed', 'pa_custom_order_completed', 10, 3);
     }
 
-    add_filter('plugin_action_links_' . plugin_basename(__FILE__), 'plugin_woo_settings_link');
+    add_filter('plugin_action_links_' . plugin_basename(__FILE__), 'pushalert_plugin_woo_settings_link');
 
     add_action('init', 'pa_check_old_subscription_init');
     add_action('wp_head', 'pushalert_load_front_end_scripts');
@@ -61,9 +61,9 @@ if (isWooCommerceEnable()) {
     }
 
 }
-add_action('admin_menu', 'register_normal_send_notification_menu_page');
+add_action('admin_menu', 'pa_register_normal_send_notification_menu_page');
 
-function isWooCommerceEnable($forceFully = false){
+function isPAWooCommerceEnable($forceFully = false){
     $is_enable = in_array('woocommerce/woocommerce.php', apply_filters( 'active_plugins', get_option('active_plugins')));
     if(($is_enable && !get_option('_pushalert_woocommerce_enable', 0) && !$forceFully) || ($forceFully && $is_enable)){
         pushalert_enable_ecommerce();
@@ -81,13 +81,13 @@ function isWooCommerceEnable($forceFully = false){
     return $is_enable;
 }
 
-function plugin_settings_link($links) {
+function pushalert_plugin_settings_link($links) {
     $settings_link = '<a href="' . admin_url('admin.php?page=pushalert-general-settings') . '">' . __('Settings', 'pushalert') . '</a>';
     array_unshift($links, $settings_link);
     return $links;
 }
 
-function plugin_woo_settings_link($links) {
+function pushalert_plugin_woo_settings_link($links) {
     $settings_link = '<a href="' . admin_url('admin.php?page=pushalert-woocommerce-settings') . '">' . __('WooCommerce Settings', 'pushalert') . '</a>';
     array_unshift($links, $settings_link);
     return $links;
@@ -161,7 +161,7 @@ function pushalert_admin_settings_page() {
                 <th scope="row">Default Title</th>
                 <td><input type="text" name="pushalert_default_title" size="64" maxlength="64" value="<?php echo esc_attr(get_option('pushalert_default_title')); ?>" placeholder="Title"/></td>
             </tr>
-            <?php if (isWooCommerceEnable()) { ?>
+            <?php if (isPAWooCommerceEnable()) { ?>
             <tr>
                 <th scope="row" colspan="2">
                     <h3>WooCommerce Settings</h3>
@@ -187,12 +187,12 @@ function pushalert_admin_settings_page() {
     </form>
     <?php
    
-    add_filter('admin_footer_text', 'replace_footer_admin');
+    add_filter('admin_footer_text', 'pushalert_replace_footer_admin');
 
 }*/
 
 
-function replace_footer_admin () {
+function pushalert_replace_footer_admin () {
 
     echo 'If you like <strong>PushAlert</strong> please leave us a <a href="https://wordpress.org/support/view/plugin-reviews/pushalert-web-push-notifications?filter=5#postform" target="_blank" class="wc-rating-link" data-rated="Thanks :)">★★★★★</a> rating. A huge thanks in advance!';
 
@@ -322,13 +322,19 @@ function pushalert_send_notification($post) {
         if ($post_status != 'publish') {
             return;
         } else {
+            $large_image = "";
+            if(get_option('pushalert_large_image', 0) && has_post_thumbnail($post->ID)){
+                $large_image = wp_get_attachment_image_src(get_post_thumbnail_id($post->ID), 'single-post-thumbnail');
+                $large_image = $large_image[0];
+            }
+            
             //add_action( 'admin_notices','pushalert_notification_pushed_notice');
             $url = get_permalink($post);
-            $url = setGetParameter($url, "utm_source", $utm_source);
-            $url = setGetParameter($url, "utm_medium", $utm_medium);
-            $url = setGetParameter($url, "utm_campaign", $utm_campaign);
+            $url = pushalert_setGetParameter($url, "utm_source", $utm_source);
+            $url = pushalert_setGetParameter($url, "utm_medium", $utm_medium);
+            $url = pushalert_setGetParameter($url, "utm_campaign", $utm_campaign);
             if ($enable == 1) {
-                pushalert_send_notification_curl($title, $message, $url);
+                pushalert_send_notification_curl($title, $message, $url, $large_image);
             }
         }
     }
@@ -345,15 +351,15 @@ function future_post_pushalert_send_notification($post_id) {
 
         //add_action( 'admin_notices','pushalert_notification_pushed_notice');
         $url = get_permalink($post_id);
-        $url = setGetParameter($url, "utm_source", $utm_source);
-        $url = setGetParameter($url, "utm_medium", $utm_medium);
-        $url = setGetParameter($url, "utm_campaign", $utm_campaign);
+        $url = pushalert_setGetParameter($url, "utm_source", $utm_source);
+        $url = pushalert_setGetParameter($url, "utm_medium", $utm_medium);
+        $url = pushalert_setGetParameter($url, "utm_campaign", $utm_campaign);
     
         pushalert_send_notification_curl($title, $message, $url);
     }
 }
 
-function setGetParameter($url, $paramName, $paramValue) {
+function pushalert_setGetParameter($url, $paramName, $paramValue) {
     if ($paramValue == "") {
         return $url;
     }
@@ -372,7 +378,7 @@ function setGetParameter($url, $paramName, $paramValue) {
     return $url;
 }
 
-function pushalert_send_notification_curl($title, $message, $url) {
+function pushalert_send_notification_curl($title, $message, $url, $large_image="") {
     if ($title == "" || $message == "" || $url == "") {
         return false;
     }
@@ -391,7 +397,11 @@ function pushalert_send_notification_curl($title, $message, $url) {
         "url" => $url,
     );
     
-    if(!backgroundPost($curlUrl."?".http_build_query($post_vars))){
+    if($large_image!=""){
+        $post_vars['large_image'] = $large_image;
+    }
+    
+    if(!pushalert_backgroundPost($curlUrl."?".http_build_query($post_vars))){
 
         $headers = Array();
         $headers[] = "Authorization: api_key=" . $apiKey;
@@ -436,7 +446,7 @@ function pushalert_send_to_custom($title, $message, $url, $attr_name, $attr_valu
         $post_vars['action1'] = json_encode($action1);
     }
     
-    if(!backgroundPost($curlUrl."?".http_build_query($post_vars))){
+    if(!pushalert_backgroundPost($curlUrl."?".http_build_query($post_vars))){
 
         $headers = Array();
         $headers[] = "Authorization: api_key=" . $apiKey;
@@ -598,7 +608,7 @@ function pushalert_put_attributes($subscriber_id, $attr_name, $attr_value) {
         "attributes" => json_encode(array($attr_name=>$attr_value))
     );
     
-    if(!backgroundPost($curlUrl."?".http_build_query($post_vars))){
+    if(!pushalert_backgroundPost($curlUrl."?".http_build_query($post_vars))){
 
         $headers = Array();
         $headers[] = "Authorization: api_key=" . $apiKey;
@@ -629,7 +639,7 @@ function pushalert_track_order($order_id, $order_total, $check_pushalert_woo) {
         "source" => $check_pushalert_woo
     );
 
-    if(!backgroundPost($curlUrl."?".http_build_query($post_vars))){
+    if(!pushalert_backgroundPost($curlUrl."?".http_build_query($post_vars))){
         $headers = Array();
         $headers[] = "Authorization: api_key=" . $apiKey;
 
@@ -658,7 +668,7 @@ function pushalert_product_update($product_info) {
         "product_info" => json_encode($product_info)
     );
 
-    if(!backgroundPost($curlUrl."?".http_build_query($post_vars))){
+    if(!pushalert_backgroundPost($curlUrl."?".http_build_query($post_vars))){
         $headers = Array();
         $headers[] = "Authorization: api_key=" . $apiKey;
 
@@ -686,7 +696,7 @@ function pushalert_track_order_shipment($order_info) {
         "order_info" => json_encode($order_info)
     );
 
-    if (!backgroundPost($curlUrl . "?" . http_build_query($post_vars))) {
+    if (!pushalert_backgroundPost($curlUrl . "?" . http_build_query($post_vars))) {
         $headers = Array();
         $headers[] = "Authorization: api_key=" . $apiKey;
 
@@ -716,7 +726,7 @@ function pushalert_add_abandoned_cart($subscriber_id, $user_info = array()) {
         "extra_info" => json_encode($user_info)
     );
 
-    if(!backgroundPost($curlUrl."?".http_build_query($post_vars))){
+    if(!pushalert_backgroundPost($curlUrl."?".http_build_query($post_vars))){
         $headers = Array();
         $headers[] = "Authorization: api_key=" . $apiKey;
 
@@ -747,7 +757,7 @@ function pushalert_remove_abandoned_cart($subscriber_id) {
         "subscriber" => $subscriber_id
     );
     
-    if(!backgroundPost($curlUrl."?".http_build_query($post_vars))){
+    if(!pushalert_backgroundPost($curlUrl."?".http_build_query($post_vars))){
 
         $headers = Array();
         $headers[] = "Authorization: api_key=" . $apiKey;
@@ -765,7 +775,7 @@ function pushalert_remove_abandoned_cart($subscriber_id) {
     }
 }
 
-function backgroundPost($url){
+function pushalert_backgroundPost($url){
     $apiKey = get_option('pushalert_api_key');
     if (!$apiKey) {
         return false;
@@ -926,11 +936,11 @@ function pushalert_init_options() {
     background: white;
     color: black;
 }');
-        add_option('pushalert_encrypt_key', generateRandomString());
+        add_option('pushalert_encrypt_key', PAGenerateRandomString());
     }
 }
 
-function generateRandomString($length = 16) {
+function PAGenerateRandomString($length = 16) {
     $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
     $charactersLength = strlen($characters);
     $randomString = '';
@@ -1163,7 +1173,7 @@ function pa_get_settings() {
     return apply_filters( 'woocommerce_settings_pushalert_settings', $settings );
 }*/
 
-function register_normal_send_notification_menu_page() {
+function pa_register_normal_send_notification_menu_page() {
     //add_menu_page('Send Notifications - PushAlert', 'Send Notification', 'manage_options', 'pushalert-send-notification', 'pushalert_send_notifications_callback', 'data:image/svg+xml;base64,PHN2ZyBpZD0iTGF5ZXJfMSIgZGF0YS1uYW1lPSJMYXllciAxIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0MCA0MCI+PHRpdGxlPlB1c2hBbGVydC1Mb2dvPC90aXRsZT48ZyBpZD0iRm9ybWFfMSIgZGF0YS1uYW1lPSJGb3JtYSAxIj48ZyBpZD0iRm9ybWFfMS0yIiBkYXRhLW5hbWU9IkZvcm1hIDEtMiI+PHBhdGggZD0iTTIwLDM3LjQ5YzIuNzIsMCw0LjkzLTEuNjksNC45My0zLjA3SDE1QzE1LDM1LjgsMTcuMjUsMzcuNDksMjAsMzcuNDlabTEyLjcxLTcuMjNoMEE4LjQsOC40LDAsMCwxLDMwLDI0LjA3VjE3LjcxYTEwLDEwLDAsMCwwLTYuMzItOS4yOVY2LjE5YTMuNjgsMy42OCwwLDAsMC03LjM2LDBWOC40MkExMCwxMCwwLDAsMCwxMCwxNy43MXY2LjM1YTguNCw4LjQsMCwwLDEtMi43MSw2LjE5aDBhMS41MywxLjUzLDAsMCwwLDEsMi43M2gyMy41QTEuNTMsMS41MywwLDAsMCwzMi42OCwzMC4yNlpNMjAsNy41OGExLjY2LDEuNjYsMCwxLDEsMS42Ni0xLjY2QTEuNjYsMS42NiwwLDAsMSwyMCw3LjU4Wk0zMC43Nyw1TDI5LjgzLDYuNDNhMTIuMiwxMi4yLDAsMCwxLDUuMjksOGwxLjY5LS4zYTEzLjkyLDEzLjkyLDAsMCwwLTYtOS4xNGgwWk0xMC4wOSw2LjQzTDkuMTQsNWExMy45MiwxMy45MiwwLDAsMC02LDkuMTRsMS42OSwwLjNhMTIuMiwxMi4yLDAsMCwxLDUuMjgtOGgwWiIgZmlsbD0iI2ZmZiIvPjwvZz48L2c+PC9zdmc+', 30);
     
     add_menu_page('PushAlert - Web Push Notifications', 'PushAlert', 'manage_options', 'pushalert-web-push-notifications', 'pushalert_stats_callback', 'data:image/svg+xml;base64,PHN2ZyBpZD0iTGF5ZXJfMSIgZGF0YS1uYW1lPSJMYXllciAxIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0MCA0MCI+PHRpdGxlPlB1c2hBbGVydC1Mb2dvPC90aXRsZT48ZyBpZD0iRm9ybWFfMSIgZGF0YS1uYW1lPSJGb3JtYSAxIj48ZyBpZD0iRm9ybWFfMS0yIiBkYXRhLW5hbWU9IkZvcm1hIDEtMiI+PHBhdGggZD0iTTIwLDM3LjQ5YzIuNzIsMCw0LjkzLTEuNjksNC45My0zLjA3SDE1QzE1LDM1LjgsMTcuMjUsMzcuNDksMjAsMzcuNDlabTEyLjcxLTcuMjNoMEE4LjQsOC40LDAsMCwxLDMwLDI0LjA3VjE3LjcxYTEwLDEwLDAsMCwwLTYuMzItOS4yOVY2LjE5YTMuNjgsMy42OCwwLDAsMC03LjM2LDBWOC40MkExMCwxMCwwLDAsMCwxMCwxNy43MXY2LjM1YTguNCw4LjQsMCwwLDEtMi43MSw2LjE5aDBhMS41MywxLjUzLDAsMCwwLDEsMi43M2gyMy41QTEuNTMsMS41MywwLDAsMCwzMi42OCwzMC4yNlpNMjAsNy41OGExLjY2LDEuNjYsMCwxLDEsMS42Ni0xLjY2QTEuNjYsMS42NiwwLDAsMSwyMCw3LjU4Wk0zMC43Nyw1TDI5LjgzLDYuNDNhMTIuMiwxMi4yLDAsMCwxLDUuMjksOGwxLjY5LS4zYTEzLjkyLDEzLjkyLDAsMCwwLTYtOS4xNGgwWk0xMC4wOSw2LjQzTDkuMTQsNWExMy45MiwxMy45MiwwLDAsMC02LDkuMTRsMS42OSwwLjNhMTIuMiwxMi4yLDAsMCwxLDUuMjgtOGgwWiIgZmlsbD0iI2ZmZiIvPjwvZz48L2c+PC9zdmc+', 30);
@@ -1173,7 +1183,7 @@ function register_normal_send_notification_menu_page() {
     
     add_submenu_page('pushalert-web-push-notifications', 'General Settings - PushAlert', 'General Settings', 'manage_options', 'pushalert-general-settings', 'pushalert_general_settings_callback');
     
-    if (isWooCommerceEnable()) {
+    if (isPAWooCommerceEnable()) {
         add_submenu_page('pushalert-web-push-notifications', 'WooCommerce Settings - PushAlert', 'WooCommerce Settings', 'manage_options', 'pushalert-woocommerce-settings', 'pushalert_woocommerce_settings_callback');
     }
 }
@@ -1474,7 +1484,7 @@ function pushalert_stats_callback() {
             });
     </script>
 <?php
-    add_filter('admin_footer_text', 'replace_footer_admin');
+    add_filter('admin_footer_text', 'pushalert_replace_footer_admin');
 }
 
 function pushalert_send_notifications_callback() {
@@ -1491,10 +1501,10 @@ function pushalert_send_notifications_callback() {
             $notification_message = filter_input(INPUT_POST, 'woocommerce_pushalert_send_notification_message');
             $notification_url = filter_input(INPUT_POST, 'woocommerce_pushalert_send_notification_url');
             
-            if (isWooCommerceEnable() && get_option('_pushalert_send_to_custom', 0)) {
+            if (isPAWooCommerceEnable() && get_option('_pushalert_send_to_custom', 0)) {
                 $user_id = trim(filter_input(INPUT_POST, 'woocommerce_pushalert_send_notification_user_id'));
                 if($user_id==="0"){
-                    $notification_url = setGetParameter($notification_url, 'pushalert_source', 'dn');
+                    $notification_url = pushalert_setGetParameter($notification_url, 'pushalert_source', 'dn');
                     pushalert_send_notification_curl($notification_title, $notification_message, $notification_url);
                 }
                 else{
@@ -1509,7 +1519,7 @@ function pushalert_send_notifications_callback() {
                     }
 
                     if($success){
-                        $notification_url = setGetParameter($notification_url, 'pushalert_source', 'dn');
+                        $notification_url = pushalert_setGetParameter($notification_url, 'pushalert_source', 'dn');
                         pushalert_send_to_custom($notification_title, $notification_message, $notification_url, 'user_id', $user_id);
                     }
                 }
@@ -1529,7 +1539,7 @@ function pushalert_send_notifications_callback() {
     echo '<form method="POST" action="">
         <table class="form-table">';
     
-    if (isWooCommerceEnable() && get_option('_pushalert_send_to_custom', 0)) {
+    if (isPAWooCommerceEnable() && get_option('_pushalert_send_to_custom', 0)) {
         echo'   <tr valign="top">
                 <th scope="row" class="titledesc">
                     <label for="woocommerce_pushalert_send_notification_user_id">User ID or Email</label>
@@ -1570,7 +1580,7 @@ function pushalert_send_notifications_callback() {
         wp_nonce_field( plugin_basename(__FILE__), 'pushalert-submenu-page-save-nonce' );
         echo '</form>';
         
-        add_filter('admin_footer_text', 'replace_footer_admin');
+        add_filter('admin_footer_text', 'pushalert_replace_footer_admin');
 }
 
 function pushalert_general_settings_callback(){
@@ -1595,6 +1605,13 @@ function pushalert_general_settings_callback(){
             $pa_utm_medium = pushalert_sanitize_text_field(filter_input(INPUT_POST, 'pushalert_utm_medium'));
             $pa_utm_campaign = pushalert_sanitize_text_field(filter_input(INPUT_POST, 'pushalert_utm_campaign'));
             
+            if (isset($_POST['pushalert_large_image']) && is_numeric($_POST['pushalert_large_image']) && $_POST['pushalert_large_image'] == 1) {
+                $pa_large_image = 1; 
+            }
+            else{
+                $pa_large_image = 0; 
+            }
+            
             update_option('pushalert_web_id', $pa_web_id);
             update_option('pushalert_api_key', $pa_api_key);
             update_option('pushalert_default_title', $pa_default_title);
@@ -1603,7 +1620,9 @@ function pushalert_general_settings_callback(){
             update_option('pushalert_utm_medium', $pa_utm_medium);
             update_option('pushalert_utm_campaign', $pa_utm_campaign);
             
-            isWooCommerceEnable(true);
+            update_option('pushalert_large_image', $pa_large_image);
+            
+            isPAWooCommerceEnable(true);
             
             echo '<div class="updated"><p>Changes saved successfully!</p></div>';
             
@@ -1642,6 +1661,13 @@ function pushalert_general_settings_callback(){
                 <th scope="row">Name</th>
                 <td><input type="text" name="pushalert_utm_campaign" size="64" maxlength="32" value="<?php echo esc_attr(get_option('pushalert_utm_campaign')); ?>" placeholder="pushalert_campaign"/></td>
             </tr>
+            
+            <tr><th scope="row"><h3>Others</h3></th></tr>
+            <tr>
+                <th scope="row" colspan="2">
+                    <label><input type="checkbox" name="pushalert_large_image" <?php if(get_option('pushalert_large_image', 0)){echo 'checked';} ?> value="1"/> Add featured image as a large image in notifications (only for HTTPS websites)</label>
+                </th>
+            </tr>
         </table>
     <?php
         submit_button( 'Save Changes', 'primary', 'pa-save-changes' );
@@ -1650,7 +1676,7 @@ function pushalert_general_settings_callback(){
     </form>
     <?php
    
-    add_filter('admin_footer_text', 'replace_footer_admin');
+    add_filter('admin_footer_text', 'pushalert_replace_footer_admin');
 }
 
 function pushalert_woocommerce_settings_callback(){
@@ -1734,13 +1760,13 @@ function pushalert_woocommerce_settings_callback(){
     </form>
     <?php
    
-    add_filter('admin_footer_text', 'replace_footer_admin');
+    add_filter('admin_footer_text', 'pushalert_replace_footer_admin');
 }
 
 function pa_check_product_page(){
     if(is_product()){
         global $product;
-        if(woocommerce_version_check()){
+        if(pa_woocommerce_version_check()){
             $product_id = $product->get_id();
         }
         else{
@@ -1865,7 +1891,7 @@ function pa_get_root_domain() {
     return false;
 }
 
-function woocommerce_version_check( $version = '2.6' ) {
+function pa_woocommerce_version_check( $version = '2.6' ) {
     global $woocommerce;
     if( version_compare( $woocommerce->version, $version, ">=" ) ) {
         return true;
